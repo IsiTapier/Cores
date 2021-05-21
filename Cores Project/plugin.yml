@@ -4,3 +4,7 @@ version: 1.0
 api-version: 1.16
 authors: [IsiTapier, OfCores]
 commands:
+  cores:
+      description: Command to configure Cores
+      aliases: c
+      
