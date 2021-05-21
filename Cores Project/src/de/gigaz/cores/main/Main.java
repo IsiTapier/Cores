@@ -1,4 +1,4 @@
-package de.ofcores.cores.main;
+package de.gigaz.cores.main;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

@@ -1,5 +1,5 @@
 name: Cores
-main: de.ofcores.cores.main.Main
+main: de.gigaz.cores.main.Main
 version: 1.0
 api-version: 1.16
 authors: [IsiTapier, OfCores]
