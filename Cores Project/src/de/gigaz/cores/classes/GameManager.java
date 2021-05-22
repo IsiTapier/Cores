@@ -2,6 +2,7 @@ package de.gigaz.cores.classes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -24,6 +25,7 @@ public class GameManager {
 	private EndingState endingState;
 	private ArrayList<Block> breakedBlocks = new ArrayList<Block>();
 	private ArrayList<Block> builtBlocks = new ArrayList<Block>();
+
 	
 	private World map;
 	private boolean coreBlue1 = true;
@@ -83,6 +85,21 @@ public class GameManager {
 		Bukkit.broadcastMessage(Main.PREFIX+" "+team.getDisplayColor()+" won");
 		
 	}
+	
+	public ArrayList<Player> getPlayersOfTeam(Team team) {
+		ArrayList<Player> players = new ArrayList<Player>();
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			if(Main.getPlugin().getGameManager().getPlayerProfile(player).getTeam() == team) {
+				players.add(player);
+			}
+		}		
+		return players;
+	}
+	public List<Player> getPlayersOfTeamAsList(Team team) {
+		List<Player> players = getPlayersOfTeam(team);
+		return players;
+	}
+	
 
 	public HashMap<String, PlayerProfile> getPlayerProfiles() {
 		return playerProfiles;
@@ -119,7 +136,7 @@ public class GameManager {
 	public void removePlayer(Player player) {
 		playerProfiles.remove(player.getName(), new PlayerProfile(player));
 	}
-
+ 
 	public LobbyState[] getGameStates() {
 		return gameStates;
 	}

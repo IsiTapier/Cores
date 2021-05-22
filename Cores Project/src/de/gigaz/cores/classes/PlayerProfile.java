@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.bukkit.entity.Player;
 
 import de.gigaz.cores.util.Team;
+import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.Inventories;
 
 public class PlayerProfile {

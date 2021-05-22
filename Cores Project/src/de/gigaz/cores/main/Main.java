@@ -23,7 +23,9 @@ import de.gigaz.cores.listeners.BreakBlockListener;
 import de.gigaz.cores.listeners.BuildBlockListener;
 import de.gigaz.cores.listeners.ConnectionListener;
 import de.gigaz.cores.listeners.DropListener;
+import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
+import de.gigaz.cores.listeners.PlayerInteractListener;
 import net.minecraft.server.v1_16_R3.WorldGenerator;
 
 public class Main extends JavaPlugin {
@@ -45,6 +47,8 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new ConnectionListener(), this);
 		pluginManager.registerEvents(new DropListener(), this);
 		pluginManager.registerEvents(new MoveListener(), this);
+		pluginManager.registerEvents(new PlayerInteractListener(), this);
+		pluginManager.registerEvents(new InventoryClickListener(), this);
 	}
 	
 	
