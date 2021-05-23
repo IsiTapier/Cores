@@ -1,6 +1,7 @@
 package de.gigaz.cores.classes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -24,14 +25,15 @@ public class EndingState {
 	public static void replaceBlocks() {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		
-		for(Block block : gameManager.getBuiltBlocks()) {
-			block.setType(Material.AIR);
+		for(Location location : gameManager.getBuiltBlocks()) {
+			location.getBlock().setType(Material.AIR);
 		}
-		for(Block block : gameManager.getBreakedBlocks()) {
-			if(gameManager.getBuiltBlocks().contains(block))
-				block.getLocation().getBlock().setType(block.getType());
+		for(Location location : gameManager.getBreakedBlocks().keySet()) {
+			if(gameManager.getBuiltBlocks().contains(location))
+				location.getBlock().getLocation().getBlock().setType(gameManager.getBreakedBlocks().get(location));
 		}
-
+		gameManager.getBuiltBlocks().clear();
+		gameManager.getBreakedBlocks().clear();
 		
 	}
 	public static void teleportPlayers() {

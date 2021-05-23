@@ -13,11 +13,14 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.gigaz.cores.classes.GameManager;
+import de.gigaz.cores.classes.PlayerProfile;
+import de.gigaz.cores.commands.CrossCommand;
 import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.listeners.BreakBlockListener;
 import de.gigaz.cores.listeners.BuildBlockListener;
@@ -40,6 +43,7 @@ public class Main extends JavaPlugin {
 		currentGameManager = new GameManager();
 		loadWorlds();
 		getCommand("cores").setExecutor(new MainCommand());
+		getCommand("cross").setExecutor(new CrossCommand());
 		
 		PluginManager pluginManager = Bukkit.getPluginManager();
 		pluginManager.registerEvents(new BreakBlockListener(), this);
@@ -49,6 +53,10 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new MoveListener(), this);
 		pluginManager.registerEvents(new PlayerInteractListener(), this);
 		pluginManager.registerEvents(new InventoryClickListener(), this);
+		
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			currentGameManager.getPlayerProfiles().put(player.getName(), new PlayerProfile(player));
+		}
 	}
 	
 	

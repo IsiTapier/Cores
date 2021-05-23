@@ -12,7 +12,7 @@ public class BuildBlockListener implements Listener {
 	@EventHandler
 	public void onBuild(BlockPlaceEvent event) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
-		if(!gameManager.getBuiltBlocks().contains(event.getBlock()))
-			gameManager.getBuiltBlocks().add(event.getBlock());	
+		if(!gameManager.getBuiltBlocks().contains(event.getBlock().getLocation()))
+			gameManager.getBuiltBlocks().add(event.getBlock().getLocation());	
 	}
 }

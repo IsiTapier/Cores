@@ -29,6 +29,11 @@ public class BreakBlockListener implements Listener {
 			Team team = gameManager.getPlayerProfile(player).getTeam();
 			World world = gameManager.getMap();
 			Location location = event.getBlock().getLocation();
+			
+			if(!gameManager.getBuiltBlocks().contains(location)) {
+				gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
+				player.sendMessage("registered block at " + location + " with type " + event.getBlock().getType());
+			}
 
 			if(MainCommand.getConfigLocation(team.getOponentColor() + ".core.1", world).equals(location) && gameManager.getCoreState(team.getOponentTeam(), false)) {
 				player.sendMessage(Main.PREFIX + "Du hast einen Core zerstört!");

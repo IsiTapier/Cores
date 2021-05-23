@@ -109,12 +109,22 @@ public class MainCommand implements CommandExecutor {
 	}
 	
 	public static Location getConfigLocation(String root, World world) {
+		return getConfigLocation(root, world, true);
+	}
+	
+	public static Location getConfigLocation(String root, World world, boolean modifyWorld) {
 		FileConfiguration config = Main.getPlugin().getConfig();
-		Location location = config.getLocation(Main.CONFIG_ROOT + "worlds." + world.getName() + "." + root);
-		location.setWorld(Main.getPlugin().getWorld("currentWorld"));
-
+		root = Main.CONFIG_ROOT + "worlds." + world.getName() + "." + root;
+		//Bukkit.broadcastMessage(root);
+		Location location = config.getLocation(root);
+		if(root != null) {
+			if(modifyWorld) {
+				location.setWorld(Main.getPlugin().getWorld("currentWorld"));
+			}
+		}
 		return location;
 	}
+
 	
 	public static void setConfigGeneralLocation(Player player, String root) {
 		FileConfiguration config = Main.getPlugin().getConfig();

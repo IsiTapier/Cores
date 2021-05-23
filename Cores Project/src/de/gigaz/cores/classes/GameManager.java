@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -23,8 +24,8 @@ public class GameManager {
 	private LobbyState lobbyState;
 	private IngameState ingameState;
 	private EndingState endingState;
-	private ArrayList<Block> breakedBlocks = new ArrayList<Block>();
-	private ArrayList<Block> builtBlocks = new ArrayList<Block>();
+	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
+	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
 
 	
 	private World map;
@@ -173,7 +174,7 @@ public class GameManager {
 		this.currentGameState = currentGameState;
 	}
 
-	public ArrayList<Block> getBreakedBlocks() {
+	public HashMap<Location, Material> getBreakedBlocks() {
 		return breakedBlocks;
 	}
 	
@@ -182,15 +183,15 @@ public class GameManager {
 		return location;
 	}
 
-	public void setBreakedBlocks(ArrayList<Block> breakedBlocks) {
+	public void setBreakedBlocks(HashMap<Location, Material> breakedBlocks) {
 		this.breakedBlocks = breakedBlocks;
 	}
 
-	public ArrayList<Block> getBuiltBlocks() {
+	public ArrayList<Location> getBuiltBlocks() {
 		return builtBlocks;
 	}
 
-	public void setBuiltBlocks(ArrayList<Block> builtBlocks) {
+	public void setBuiltBlocks(ArrayList<Location> builtBlocks) {
 		this.builtBlocks = builtBlocks;
 	}
 }
