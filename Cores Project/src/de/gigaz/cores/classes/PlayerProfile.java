@@ -42,6 +42,44 @@ public class PlayerProfile {
 
 	public void setTeam(Team team) {
 		this.team = team;
+		this.player.setPlayerListName(team.getColorCode() + player.getName());
 		Inventories.setLobbyInventory(this);
+	}
+	
+	public void addKill() {
+		kills++;
+	}
+	
+	public void setKills(int number) {
+		kills = number;
+	}
+	
+	public void resetKills() {
+		setKills(0);
+	}
+	
+	public int getKills() {
+		return kills;
+	}
+	
+	public void addDeath() {
+		deaths++;
+	}
+	
+	public void setDeaths(int number) {
+		deaths = number;
+	}
+	
+	public void resetDeaths() {
+		setDeaths(0);
+	}
+	
+	public int getDeaths() {
+		return deaths;
+	}
+	
+	public void resetStats() {
+		resetKills();
+		resetDeaths();
 	}
 }

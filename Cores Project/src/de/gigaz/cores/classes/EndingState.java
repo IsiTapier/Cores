@@ -27,10 +27,14 @@ public class EndingState {
 		
 		for(Location location : gameManager.getBuiltBlocks()) {
 			location.getBlock().setType(Material.AIR);
+			Bukkit.broadcastMessage("cleared " + location.getX());
 		}
 		for(Location location : gameManager.getBreakedBlocks().keySet()) {
-			if(gameManager.getBuiltBlocks().contains(location))
-				location.getBlock().getLocation().getBlock().setType(gameManager.getBreakedBlocks().get(location));
+			Bukkit.broadcastMessage(location.getBlock().getType() + " in list breaked blocks. was " + gameManager.getBreakedBlocks().get(location));
+			if(!gameManager.getBuiltBlocks().contains(location)) {
+				location.getBlock().setType(gameManager.getBreakedBlocks().get(location));
+				Bukkit.broadcastMessage("replaced " + location.getBlock().getType());
+			}
 		}
 		gameManager.getBuiltBlocks().clear();
 		gameManager.getBreakedBlocks().clear();

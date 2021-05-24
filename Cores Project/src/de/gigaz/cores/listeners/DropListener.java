@@ -14,6 +14,7 @@ public class DropListener implements Listener {
 	public void onDrop(PlayerDropItemEvent event) {
 		if(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE)
 			return;
-		event.setCancelled(true);
+		if(!Main.getPlugin().getGameManager().getPlayerProfile(event.getPlayer()).isEditMode())
+			event.setCancelled(true);
 	}
 }

@@ -18,14 +18,17 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import de.gigaz.cores.classes.EndingState;
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.commands.CrossCommand;
 import de.gigaz.cores.commands.MainCommand;
+import de.gigaz.cores.listeners.BasicListeners;
 import de.gigaz.cores.listeners.BreakBlockListener;
 import de.gigaz.cores.listeners.BuildBlockListener;
 import de.gigaz.cores.listeners.ConnectionListener;
 import de.gigaz.cores.listeners.DropListener;
+import de.gigaz.cores.listeners.EntityDamageListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
@@ -33,9 +36,20 @@ import net.minecraft.server.v1_16_R3.WorldGenerator;
 
 public class Main extends JavaPlugin {
 
+	//Todos
+	//
+	// - Change saving of cores
+	// - cant hit teammates
+	// - get Items after round
+	// - some times you get no items
+	
+	
+	
+	
 	public static Main plugin;
 	public static final String CONFIG_ROOT = "cores.";
 	public static final String PREFIX = "§8[§bCores§8] §r";
+	public static final String PERMISSION_DENIED = PREFIX + "§7Dazu hast du §ckeine §7Rechte";
 	public GameManager currentGameManager;
 	
 	public void onEnable() {
@@ -53,6 +67,8 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new MoveListener(), this);
 		pluginManager.registerEvents(new PlayerInteractListener(), this);
 		pluginManager.registerEvents(new InventoryClickListener(), this);
+		pluginManager.registerEvents(new EntityDamageListener(), this);
+		pluginManager.registerEvents(new BasicListeners(), this);
 		
 		for(Player player : Bukkit.getOnlinePlayers()) {
 			currentGameManager.getPlayerProfiles().put(player.getName(), new PlayerProfile(player));
@@ -68,15 +84,15 @@ public class Main extends JavaPlugin {
 			if(worldFiles[i].isDirectory()) {
 				String world = worldFiles[i].getName();
 				if(Bukkit.getWorld(world) == null) {
-					/*Bukkit.createWorld(new WorldCreator(world));
-					Bukkit.getLogger().info(DEBUGPREFIX + "Loaded world '" + world + "' sucessfully!");*/
+					Bukkit.createWorld(new WorldCreator(world));
+					//Bukkit.getLogger().info(DEBUGPREFIX + "Loaded world '" + world + "' sucessfully!");
 				}
 			}
 		}
 	}
 	
 	public void onDisable() {
-		
+		EndingState.replaceBlocks();
 	}
 	
 	public static Main getPlugin() {

@@ -41,13 +41,11 @@ public class InventoryClickListener implements Listener {
 			if(item.getType() == GUIs.getAdminStartGame().getType()) {
 				player.chat("/c start");
 			}
-			
+			event.setCancelled(true);
 			player.closeInventory();
 			
-		} else {
-			return;
 		}
-		event.setCancelled(true);
+	
 	}
 
 }

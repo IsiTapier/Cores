@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import de.gigaz.cores.commands.MainCommand;
@@ -27,12 +28,14 @@ public class GameManager {
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
 	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
 
+	private boolean coreBlue1;
+	private boolean coreBlue2;
+	private boolean coreRed1;
+	private boolean coreRed2;
+	
 	
 	private World map;
-	private boolean coreBlue1 = true;
-	private boolean coreBlue2 = true;
-	private boolean coreRed1 = true;
-	private boolean coreRed2 = true;
+	private ArrayList<Core> cores = new ArrayList<Core>();
 	
 	public GameManager() {
 		//new LobbyState();
@@ -40,8 +43,9 @@ public class GameManager {
 	
 	public void setMap(String name) {
 		//TODO check map valid
-		this.map = Main.getPlugin().getWorld(name);
+		//this.map = Main.getPlugin().getWorld(name);
 		//TODO copy map
+		this.map = Bukkit.getWorld(name);
 	}
 	
 	public void setCoreState(Team team, boolean number, boolean value) {
@@ -76,16 +80,68 @@ public class GameManager {
 	}
 	
 	public void checkWin() {
-		if(coreBlue1 == false && coreBlue2 == false)
+		
+		/*if(coreBlue1 == false && coreBlue2 == false)
 			endGame(Team.RED);
 		else if(coreRed1 == false && coreRed2 == false)
+			endGame(Team.BLUE);*/
+		if(getCores(Team.BLUE).size() == 0) {
 			endGame(Team.BLUE);
+		}
+		if(getCores(Team.RED).size() == 0) {
+			endGame(Team.RED);
+		}
 	}
 	
 	public void endGame(Team team) {
 		Bukkit.broadcastMessage(Main.PREFIX+" "+team.getDisplayColor()+" won");
 		
+		if(currentGameState == GameState.INGAME_STATE) {
+			IngameState.stop();
+		}
 	}
+	
+	public void registerCores() {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		String root = Main.CONFIG_ROOT + "worlds." + map.getName() + ".blue.core.";
+		String name = null;
+		
+		cores.clear(); //new
+		boolean valid = false;
+		for(int x = 0; x <= 30; x++) {
+			if(config.contains(root + x + "")) {
+				Location location = config.getLocation(root + x + "");
+				Bukkit.broadcastMessage("Core" + x);
+				cores.add(new Core(location, Team.BLUE, x + ""));
+				valid = true;
+			}
+		}
+		root = Main.CONFIG_ROOT + "worlds." + map.getName() + ".red.core.";
+		for(int x = 0; x <= 30; x++) {
+			if(config.contains(root + x + "")) {
+				Location location = config.getLocation(root + x + "");
+				Bukkit.broadcastMessage("Core" + x);
+				cores.add(new Core(location, Team.RED, x + ""));
+
+				valid = true;
+			}
+		}
+		if(valid == false) {
+			Bukkit.broadcastMessage(Main.PREFIX + "§7Das Spiel besitzt §ckeine§7 vollständig konfigurierte Map");
+		}
+		
+	}
+	
+	public Core getCore(Location location) {
+		for(Core core : cores) {
+			if(core.getLocation().equals(location)) {
+				return core;
+			}
+		}
+		return null;
+	}
+	
+	
 	
 	public ArrayList<Player> getPlayersOfTeam(Team team) {
 		ArrayList<Player> players = new ArrayList<Player>();
@@ -101,6 +157,21 @@ public class GameManager {
 		return players;
 	}
 	
+	
+	
+	public ArrayList<Core> getCores() {
+		return cores;
+	}
+	
+	public ArrayList<Core> getCores(Team team) {
+		ArrayList<Core> list = new ArrayList<Core>();
+		for(Core core : cores) {
+			if(core.getTeam().equals(team)) {
+				list.add(core);
+			}
+		}
+		return list;
+	}
 
 	public HashMap<String, PlayerProfile> getPlayerProfiles() {
 		return playerProfiles;
@@ -123,6 +194,7 @@ public class GameManager {
 	}
 
 	public void setMap(World map) {
+		
 		this.map = map;
 	}
 	
