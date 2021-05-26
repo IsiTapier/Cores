@@ -83,6 +83,7 @@ public class BreakBlockListener implements Listener {
 			Core core = gameManager.getCore(location);
 			if(core != null) {
 				event.setCancelled(true);
+				Bukkit.broadcastMessage(gameManager.getCores().size() + " size");
 				gameManager.getCores().remove(core);
 				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getNumber() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
 				event.getBlock().setType(Material.BEDROCK);

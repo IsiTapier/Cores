@@ -20,7 +20,7 @@ public class SetCoreCommand {
 		location.setY(block.getLocation().getY() - 1);
 		player.getWorld().getBlockAt(location).setType(Material.BEACON);
 		
-		MainCommand.setConfigLocation(team.getDebugColor() + ".core." + number, location);
+		MainCommand.setConfigLocation(team.getDebugColor() + ".core." + number + ".location", location);
 		if(name != null) {
 			player.sendMessage(Main.PREFIX + "§7Der §7 Core §6" + name + "§7 von " + team.getDisplayColor() + "§7 wurde gesetzt");
 			Core.setConfigCoreName(location, team, number, name);

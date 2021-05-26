@@ -109,23 +109,24 @@ public class GameManager {
 		cores.clear(); //new
 		boolean valid = false;
 		for(int x = 0; x <= 30; x++) {
-			if(config.contains(root + x + "")) {
-				Location location = config.getLocation(root + x + "");
-				Bukkit.broadcastMessage("Core" + x);
+			if(config.contains(root + x + ".location")) {
+				Location location = config.getLocation(root + x + ".location");
+				Bukkit.broadcastMessage("§bCore" + x);
 				cores.add(new Core(location, Team.BLUE, x + ""));
 				valid = true;
 			}
 		}
 		root = Main.CONFIG_ROOT + "worlds." + map.getName() + ".red.core.";
 		for(int x = 0; x <= 30; x++) {
-			if(config.contains(root + x + "")) {
-				Location location = config.getLocation(root + x + "");
-				Bukkit.broadcastMessage("Core" + x);
+			if(config.contains(root + x + ".location")) {
+				Location location = config.getLocation(root + x + ".location");
+				Bukkit.broadcastMessage("§cCore" + x);
 				cores.add(new Core(location, Team.RED, x + ""));
 
 				valid = true;
 			}
 		}
+		Bukkit.broadcastMessage(cores.size() + " size");
 		if(valid == false) {
 			Bukkit.broadcastMessage(Main.PREFIX + "§7Das Spiel besitzt §ckeine§7 vollständig konfigurierte Map");
 		}
