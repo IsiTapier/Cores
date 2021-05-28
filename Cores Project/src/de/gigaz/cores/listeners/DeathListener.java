@@ -19,7 +19,7 @@ public class DeathListener implements Listener {
 			return;
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		World world = gameManager.getMap();
-		Player player = (Player) event.getEntity();
+		Player player = event.getEntity();
 		event.setDeathMessage(null);
 		Team team = gameManager.getPlayerProfile(player).getTeam();
 		Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", world);

@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -27,15 +26,20 @@ public class GameManager {
 	private EndingState endingState;
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
 	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
+	
+	
 
 	private boolean coreBlue1;
 	private boolean coreBlue2;
 	private boolean coreRed1;
 	private boolean coreRed2;
 	
+	private int blockProtectionRadius = 2;
+	private int blockProtectionHeight = 4;
 	
 	private World map;
 	private ArrayList<Core> cores = new ArrayList<Core>();
+	private ArrayList<Core> stockedCores = new ArrayList<Core>();
 	
 	public GameManager() {
 		//new LobbyState();
@@ -48,36 +52,6 @@ public class GameManager {
 		this.map = Bukkit.getWorld(name);
 	}
 	
-	public void setCoreState(Team team, boolean number, boolean value) {
-		if(team.equals(Team.BLUE)) {
-			if(number)
-				coreBlue1 = value;
-			else
-				coreBlue2 = value;
-		} else if(team.equals(Team.RED)) {
-			if(number)
-				coreRed1 = value;
-			else
-				coreRed2 = value;
-		}
-		
-		checkWin();
-	}
-	
-	public boolean getCoreState(Team team, boolean number) {
-		if(team.equals(Team.BLUE)) {
-			if(number)
-				return coreBlue1;
-			else
-				return coreBlue2;
-		} else if(team.equals(Team.RED)) {
-			if(number)
-				return coreRed1;
-			else
-				return coreRed2;
-		}
-		return false;
-	}
 	
 	public void checkWin() {
 		
@@ -111,7 +85,7 @@ public class GameManager {
 		for(int x = 0; x <= 30; x++) {
 			if(config.contains(root + x + ".location")) {
 				Location location = config.getLocation(root + x + ".location");
-				Bukkit.broadcastMessage("§bCore" + x);
+				//Bukkit.broadcastMessage("§bCore" + x);
 				cores.add(new Core(location, Team.BLUE, x + ""));
 				valid = true;
 			}
@@ -120,13 +94,13 @@ public class GameManager {
 		for(int x = 0; x <= 30; x++) {
 			if(config.contains(root + x + ".location")) {
 				Location location = config.getLocation(root + x + ".location");
-				Bukkit.broadcastMessage("§cCore" + x);
+				//Bukkit.broadcastMessage("§cCore" + x);
 				cores.add(new Core(location, Team.RED, x + ""));
 
 				valid = true;
 			}
 		}
-		Bukkit.broadcastMessage(cores.size() + " size");
+		//Bukkit.broadcastMessage(cores.size() + " size");
 		if(valid == false) {
 			Bukkit.broadcastMessage(Main.PREFIX + "§7Das Spiel besitzt §ckeine§7 vollständig konfigurierte Map");
 		}
@@ -142,7 +116,23 @@ public class GameManager {
 		return null;
 	}
 	
+	public void stockCores() {
+		registerCores();
+		stockedCores = getCores();
+	}
+	public ArrayList<Core> getStockedCores() {
+		return stockedCores;
+	}
 	
+	public ArrayList<Core> getStockedCores(Team team) {
+		ArrayList<Core> list = new ArrayList<Core>();
+		for(Core core : stockedCores) {
+			if(core.getTeam().equals(team)) {
+				list.add(core);
+			}
+		}
+		return list;
+	}
 	
 	public ArrayList<Player> getPlayersOfTeam(Team team) {
 		ArrayList<Player> players = new ArrayList<Player>();
@@ -184,6 +174,22 @@ public class GameManager {
 
 	public GameState getCurrentGameState() {
 		return currentGameState;
+	}
+
+	public boolean checkCoreProtection(Location location) {
+		
+		for(Core core : getCores()) {
+			Location coreLocation = core.getLocation();
+			if(coreLocation.getY() - location.getY() <= -blockProtectionHeight) continue;
+			if(coreLocation.getY() - location.getY() >= blockProtectionHeight) continue;
+			location = new Location(location.getWorld(), location.getX(), coreLocation.getY(), location.getZ());
+			if(coreLocation.distance(location) < blockProtectionRadius) {
+				if(location != coreLocation) {
+					return true;
+				}			
+			}		
+		}
+		return false;
 	}
 
 	public void setGameState(GameState gameState) {
@@ -254,6 +260,10 @@ public class GameManager {
 	public Location getLobbySpawn() {
 		Location location = MainCommand.getConfigGeneralLocation("lobbyspawn");
 		return location;
+	}
+	
+	public Location getSpawnOfTeam(Team team, World world) {
+		return MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", world);
 	}
 
 	public void setBreakedBlocks(HashMap<Location, Material> breakedBlocks) {

@@ -27,8 +27,10 @@ public class BuildBlockListener implements Listener {
 			if(!playerProfile.isEditMode()) {
 				if(!gameManager.getBuiltBlocks().contains(event.getBlock().getLocation())) {
 					gameManager.getBuiltBlocks().add(event.getBlock().getLocation());
-
-					
+				}
+				if(gameManager.checkCoreProtection(event.getBlock().getLocation())) {
+					event.setCancelled(true);
+					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
 				}
 			} else {
 				player.sendMessage("§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + event.getPlayer().getWorld());

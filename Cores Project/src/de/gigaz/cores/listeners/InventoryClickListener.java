@@ -1,14 +1,11 @@
 package de.gigaz.cores.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import de.gigaz.cores.main.Main;
@@ -27,7 +24,7 @@ public class InventoryClickListener implements Listener {
 		if(player.getOpenInventory().getTitle().equalsIgnoreCase(Inventories.getAdminTool().getName())) {
 			Bukkit.broadcastMessage(GUIs.getAdminToolInventory().getType().getDefaultTitle());
 			if(item.getType() == GUIs.getAdminEditMode().getType()) {
-				player.sendMessage(Main.PREFIX + "§7edit mode switched");	
+				player.chat("/c edit");	
 			}
 			if(item.getType() == GUIs.getAdminEditTeams().getType()) {
 				player.sendMessage(Main.PREFIX + "§7edit teams");	
@@ -36,7 +33,15 @@ public class InventoryClickListener implements Listener {
 				player.closeInventory();
 				player.sendMessage(player.getOpenInventory().getTitle());
 				player.openInventory(GUIs.getMapSelectInventory());
-				player.sendMessage(player.getOpenInventory().getTitle());
+				Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.getPlugin(), new Runnable() {
+					
+					@Override
+					public void run() {
+						Bukkit.broadcastMessage("runnable");
+						player.sendMessage(player.getOpenInventory().getTitle());
+					}
+				}, 20);
+				
 			}
 			if(item.getType() == GUIs.getAdminStartGame().getType()) {
 				player.chat("/c start");

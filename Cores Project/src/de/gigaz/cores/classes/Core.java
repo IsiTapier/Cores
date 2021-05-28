@@ -12,6 +12,7 @@ public class Core {
 	private Team team;
 	private String number;
 	private String name;
+	private boolean attacked = false;
 
 	public Core(Location location, Team team, String number) {
 		this.location = location;
@@ -24,6 +25,8 @@ public class Core {
 	public static void setConfigCoreName(Location location, Team team, String number, String name) {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		config.set(Main.CONFIG_ROOT + "worlds." + location.getWorld().getName() + "." + team.getDebugColor() + ".core." + number + ".name", name);
+		//config.set(Main.CONFIG_ROOT + "worlds." + location.getWorld().getName() + "." + team.getDebugColor() + ".core." + number + ".name", "testname");
+		Main.getPlugin().saveConfig();
 	}
 	
 	public static void setConfigCoreName(Core core, String name) {
@@ -84,5 +87,14 @@ public class Core {
 			return number;
 		}
 		return name;
+	}
+	
+	public void setAttacked(boolean attacked) {
+		this.attacked = attacked;
+	}
+	
+	public boolean getAttacked() {
+		// TODO Auto-generated method stub
+		return attacked;
 	}
 }

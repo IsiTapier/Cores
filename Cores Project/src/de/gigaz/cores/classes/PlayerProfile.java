@@ -2,10 +2,13 @@ package de.gigaz.cores.classes;
 
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Scoreboard;
 
 import de.gigaz.cores.util.Team;
-import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.Inventories;
 
 public class PlayerProfile {
@@ -14,13 +17,16 @@ public class PlayerProfile {
 	private Team team = Team.UNSET;
 	private int kills = 0;
 	private int deaths = 0;
+	private Scoreboard currentScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+
 	
 	public PlayerProfile(Player player) {
 		this.player = player;
-		Inventories.setLobbyInventory(this);
+
 	}
 	
 	public Player getPlayer() {
+		
 		return player;
 	}
 	
@@ -44,6 +50,14 @@ public class PlayerProfile {
 		this.team = team;
 		this.player.setPlayerListName(team.getColorCode() + player.getName());
 		Inventories.setLobbyInventory(this);
+	}
+
+	public Scoreboard getCurrentScoreboard() {
+		return currentScoreboard;
+	}
+	
+	public void setCurrentScoreboard(Scoreboard scoreboard) {
+		this.currentScoreboard = scoreboard;
 	}
 	
 	public void addKill() {

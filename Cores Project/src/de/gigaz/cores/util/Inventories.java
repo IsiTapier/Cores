@@ -1,10 +1,12 @@
 package de.gigaz.cores.util;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import de.gigaz.cores.classes.PlayerProfile;
 
@@ -30,18 +32,20 @@ public class Inventories {
 			inventory.setItem(3, new ItemBuilder(Material.WARPED_STEM).setAmount(64).build());
 			inventory.setItem(4, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());
 			inventory.setItem(5, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());
-			player.getInventory().setBoots(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build());
-			player.getInventory().setLeggings(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build());
-			player.getInventory().setChestplate(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build());
-			player.getInventory().setHelmet(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build());
+			Color c = Color.fromRGB(0, 0, 255);
+			player.getInventory().setBoots(setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), c));
+			player.getInventory().setLeggings(setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), c));
+			player.getInventory().setChestplate(setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
+			player.getInventory().setHelmet(setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
 		} else if(playerProfile.getTeam().equals(Team.RED)) {
 			inventory.setItem(3, new ItemBuilder(Material.CRIMSON_STEM).setAmount(64).build());
 			inventory.setItem(4, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());
-			inventory.setItem(4, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());
-			player.getInventory().setBoots(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build());
-			player.getInventory().setLeggings(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build());
-			player.getInventory().setChestplate(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build());
-			player.getInventory().setHelmet(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build());
+			inventory.setItem(5, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());
+			Color c = Color.fromRGB(255, 0, 0);
+			player.getInventory().setBoots(setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), c));
+			player.getInventory().setLeggings(setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), c));
+			player.getInventory().setChestplate(setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
+			player.getInventory().setHelmet(setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
 		}
 	}
 	
@@ -85,6 +89,13 @@ public class Inventories {
 
 	public static ItemBuilder getTeamBlueSelector() {
 		return teamBlueSelector;
+	}
+	
+	public static ItemStack setColor(ItemStack armor, Color c) {
+		LeatherArmorMeta meta = (LeatherArmorMeta) armor.getItemMeta();
+		meta.setColor(c);
+		armor.setItemMeta(meta);
+		return armor;
 	}
 	
 	

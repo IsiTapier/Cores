@@ -2,9 +2,7 @@ package de.gigaz.cores.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -39,12 +37,13 @@ public class MainCommand implements CommandExecutor {
 						IngameState.stop();
 						player.sendMessage(Main.PREFIX + "§7Du hast das Spiel beendet");
 					} else if(args[0].equalsIgnoreCase("corelist")) {
-						gameManager.registerCores();
 						player.sendMessage(Main.PREFIX + "§7Core Liste:");
 						for(Core core : gameManager.getCores()) {		
 							player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + " §8(§7Name: §6" + core.getName() + "§8)");
 						}
-						
+					} else if(args[0].equalsIgnoreCase("gamestate")) {
+						player.sendMessage(Main.PREFIX + "§7" + gameManager.getCurrentGameState().getName());
+										
 					} else if(args[0].equalsIgnoreCase("setdeathhight")) {
 						setConfigLocation("deathhight", player.getLocation());
 						player.sendMessage(Main.PREFIX + "§7Du hast die DeathHight auf §6" + Math.round(getConfigLocation("deathhight", player.getWorld()).getY()) + " §7gesetzt");

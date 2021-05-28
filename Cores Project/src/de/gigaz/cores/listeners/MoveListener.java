@@ -13,6 +13,7 @@ import de.gigaz.cores.classes.IngameState;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Team;
 
 public class MoveListener implements Listener {
@@ -26,14 +27,11 @@ public class MoveListener implements Listener {
 		if(!(world == player.getWorld())) {
 			return;
 		}
+		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) return;
 		
-		if(player.getLocation().getY() <= MainCommand.getConfigLocation("deathhight", world).getY()) {
-			Team team = gameManager.getPlayerProfile(player).getTeam();
-			Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", world);
-			player.teleport(location);
-			IngameState.giveItems(gameManager.getPlayerProfile(player));
-			Bukkit.broadcastMessage(Main.PREFIX + playerProfile.getTeam().getColorCode() + player.getName() + "§7 ist gestorben");
-		}
+
+		
+		
 	}
 	
 }

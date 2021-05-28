@@ -28,11 +28,7 @@ public enum Team {
 	public String getColorCode() {
 		return(colorCode);
 	}
-	
-	public String getOponentColor() {
-		return oponentColor;
-	}
-	
+
 	public static Team getTeam(String name) {
 		if(name.equals("red"))
 			return Team.RED;
@@ -42,8 +38,14 @@ public enum Team {
 			return Team.UNSET;
 	}
 	
-	public Team getOponentTeam() {
-		return getTeam(oponentColor);
+	public Team getOponentTeam(Team team) {
+		if(team.equals(Team.BLUE)) {
+			return Team.RED;
+		}
+		if(team.equals(Team.RED)) {
+			return Team.BLUE;
+		}
+		return Team.UNSET;
 	}
 
 }

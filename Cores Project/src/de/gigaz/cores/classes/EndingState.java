@@ -3,11 +3,11 @@ package de.gigaz.cores.classes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Inventories;
 
 public class EndingState {
 	
@@ -27,13 +27,13 @@ public class EndingState {
 		
 		for(Location location : gameManager.getBuiltBlocks()) {
 			location.getBlock().setType(Material.AIR);
-			Bukkit.broadcastMessage("cleared " + location.getX());
+			//Bukkit.broadcastMessage("cleared " + location.getX());
 		}
 		for(Location location : gameManager.getBreakedBlocks().keySet()) {
 			Bukkit.broadcastMessage(location.getBlock().getType() + " in list breaked blocks. was " + gameManager.getBreakedBlocks().get(location));
 			if(!gameManager.getBuiltBlocks().contains(location)) {
 				location.getBlock().setType(gameManager.getBreakedBlocks().get(location));
-				Bukkit.broadcastMessage("replaced " + location.getBlock().getType());
+				//Bukkit.broadcastMessage("replaced " + location.getBlock().getType());
 			}
 		}
 		gameManager.getBuiltBlocks().clear();
@@ -45,6 +45,10 @@ public class EndingState {
 			player.sendMessage(player.getWorld().getName());
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
 			player.sendMessage(player.getWorld().getName());
+			
+			player.setHealth(20);
+			player.setFoodLevel(20);
+			Inventories.setLobbyInventory(Main.getPlugin().getGameManager().getPlayerProfile(player));
 		}
 	}
 }

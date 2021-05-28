@@ -1,13 +1,11 @@
 package de.gigaz.cores.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -24,7 +22,7 @@ public class PlayerInteractListener implements Listener {
 	@EventHandler
 	public void onInventoryInteract(PlayerInteractEvent event) {
 
-		Player player = (Player) event.getPlayer();
+		Player player = event.getPlayer();
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		Block block = event.getClickedBlock();

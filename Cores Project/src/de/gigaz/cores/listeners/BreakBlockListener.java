@@ -13,9 +13,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import de.gigaz.cores.classes.Core;
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
-import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.ScoreboardManager;
 import de.gigaz.cores.util.Team;
 
 public class BreakBlockListener implements Listener {
@@ -35,14 +35,9 @@ public class BreakBlockListener implements Listener {
 			if(!gameManager.getBuiltBlocks().contains(location)) {
 				if(!playerProfile.isEditMode()) {
 					gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
-					for(Core core : gameManager.getCores()) {
-						Location loc = core.getLocation();
-						if(loc.distance(location) < 3 && loc.distance(location) >= 1) {
-							event.setCancelled(true);
-							player.sendMessage(Main.PREFIX + "§7Du kannst hier keine Blöcke abbauen");
-							return;
-						}
-						
+					if(gameManager.checkCoreProtection(location)) {
+						event.setCancelled(true);
+						player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
 					}
 					
 					
@@ -85,9 +80,10 @@ public class BreakBlockListener implements Listener {
 				event.setCancelled(true);
 				Bukkit.broadcastMessage(gameManager.getCores().size() + " size");
 				gameManager.getCores().remove(core);
-				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getNumber() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
+				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
 				event.getBlock().setType(Material.BEDROCK);
 				gameManager.checkWin();
+				ScoreboardManager.drawAll();
 				
 			}
 		}

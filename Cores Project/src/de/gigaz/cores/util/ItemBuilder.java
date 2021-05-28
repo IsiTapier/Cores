@@ -2,7 +2,6 @@ package de.gigaz.cores.util;
 
 import java.util.Arrays;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;

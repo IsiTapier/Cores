@@ -3,7 +3,6 @@ package de.gigaz.cores.commands;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import de.gigaz.cores.classes.Core;
@@ -35,6 +34,6 @@ public class SetCoreCommand {
 	}
 	
 	public SetCoreCommand(Player player, Team team, String number) {		
-		new SetCoreCommand(player, team, number, "");
+		new SetCoreCommand(player, team, number, null);
 	}
 }

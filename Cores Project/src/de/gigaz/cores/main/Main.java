@@ -8,13 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,16 +29,13 @@ import de.gigaz.cores.listeners.EntityDamageListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
-import net.minecraft.server.v1_16_R3.WorldGenerator;
+import de.gigaz.cores.util.ScoreboardManager;
 
 public class Main extends JavaPlugin {
 
 	//Todos
 	//
-	// - Change saving of cores
-	// - cant hit teammates
-	// - get Items after round
-	// - some times you get no items
+	// - Save location of items in inventory
 	
 	
 	
@@ -52,6 +46,7 @@ public class Main extends JavaPlugin {
 	public static final String PERMISSION_DENIED = PREFIX + "§7Dazu hast du §ckeine §7Rechte";
 	public GameManager currentGameManager;
 	
+	@Override
 	public void onEnable() {
 		plugin = this;
 		currentGameManager = new GameManager();
@@ -69,6 +64,7 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new InventoryClickListener(), this);
 		pluginManager.registerEvents(new EntityDamageListener(), this);
 		pluginManager.registerEvents(new BasicListeners(), this);
+		pluginManager.registerEvents(new ScoreboardManager(), this);
 		
 		for(Player player : Bukkit.getOnlinePlayers()) {
 			currentGameManager.getPlayerProfiles().put(player.getName(), new PlayerProfile(player));
@@ -91,6 +87,7 @@ public class Main extends JavaPlugin {
 		}
 	}
 	
+	@Override
 	public void onDisable() {
 		EndingState.replaceBlocks();
 	}
