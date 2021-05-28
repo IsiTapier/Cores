@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -155,4 +157,93 @@ public class Main extends JavaPlugin {
 		currentGameManager.setMap(name);
 		Bukkit.broadcastMessage(PREFIX + "Die Map wurde auf "+name+" gesetzt. copied from "+templateFolder.getName()+" "+worldtemplate.getName()+" "+copyFolder+" "+worldcopy.getName());
 	}
+		
+	public String getFallDeathMessage(PlayerProfile ...player) {
+		Random random = new Random();
+		if(player.length < 1)
+			return "";
+		else if(player.length < 2) {
+			switch(random.nextInt(2)) {
+				case 0: return PREFIX+player[0].getName()+" ist der Schwerkraft zu Opfer gefallen.";
+				case 1: return PREFIX+player[0].getName()+" ist auf dem Boden zerschellt.";
+				default: return "";
+			}
+		} else {
+			switch(random.nextInt(4)) {
+				case 0: return PREFIX+player[0].getName()+" fiel im Kampf mit "+player[1].getName()+" zu tief.";
+				case 1: return PREFIX+player[0].getName()+" wurde von "+player[1].getName()+" von einer Klippe geschmissen.";
+				case 2: return PREFIX+player[0].getName()+" stieß sich im Kampf gegen "+player[1].getName()+" den Kopf.";
+				case 3: return PREFIX+player[0].getName()+" zerschellte bei einer Reiberei mit  "+player[1].getName()+" am Boden.";
+				default: return "";
+			}
+		}
+	}
+	
+	public String getVoidDeathMessage(PlayerProfile player) {
+		Random random = new Random();
+		switch(random.nextInt(3)) {
+			case 0: return PREFIX+player.getName()+" hat sich ins Nichts gestürtzt.";
+			case 1: return PREFIX+player.getName()+" wurde von der Finsternis verschlungen.";
+			case 2: return PREFIX+"§7Keiner hat "+player.getName()+" getötet.";
+			default: return "";
+		}
+	}
+	
+	public String getVoidDeathMessage(PlayerProfile target, PlayerProfile attacker) {
+		Random random = new Random();
+		switch(random.nextInt(2)) {
+			case 0: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" ins Nichts geschmissen.";
+			case 1: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" aus dem Weg geräumt.";
+			default: return "";
+		}
+	}
+	
+	public String getFireDeathMessage(PlayerProfile player) {
+		Random random = new Random();
+			switch(random.nextInt(2)) {
+			case 0: return PREFIX+player.getName()+" ist in Feuer aufgegangen.";
+			case 1: return PREFIX+player.getName()+" fiel den Flammen zu Opfer.";
+			default: return "";
+		}
+	}
+	
+	public String getFireDeathMessage(PlayerProfile target, PlayerProfile attacker) {
+		Random random = new Random();
+		switch(random.nextInt(2)) {
+			case 0: return PREFIX+target.getName()+" wurde im Kampf mit "+attacker.getName()+" verbrannt.";
+			case 1: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" angezündet.";
+			default: return "";
+		}
+	}
+	
+	public String getPVPDeathMessage(PlayerProfile target, PlayerProfile attacker) {
+		Random random = new Random();
+		switch(random.nextInt(3)) {
+			case 0: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" geschnetzelt.";
+			case 1: return PREFIX+target.getName()+" ist im Kampf mit "+attacker.getName()+" gefallen.";
+			case 2: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" eliminiert.";
+			default: return "";
+		}
+	}
+	
+	public String getBowDeathMessage(PlayerProfile target, PlayerProfile attacker) {
+		Random random = new Random();
+		switch(random.nextInt(3)) {
+			case 0: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" erschossen.";
+			case 1: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" durchlöchert.";
+			case 2: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" mit Robin Hoods Lieblings-Waffe aufgespießt.";
+			default: return "";
+		}
+	}
+	
+	/*public String getFallDeathMessage(PlayerProfile attacker, PlayerProfile target) {
+		Random random = new Random();
+		switch(random.nextInt(4)) {
+			case 0: return PREFIX+target.getName()+" fiel im Kampf mit "+attacker.getName()+" zu tief.";
+			case 1: return PREFIX+target.getName()+" wurde von "+attacker.getName()+" von einer Klippe geschmissen.";
+			case 2: return PREFIX+target.getName()+" stieß sich im Kampf gegen "+attacker.getName()+" den Kopf.";
+			case 3: return PREFIX+target.getName()+" zerschellte bei einer Reiberei mit  "+attacker.getName()+" âm Bode.";
+			default: return "";
+		}
+	}*/
 }

@@ -86,36 +86,66 @@ public class IngameState {
 			
 			@Override
 			public void run() {
+
+				for(Core core : gameManager.getCores()) {
+					boolean requestAttacked = false;
+					for(Player player : gameManager.getMap().getPlayers()) {
+						PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
+						
+						if(core.getTeam() != playerProfile.getTeam()) {
+							if(core.getLocation().distance(player.getLocation()) <= 7) {
+								if(core.isAttacked() == false) {
+									requestAttacked = true;
+									Bukkit.broadcastMessage("requested true attacked");
+								}
+							}
+						}
+					}
+					if(requestAttacked == true) {
+						if(core.isAttacked() == false) {
+							core.setAttacked(true);
+							for(Player loopPlayer : gameManager.getMap().getPlayers()) {
+								Team loopTeam = gameManager.getPlayerProfile(loopPlayer).getTeam();
+								if(core.getTeam() == loopTeam) {
+									loopPlayer.sendMessage(Main.PREFIX + "§4Der Core §6" + core.getDisplayName()+ "§4 wird attackiert");
+								}
+							}
+							
+							ScoreboardManager.drawAll();
+						}
+						core.setAttacked(true);
+					} else {
+						if(core.isAttacked() == true) {
+							core.setAttacked(false);
+							ScoreboardManager.drawAll();
+							Bukkit.broadcastMessage("stopped score attack");
+						}
+						core.setAttacked(false);
+					}
+					if(core.isAttacked()) {
+						playSound(core);							
+					}
+				}				
 				for(Player player : gameManager.getMap().getPlayers()) {
 					PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 					Team team = playerProfile.getTeam();
-					for(Core core : gameManager.getCores()) {
-						core.setAttacked(false);
-						if(core.getTeam() != playerProfile.getTeam()) {
-							if(core.getLocation().distance(player.getLocation()) <= 7) {
-								
-								//Bukkit.broadcastMessage(Main.PREFIX + "§7Ein Spieler ist bei " + team.getOponentTeam(team).getDisplayColor() + "§7 eingedrungen");
-								core.setAttacked(true);
-							}						
-						}
-						if(core.getAttacked()) {
-							playSound(core);
-							ScoreboardManager.drawAll();
-						}
-					}
-					
-					
 					if(player.getLocation().getY() <= MainCommand.getConfigLocation("deathhight", player.getWorld()).getY()) {
-						
+						if(playerProfile.getLastAttacker() != null) {
+							Player attacker = playerProfile.getLastAttacker();
+							PlayerProfile attackerProfile = Main.getPlugin().getGameManager().getPlayerProfile(attacker);
+							attackerProfile.addKill();
+							ScoreboardManager.draw(attacker);
+							Bukkit.broadcastMessage(Main.getPlugin().getVoidDeathMessage(playerProfile, attackerProfile));
+						} else
+							Bukkit.broadcastMessage(Main.getPlugin().getVoidDeathMessage(playerProfile));
+						playerProfile.addDeath();
+						ScoreboardManager.draw(player);
 						Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", player.getWorld());
 						player.teleport(location);
 						IngameState.giveItems(gameManager.getPlayerProfile(player));
-						Bukkit.broadcastMessage(Main.PREFIX + playerProfile.getTeam().getColorCode() + player.getName() + "§7 ist gestorben");
+						//Bukkit.broadcastMessage(Main.PREFIX + playerProfile.getTeam().getColorCode() + player.getName() + "§7 ist gestorben");
 					}
-					
-					
-					
-					
+							
 					if(Main.getPlugin().getGameManager().getCurrentGameState() != GameState.INGAME_STATE) {
 						Bukkit.getScheduler().cancelTask(checkUpLoopID);
 					}

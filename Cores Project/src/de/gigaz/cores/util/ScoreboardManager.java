@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Objective;	
 import org.bukkit.scoreboard.Scoreboard;
 
 import de.gigaz.cores.classes.Core;
@@ -32,39 +32,59 @@ public class ScoreboardManager implements Listener {
 			int slotsTeamBlue = gameManager.getStockedCores(Team.BLUE).size();
 			int slotsTeamRed = gameManager.getStockedCores(Team.RED).size();
 			int slotsKD = 3;
-			int slotsTeamSpace = 5;
+			int slotsTeamSpace = 2;
+			int slotsDesignSpace = 3;
 			
-
+			/*Bukkit.broadcastMessage("-------------");
+			Bukkit.broadcastMessage("§bblue size stocked:§7 " + gameManager.getStockedCores(Team.BLUE).size());
+			Bukkit.broadcastMessage("§bblue size now: §7" + gameManager.getCores(Team.BLUE).size());
+			Bukkit.broadcastMessage("§cred size stocked: §7" + gameManager.getStockedCores(Team.RED).size());
+			Bukkit.broadcastMessage("§cred size now: §7" + gameManager.getCores(Team.RED).size());*/
 			
-			int totalSlots = slotsTeamBlue + slotsTeamRed + slotsKD + slotsTeamSpace;
+			int totalSlots = slotsTeamBlue + slotsTeamRed + slotsKD + slotsTeamSpace + slotsDesignSpace;
 			
 			objective.getScore("§7Team " + Team.BLUE.getDisplayColor()).setScore(totalSlots); totalSlots--;
 			for(Core core : gameManager.getStockedCores(Team.BLUE)) {
 				if(gameManager.getCores().contains(core)) {
-					if(core.getAttacked()) {
-						objective.getScore("§a✔ §7§lCore §c" + core.getDisplayName()).setScore(totalSlots); totalSlots--;
+					if(core.isAttacked()) {
+						objective.getScore("§e⚠ §6Core §6" + core.getDisplayName() + core.getTeam().getColorCode()).setScore(totalSlots);
 					} else {
-						objective.getScore("§a✔ §7Core §c" + core.getDisplayName()).setScore(totalSlots); totalSlots--;
+						objective.getScore("§a✔ §7Core §6" + core.getDisplayName() + core.getTeam().getColorCode()).setScore(totalSlots);
 					}
 				} else {
-					objective.getScore("§c- §7Core §c" + core.getDisplayName()).setScore(totalSlots); totalSlots--;
+					objective.getScore("§c✘ §7Core §6" + core.getDisplayName() + core.getTeam().getColorCode()).setScore(totalSlots);
 				}			//🞮
+				totalSlots--;
 			}
 			objective.getScore("").setScore(totalSlots); totalSlots--;
 			objective.getScore("§7Team " + Team.RED.getDisplayColor()).setScore(totalSlots); totalSlots--;
 			for(Core core : gameManager.getStockedCores(Team.RED)) {
 				if(gameManager.getCores().contains(core)) {
-					if(core.getAttacked()) {
-						objective.getScore("§a✔ §7§lCore §c" + core.getDisplayName()).setScore(totalSlots); totalSlots--;
+					if(core.isAttacked()) {
+						objective.getScore("§e⚠ §6Core §6" + core.getDisplayName() + core.getTeam().getColorCode()).setScore(totalSlots);
 					} else {
-						objective.getScore("§a✔ §7Core §c" + core.getDisplayName()).setScore(totalSlots); totalSlots--;
+						objective.getScore("§a✔ §7Core §6" + core.getDisplayName() + core.getTeam().getColorCode()).setScore(totalSlots);					
 					}
 				} else {
-					objective.getScore("§c- §7Core §c" + core.getDisplayName()).setScore(totalSlots); totalSlots--;
+					objective.getScore("§c✘ §7Core §6" + core.getDisplayName() + core.getTeam().getColorCode()).setScore(totalSlots);
 				}
+				totalSlots--;
 			}	
+			objective.getScore("     ").setScore(totalSlots); totalSlots--;
+			
+			objective.getScore("§7Kills: §6" + playerProfile.getKills()).setScore(totalSlots); totalSlots--;
+			objective.getScore("§7Tode: §6" + playerProfile.getDeaths()).setScore(totalSlots); totalSlots--;
+			if(playerProfile.getDeaths() == 0) {
+				objective.getScore("§7K/D: §6" + playerProfile.getKills()).setScore(totalSlots); totalSlots--;
+			} else {
+				double kd = (Math.round(playerProfile.getKills()/playerProfile.getDeaths()*100)/100);
+				objective.getScore("§7K/D: §6" + String.valueOf(kd)).setScore(totalSlots); totalSlots--;
+			}
+			
+			
 			objective.getScore("§8-------------------").setScore(totalSlots); totalSlots--;
 		}
+		
 		if(!playerProfile.getCurrentScoreboard().equals(scoreboard)) {	
 			player.setScoreboard(scoreboard);
 			playerProfile.setCurrentScoreboard(scoreboard);

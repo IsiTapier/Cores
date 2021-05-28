@@ -43,15 +43,25 @@ public class GameManager {
 	
 	public GameManager() {
 		//new LobbyState();
+		this.map = getMap();
 	}
 	
 	public void setMap(String name) {
 		//TODO check map valid
 		//this.map = Main.getPlugin().getWorld(name);
 		//TODO copy map
+		FileConfiguration config = Main.getPlugin().getConfig();
+		config.set(Main.CONFIG_ROOT + "currentMap", name);
 		this.map = Bukkit.getWorld(name);
+		Main.getPlugin().saveConfig();
 	}
 	
+	public World getMap() {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		String name = config.getString(Main.CONFIG_ROOT + "currentMap");
+		Main.getPlugin().saveConfig();
+		return Bukkit.getWorld(name);
+	}
 	
 	public void checkWin() {
 		
@@ -118,7 +128,10 @@ public class GameManager {
 	
 	public void stockCores() {
 		registerCores();
-		stockedCores = getCores();
+		stockedCores.clear();
+		for(Core core : getCores()) {
+			stockedCores.add(core);
+		}
 	}
 	public ArrayList<Core> getStockedCores() {
 		return stockedCores;
@@ -194,10 +207,6 @@ public class GameManager {
 
 	public void setGameState(GameState gameState) {
 		this.currentGameState = gameState;
-	}
-
-	public World getMap() {
-		return map;
 	}
 
 	public void setMap(World map) {

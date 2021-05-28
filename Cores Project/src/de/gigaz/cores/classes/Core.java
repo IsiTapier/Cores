@@ -13,6 +13,7 @@ public class Core {
 	private String number;
 	private String name;
 	private boolean attacked = false;
+	private boolean wasAttacked = false;
 
 	public Core(Location location, Team team, String number) {
 		this.location = location;
@@ -93,8 +94,14 @@ public class Core {
 		this.attacked = attacked;
 	}
 	
-	public boolean getAttacked() {
+	public boolean isAttacked() {
 		// TODO Auto-generated method stub
 		return attacked;
+	}
+	public boolean wasAttacked() {
+		return wasAttacked;
+	}
+	public void setWasAttacked(boolean wasAttacked) {
+		this.wasAttacked = wasAttacked;
 	}
 }
