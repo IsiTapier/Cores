@@ -3,7 +3,7 @@ package de.gigaz.cores.util;
 public enum Team {
 	BLUE("§9Blau§r", "blue", "§9", "red"),
 	RED("§cRot§r", "red", "§c", "blue"),
-	UNSET("§7Unset§r", "unset", "§7", "");
+	UNSET("§7Niemand§r", "unset", "§7", "");
 	
 	private String displayColor;
 	private String debugColor;

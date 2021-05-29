@@ -3,6 +3,7 @@ package de.gigaz.cores.classes;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -12,6 +13,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import de.gigaz.cores.util.Team;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.Inventories;
+import de.gigaz.cores.util.ItemBuilder;
 
 public class PlayerProfile {
 	private Player player;
@@ -21,11 +23,22 @@ public class PlayerProfile {
 	private int deaths = 0;
 	private Scoreboard currentScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 	private Player lastAttacker;
+	private Inventory inventory;
 
 	
 	public PlayerProfile(Player player) {
 		this.player = player;
-
+		inventory = Bukkit.createInventory(null, 1*9, "customize inventory");
+		inventory.setItem(0, new ItemBuilder(Material.STONE_SWORD).setBreakable(false).build());
+		inventory.setItem(1, new ItemBuilder(Material.BOW).setBreakable(false).build());
+		inventory.setItem(2, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
+		inventory.setItem(3, new ItemBuilder(Material.OAK_LOG).setAmount(64).build());
+		inventory.setItem(4, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
+		inventory.setItem(5, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
+		//inventory.setItem(5, new ItemBuilder(Material.BEEF).setAmount(64).build());
+		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).build());
+		inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(12).build());
+		inventory.setItem(8, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build());
 	}
 	
 	public Player getPlayer() {
@@ -121,5 +134,13 @@ public class PlayerProfile {
 	
 	public String getName() {
 		return getTeam().getColorCode()+getPlayer().getName()+"§7";
+	}
+	
+	public Inventory getInventory() {
+		return inventory;
+	}
+	
+	public void setInventory(Inventory inventory) {
+		this.inventory = inventory;
 	}
 }

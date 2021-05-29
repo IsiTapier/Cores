@@ -7,6 +7,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -26,7 +27,7 @@ public class GameManager {
 	private EndingState endingState;
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
 	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
-	
+
 	
 
 	private boolean coreBlue1;
@@ -60,28 +61,25 @@ public class GameManager {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		String name = config.getString(Main.CONFIG_ROOT + "currentMap");
 		Main.getPlugin().saveConfig();
+		if(name == null) return null;
 		return Bukkit.getWorld(name);
 	}
 	
-	public void checkWin() {
-		
-		/*if(coreBlue1 == false && coreBlue2 == false)
-			endGame(Team.RED);
-		else if(coreRed1 == false && coreRed2 == false)
-			endGame(Team.BLUE);*/
+	public boolean checkWin() {
 		if(getCores(Team.BLUE).size() == 0) {
 			endGame(Team.BLUE);
+			return true;
 		}
 		if(getCores(Team.RED).size() == 0) {
 			endGame(Team.RED);
+			return true;
 		}
+		return false;
 	}
 	
 	public void endGame(Team team) {
-		Bukkit.broadcastMessage(Main.PREFIX+" "+team.getDisplayColor()+" won");
-		
 		if(currentGameState == GameState.INGAME_STATE) {
-			IngameState.stop();
+			IngameState.stop(team);
 		}
 	}
 	
@@ -161,7 +159,35 @@ public class GameManager {
 		return players;
 	}
 	
-	
+	public boolean checkMap(World world) {
+		boolean valid = true;
+		FileConfiguration config = Main.getPlugin().getConfig();
+		String root = Main.CONFIG_ROOT + "worlds." + world.getName() + ".";
+		if(!config.contains(root + "blue.spawn")) {
+			Bukkit.broadcastMessage("blue spawn");
+			valid = false;
+			}
+		if(!config.contains(root + "red.spawn")) {
+			Bukkit.broadcastMessage("red spawn");
+			valid = false;
+			}
+		if(!config.contains(root + "red.core")) {
+			Bukkit.broadcastMessage("red core");
+			valid = false;
+			}
+		if(!config.contains(root + "blue.core")) {
+			Bukkit.broadcastMessage("blue core");
+			valid = false;
+			}
+		if(!config.contains(root + "deathhight")) {
+			Bukkit.broadcastMessage("deathhight");
+			valid = false;
+			}
+		if(valid == false) {
+			Bukkit.broadcastMessage("§8[§fHinweis§8]§7 Die Map §6" + world.getName() + "§7 ist noch §cnicht§7 vollständig konfiguriert");
+		}
+		return valid;
+	}
 	
 	public ArrayList<Core> getCores() {
 		return cores;
@@ -190,7 +216,6 @@ public class GameManager {
 	}
 
 	public boolean checkCoreProtection(Location location) {
-		
 		for(Core core : getCores()) {
 			Location coreLocation = core.getLocation();
 			if(coreLocation.getY() - location.getY() <= -blockProtectionHeight) continue;
@@ -210,7 +235,6 @@ public class GameManager {
 	}
 
 	public void setMap(World map) {
-		
 		this.map = map;
 	}
 	
@@ -285,6 +309,16 @@ public class GameManager {
 
 	public void setBuiltBlocks(ArrayList<Location> builtBlocks) {
 		this.builtBlocks = builtBlocks;
+	}
+	
+	public void playSound(Sound sound, World world, int tone) {
+		for(Player player : world.getPlayers()) {
+			player.playSound(player.getLocation(), sound, tone, 1);
+			
+		}
+	}
+	public void playSound(Sound sound, World world) {
+		playSound(sound, world, 5);
 	}
 }
   

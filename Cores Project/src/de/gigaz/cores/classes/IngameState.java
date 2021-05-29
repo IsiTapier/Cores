@@ -35,8 +35,9 @@ public class IngameState {
 		
 		checkUpLoop();
 	}	
-	public static void stop() {
-		EndingState.start();
+	
+	public static void stop(Team team) {
+		EndingState.start(team);
 	}
 	
 	public static void giveItems(PlayerProfile playerProfile) {
@@ -58,13 +59,8 @@ public class IngameState {
 		if(playerProfile.getTeam() == Team.RED) {
 			location = MainCommand.getConfigLocation("red.spawn", world);
 		}
-		World lastWorld = player.getWorld();
 		player.teleport(location);
-		player.sendMessage(player.getWorld().getName());
-		if(lastWorld == player.getWorld()) {
-			player.sendMessage("du bist in der selben Welt");
-		}
-		
+		player.sendMessage(player.getWorld().getName());	
 	}
 	
 	public static void deactivateEditMode(PlayerProfile playerProfile) {
@@ -86,45 +82,36 @@ public class IngameState {
 			
 			@Override
 			public void run() {
-
+				
 				for(Core core : gameManager.getCores()) {
 					boolean requestAttacked = false;
 					for(Player player : gameManager.getMap().getPlayers()) {
 						PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
-						
 						if(core.getTeam() != playerProfile.getTeam()) {
-							if(core.getLocation().distance(player.getLocation()) <= 7) {
-								if(core.isAttacked() == false) {
-									requestAttacked = true;
-									Bukkit.broadcastMessage("requested true attacked");
-								}
-							}
+							if(core.getLocation().distance(player.getLocation()) <= 7)
+								requestAttacked = true;
 						}
 					}
-					if(requestAttacked == true) {
-						if(core.isAttacked() == false) {
+					
+					if(requestAttacked) {
+						if(!core.isAttacked()) {
 							core.setAttacked(true);
 							for(Player loopPlayer : gameManager.getMap().getPlayers()) {
 								Team loopTeam = gameManager.getPlayerProfile(loopPlayer).getTeam();
-								if(core.getTeam() == loopTeam) {
+								if(core.getTeam() == loopTeam)
 									loopPlayer.sendMessage(Main.PREFIX + "§4Der Core §6" + core.getDisplayName()+ "§4 wird attackiert");
-								}
 							}
-							
 							ScoreboardManager.drawAll();
 						}
 						core.setAttacked(true);
 					} else {
-						if(core.isAttacked() == true) {
+						if(core.isAttacked()) {
 							core.setAttacked(false);
 							ScoreboardManager.drawAll();
-							Bukkit.broadcastMessage("stopped score attack");
 						}
 						core.setAttacked(false);
 					}
-					if(core.isAttacked()) {
-						playSound(core);							
-					}
+				
 				}				
 				for(Player player : gameManager.getMap().getPlayers()) {
 					PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
@@ -151,14 +138,28 @@ public class IngameState {
 					}
 				}
 			}
-		}, 0, 10);		
+		}, 0, 10);	
+		
+		
+		Bukkit.getScheduler().scheduleAsyncRepeatingTask(Main.getPlugin(), new Runnable() {
+			
+			@Override
+			public void run() {
+				for(Core core : gameManager.getCores()) {
+					if(core.isAttacked()) {
+						playSound(core);
+					}
+				}
+				
+			}
+		}, 0, 18);
 	}
 	
 	private static void playSound(Core core) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		for(Player player : gameManager.getMap().getPlayers()) {
 			if(gameManager.getPlayerProfile(player).getTeam() == core.getTeam()) {
-				player.playSound(core.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, 5, 1);
+				player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 5, 1);
 			}
 		}
 	}

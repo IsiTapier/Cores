@@ -65,6 +65,7 @@ public class Inventories {
 			inventory.setItem(5, teamRedSelector.build());
 		}
 		inventory.setItem(0, new ItemBuilder(Material.PAPER).setName("§7Map-Voting").build());
+		inventory.setItem(1, new ItemBuilder(Material.CHEST).setName("customize inventory").build());
 		inventory.setItem(4, multiTool.build());
 		if(player.isOp()) {
 			inventory.setItem(8, adminTool.build());

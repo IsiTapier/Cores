@@ -77,7 +77,7 @@ public class ScoreboardManager implements Listener {
 			if(playerProfile.getDeaths() == 0) {
 				objective.getScore("§7K/D: §6" + playerProfile.getKills()).setScore(totalSlots); totalSlots--;
 			} else {
-				double kd = (Math.round(playerProfile.getKills()/playerProfile.getDeaths()*100)/100);
+				double kd = (double)(Math.round(playerProfile.getKills()/playerProfile.getDeaths()*100)/100);
 				objective.getScore("§7K/D: §6" + String.valueOf(kd)).setScore(totalSlots); totalSlots--;
 			}
 			

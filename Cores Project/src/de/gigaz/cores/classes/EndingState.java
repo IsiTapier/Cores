@@ -3,19 +3,31 @@ package de.gigaz.cores.classes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
+import de.gigaz.cores.util.Team;
 
 public class EndingState {
+
 	
-	public static void start() {
+	public static void start(Team team) {
+		GameManager gameManager = Main.getPlugin().getGameManager();	
 		Main.getPlugin().getGameManager().setGameState(GameState.ENDING_STATE);
-		replaceBlocks();
-		teleportPlayers();
-		Bukkit.broadcastMessage("ende");
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+			
+			@Override
+			public void run() {
+				teleportPlayers();
+				showTitle(team);
+				gameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, gameManager.getLobbySpawn().getWorld(), 5);
+				replaceBlocks();
+			}
+		}, 2*20);
+			
 	}
 	
 	public static void stop() {
@@ -30,7 +42,7 @@ public class EndingState {
 			//Bukkit.broadcastMessage("cleared " + location.getX());
 		}
 		for(Location location : gameManager.getBreakedBlocks().keySet()) {
-			Bukkit.broadcastMessage(location.getBlock().getType() + " in list breaked blocks. was " + gameManager.getBreakedBlocks().get(location));
+			
 			if(!gameManager.getBuiltBlocks().contains(location)) {
 				location.getBlock().setType(gameManager.getBreakedBlocks().get(location));
 				//Bukkit.broadcastMessage("replaced " + location.getBlock().getType());
@@ -40,6 +52,12 @@ public class EndingState {
 		gameManager.getBreakedBlocks().clear();
 		
 	}
+	public static void showTitle(Team team) {
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			player.sendTitle(team.getDisplayColor(), "§7hat gewonnen");
+		}
+	}
+	
 	public static void teleportPlayers() {
 		for(Player player : Bukkit.getOnlinePlayers()) {
 			player.sendMessage(player.getWorld().getName());

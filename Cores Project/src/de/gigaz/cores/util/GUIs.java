@@ -59,17 +59,16 @@ public class GUIs {
 		int x = -1;
 		for(World world : Bukkit.getWorlds()) {
 			x++;
-			if(MainCommand.getConfigLocation("blue.spawn", world, false) == null) continue;
-			if(MainCommand.getConfigLocation("red.spawn", world, false) == null) continue;
-			ItemStack item = new ItemBuilder(Material.GRASS_BLOCK).setName("§7" + world.getName()).build();
-			//Bukkit.broadcastMessage("§d" + item.getItemMeta().getDisplayName());
-			inv.setItem(x, item);			
-			
+			if(Main.getPlugin().getGameManager().checkMap(world)) {
+				ItemStack item = new ItemBuilder(Material.GRASS_BLOCK).setName("§7" + world.getName()).build();
+				//Bukkit.broadcastMessage("§d" + item.getItemMeta().getDisplayName());
+				inv.setItem(x, item);	
+			}		
 		}
 		inv.setItem(23, new ItemBuilder(Material.ACACIA_BOAT).build());
 		for(ItemStack z : inv.getContents()) {
 			if(z != null) {}
-				//Bukkit.broadcastMessage(z.getItemMeta().getDisplayName());
+				Bukkit.broadcastMessage(z.getItemMeta().getDisplayName());
 		}
 		return inv;
 	}

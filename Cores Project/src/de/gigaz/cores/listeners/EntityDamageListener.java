@@ -81,15 +81,17 @@ public class EntityDamageListener implements Listener {
 			Player player = (Player) event.getEntity();
 			PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 			if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
+				if(event.getCause().equals(DamageCause.FALL)) {
+					Location location = gameManager.getSpawnOfTeam(playerProfile.getTeam(), player.getWorld());
+					if(location.distance(player.getLocation()) <= 3) {
+						event.setCancelled(true);
+						return;
+					}
+				}
 				if(player.getHealth() - event.getDamage() < 1) {
 					if(!event.getCause().equals(DamageCause.ENTITY_ATTACK) && !event.getCause().equals(DamageCause.PROJECTILE) && !event.getCause().equals(DamageCause.ENTITY_SWEEP_ATTACK)) {
 						if(event.getCause().equals(DamageCause.FALL)) {
 							//Cancel event on fall Damage after DeathTP
-							Location location = gameManager.getSpawnOfTeam(playerProfile.getTeam(), player.getWorld());
-							if(location.distance(player.getLocation()) <= 3) {
-								event.setCancelled(true);
-								return;
-							}
 							if(playerProfile.getLastAttacker() != null) {
 								Player attacker = playerProfile.getLastAttacker();
 								PlayerProfile attackerProfile = Main.getPlugin().getGameManager().getPlayerProfile(attacker);

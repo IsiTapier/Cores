@@ -3,6 +3,7 @@ package de.gigaz.cores.listeners;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -82,7 +83,9 @@ public class BreakBlockListener implements Listener {
 				gameManager.getCores().remove(core);
 				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
 				event.getBlock().setType(Material.BEDROCK);
-				gameManager.checkWin();
+				if(!gameManager.checkWin()) {
+					gameManager.playSound(Sound.ENTITY_ENDER_DRAGON_DEATH, world, 1);
+				}
 				ScoreboardManager.drawAll();
 				
 			}

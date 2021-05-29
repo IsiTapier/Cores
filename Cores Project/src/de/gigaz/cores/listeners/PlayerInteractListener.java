@@ -1,5 +1,6 @@
 package de.gigaz.cores.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -7,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -16,6 +18,7 @@ import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GUIs;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
+import de.gigaz.cores.util.ItemBuilder;
 
 
 public class PlayerInteractListener implements Listener {
@@ -49,7 +52,9 @@ public class PlayerInteractListener implements Listener {
 			}
 			if(!playerProfile.isEditMode())
 				event.setCancelled(true);
-		
+			if(player.getItemInHand().getType() == Material.CHEST) {
+				player.openInventory(playerProfile.getInventory());
+			}
 		}
 	}
 }
