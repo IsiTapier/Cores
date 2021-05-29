@@ -31,45 +31,55 @@ public class MainCommand implements CommandExecutor {
 				if(player.hasPermission("cores.admin")) {
 					if(args[0].equalsIgnoreCase("setlobby")) {
 						setConfigGeneralLocation(player, "lobbyspawn");
-						player.sendMessage(Main.PREFIX + "§7Du hast den Lobbyspawn gesetzt");
+						player.sendMessage(Main.PREFIX + "Â§7Du hast den Lobbyspawn gesetzt");
 					} else if(args[0].equalsIgnoreCase("start")) {
 						if(gameManager.getMap() != null) {
 							if(gameManager.checkMap(gameManager.getMap())) {
-								player.sendMessage(Main.PREFIX + "§7Du hast das Spiel §6gestartet");
-								LobbyState.stop();
+								if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) {
+									player.sendMessage(Main.PREFIX + "Â§7Du hast das Spiel Â§6gestartet");
+									LobbyState.stop();
+								} else {
+									player.sendMessage(Main.PREFIX + "Â§7Das Spiel hat bereits begonnen");
+								}
 							}
 						}
 
 					} else if(args[0].equalsIgnoreCase("stop")) {
 						if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
 							IngameState.stop(Team.UNSET);
-							player.sendMessage(Main.PREFIX + "§7Du hast das Spiel beendet");
+							player.sendMessage(Main.PREFIX + "Â§7Du hast das Spiel beendet");
 						} else {
-							player.sendMessage(Main.PREFIX + "§7Es läuft noch gar kein Spiel");
+							player.sendMessage(Main.PREFIX + "Â§7Es lÃ¤uft noch gar kein Spiel");
 						}
 						
 					} else if(args[0].equalsIgnoreCase("corelist")) {
-						player.sendMessage(Main.PREFIX + "§7Core Liste:");
+						player.sendMessage(Main.PREFIX + "Â§7Core Liste:");
 						for(Core core : gameManager.getCores()) {		
-							player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + " §8(§7Name: §6" + core.getName() + "§8)");
+							player.sendMessage("Â§8> " + core.getTeam().getColorCode() + core.getNumber() + " Â§8(Â§7Name: Â§6" + core.getName() + "Â§8)");
 						}
 					} else if(args[0].equalsIgnoreCase("gamestate")) {
-						player.sendMessage(Main.PREFIX + "§7" + gameManager.getCurrentGameState().getName());
+						player.sendMessage(Main.PREFIX + "Â§7" + gameManager.getCurrentGameState().getName());
 										
 					} else if(args[0].equalsIgnoreCase("setdeathhight")) {
 						setConfigLocation("deathhight", player.getLocation());
-						player.sendMessage(Main.PREFIX + "§7Du hast die DeathHight auf §6" + Math.round(getConfigLocation("deathhight", player.getWorld()).getY()) + " §7gesetzt");
+						player.sendMessage(Main.PREFIX + "Â§7Du hast die DeathHight auf Â§6" + Math.round(getConfigLocation("deathhight", player.getWorld()).getY()) + " Â§7gesetzt");
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
 							if(playerProfile.isEditMode()) {
 								playerProfile.setEditMode(false);
-								player.sendMessage(Main.PREFIX + "§7Der Edit Mode wurde §cdeaktiviert");
+								player.sendMessage(Main.PREFIX + "Â§7Der Edit Mode wurde Â§cdeaktiviert");
 							} else {
 								playerProfile.setEditMode(true);
-								player.sendMessage(Main.PREFIX + "§7Der Edit Mode wurde §aaktiviert");
+								player.sendMessage(Main.PREFIX + "Â§7Der Edit Mode wurde Â§aaktiviert");
 							}
 						}
-	
+					} else if(args[0].equalsIgnoreCase("help")) {
+						player.sendMessage("Â§7â•” "+ Main.PREFIX + " Â§8- Â§6Hilfe");
+						player.sendMessage("Â§7â•  Â§6LobbyÂ§7: Â§8/Â§7c setlobby");
+						player.sendMessage("Â§7â•  Â§6CoresÂ§7: Â§8/Â§7c setcore <Team> <Nummer> [<Name>]");
+						player.sendMessage("Â§7â•  Â§6SpawnsÂ§7: Â§8/Â§7c setspawn <Team>");
+						player.sendMessage("Â§7â•  Â§6DeathhightÂ§7: Â§8/Â§7c setDeathHight");
+						player.sendMessage("Â§7â•š Â§6Map-AuswahlÂ§7: Â§8/Â§7c setmap <Map>");
 					}
 				} else {
 					player.sendMessage(Main.PERMISSION_DENIED);
@@ -84,15 +94,15 @@ public class MainCommand implements CommandExecutor {
 							FileConfiguration config = Main.getPlugin().getConfig();
 							config.set(Main.CONFIG_ROOT + "worlds." + args[1], null);
 							Main.getPlugin().saveConfig();
-							player.sendMessage(Main.PREFIX + "§7Du hast die Welt §2" + args[1] + "§7erstellt");
+							player.sendMessage(Main.PREFIX + "Â§7Du hast die Welt Â§2" + args[1] + "Â§7erstellt");
 						}
 					} else if(args[0].equalsIgnoreCase("setspawn")) {
 						if(args[1].equalsIgnoreCase("blue")) {
 							setConfigLocation("blue.spawn", player.getLocation());
-							player.sendMessage(Main.PREFIX + "§7Du hast den Spawn von Team " + Team.BLUE.getDisplayColor() + " §7gesetzt");
+							player.sendMessage(Main.PREFIX + "Â§7Du hast den Spawn von Team " + Team.BLUE.getDisplayColor() + " Â§7gesetzt");
 						} else if(args[1].equalsIgnoreCase("red")) {
 							setConfigLocation("red.spawn", player.getLocation());
-							player.sendMessage(Main.PREFIX + "§7Du hast den Spawn von Team " + Team.RED.getDisplayColor() + " §7gesetzt");
+							player.sendMessage(Main.PREFIX + "Â§7Du hast den Spawn von Team " + Team.RED.getDisplayColor() + " Â§7gesetzt");
 						}
 						
 					} else if(args[0].equalsIgnoreCase("setmap")) {
@@ -100,11 +110,11 @@ public class MainCommand implements CommandExecutor {
 						if(Bukkit.getWorld(args[1]) != null) {
 							if(gameManager.checkMap(Bukkit.getWorld(args[1]))) {
 								gameManager.setMap(args[1]);
-								Bukkit.broadcastMessage(Main.PREFIX + "§7Die Map: §6" + args[1] + "§7 wurde von " + player.getName() + " ausgewählt");
+								Bukkit.broadcastMessage(Main.PREFIX + "Â§7Die Map: Â§6" + args[1] + "Â§7 wurde von " + player.getName() + " ausgewÃ¤hlt");
 							}
 								
 						} else {
-							player.sendMessage(Main.PREFIX + "§7Die Map: §6" + args[1] + " §7existiert §cnicht");
+							player.sendMessage(Main.PREFIX + "Â§7Die Map: Â§6" + args[1] + " Â§7existiert Â§cnicht");
 						}
 						
 					} else if(args[0].equalsIgnoreCase("deletemap")) {
@@ -116,10 +126,10 @@ public class MainCommand implements CommandExecutor {
 				if(args[0].equalsIgnoreCase("join")) {
 					if(args[1].equalsIgnoreCase("blue") && !playerProfile.getTeam().equals(Team.BLUE)) {
 						playerProfile.setTeam(Team.BLUE);
-						Main.getPlugin().getGameManager().getPlayerProfile(player).getPlayer().sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.BLUE.getDisplayColor() + " §7beigetreten");
+						Main.getPlugin().getGameManager().getPlayerProfile(player).getPlayer().sendMessage(Main.PREFIX + "Â§7Du bist dem Team " + Team.BLUE.getDisplayColor() + " Â§7beigetreten");
 					} else if(args[1].equalsIgnoreCase("red") && !playerProfile.getTeam().equals(Team.RED)) {
 						playerProfile.setTeam(Team.RED);
-						player.sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.RED.getDisplayColor() + " §7beigetreten");
+						player.sendMessage(Main.PREFIX + "Â§7Du bist dem Team " + Team.RED.getDisplayColor() + " Â§7beigetreten");
 					} else {
 						
 					}

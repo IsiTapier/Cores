@@ -60,7 +60,6 @@ public class IngameState {
 			location = MainCommand.getConfigLocation("red.spawn", world);
 		}
 		player.teleport(location);
-		player.sendMessage(player.getWorld().getName());	
 	}
 	
 	public static void deactivateEditMode(PlayerProfile playerProfile) {
@@ -98,8 +97,11 @@ public class IngameState {
 							core.setAttacked(true);
 							for(Player loopPlayer : gameManager.getMap().getPlayers()) {
 								Team loopTeam = gameManager.getPlayerProfile(loopPlayer).getTeam();
-								if(core.getTeam() == loopTeam)
+								if(core.getTeam() == loopTeam) {
 									loopPlayer.sendMessage(Main.PREFIX + "§4Der Core §6" + core.getDisplayName()+ "§4 wird attackiert");
+									loopPlayer.playSound(loopPlayer.getLocation(), Sound.BLOCK_BELL_RESONATE, 3, 1);
+									
+								}
 							}
 							ScoreboardManager.drawAll();
 						}

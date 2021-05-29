@@ -14,11 +14,13 @@ import org.bukkit.potion.PotionEffectType;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
+import de.gigaz.cores.inventories.AdminToolInventory;
+import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
-import de.gigaz.cores.util.GUIs;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ItemBuilder;
+import de.gigaz.cores.util.Team;
 
 
 public class PlayerInteractListener implements Listener {
@@ -39,10 +41,10 @@ public class PlayerInteractListener implements Listener {
 
 	
 			if(player.getItemInHand().getType() == Inventories.getMultiTool().build().getType()) {
-				player.openInventory(GUIs.getMultiToolInventory(player));		;
+				player.openInventory(MultiToolInventory.getInventory(playerProfile.getTeam()));
 			}
 			if(player.getItemInHand().getType() == Inventories.getAdminTool().build().getType()) {
-				player.openInventory(GUIs.getAdminToolInventory());		
+				player.openInventory(AdminToolInventory.getInventory());		
 			}
 			if(player.getItemInHand().getType() == Inventories.getTeamRedSelector().build().getType()) {
 				player.chat("/c join red");	

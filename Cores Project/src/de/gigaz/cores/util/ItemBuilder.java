@@ -1,5 +1,6 @@
 package de.gigaz.cores.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.bukkit.Material;
@@ -42,6 +43,10 @@ public class ItemBuilder implements Cloneable {
 	
 	public ItemBuilder setLore(String... lore) {
 		itemMeta.setLore(Arrays.asList(lore));
+		return this;
+	}
+	public ItemBuilder setLore(ArrayList<String> list) {
+		itemMeta.setLore(list);
 		return this;
 	}
 	

@@ -24,6 +24,7 @@ public class PlayerProfile {
 	private Scoreboard currentScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 	private Player lastAttacker;
 	private Inventory inventory;
+	
 
 	
 	public PlayerProfile(Player player) {

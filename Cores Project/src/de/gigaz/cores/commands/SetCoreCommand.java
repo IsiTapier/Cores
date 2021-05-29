@@ -26,11 +26,14 @@ public class SetCoreCommand {
 		} else {
 			player.sendMessage(Main.PREFIX + "§7Der Core " + number + " von " + team.getDisplayColor() + "§7 wurde gesetzt");
 		}
-		player.sendMessage(Main.PREFIX + "§7Bereits konfigurierte Cores §7:");
-		gameManager.registerCores();
-		for(Core core : gameManager.getCores()) {		
-			player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + "§8(§7Name: §6" + core.getName() + "§8)");
+		if(gameManager.getMap() != null) {
+			player.sendMessage(Main.PREFIX + "§7Bereits konfigurierte Cores §7:");
+			gameManager.registerCores();
+			for(Core core : gameManager.getCores()) {		
+				player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + "§8(§7Name: §6" + core.getName() + "§8)");
+			}
 		}
+		
 	}
 	
 	public SetCoreCommand(Player player, Team team, String number) {		

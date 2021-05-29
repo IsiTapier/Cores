@@ -60,31 +60,15 @@ public class BreakBlockListener implements Listener {
 			if(!(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE))
 				return;
 
-			/*if(MainCommand.getConfigLocation(team.getOponentColor() + ".core.1", world).equals(location) && gameManager.getCoreState(team.getOponentTeam(), false)) {
-				player.sendMessage(Main.PREFIX + "Du hast einen Core zerstört!");
-				gameManager.setCoreState(team.getOponentTeam(), false, false);
-				player.sendMessage(Main.PREFIX + "Du hast einen Core zerstört!");
-				event.setCancelled(true);
-				event.getBlock().setType(Material.BEDROCK);
-			} else if(MainCommand.getConfigLocation(team.getOponentColor() + ".core.2", world).equals(location) && gameManager.getCoreState(team.getOponentTeam(), true)) {
-				
-				player.sendMessage(Main.PREFIX + "Du hast einen Core zerstört!");
-				gameManager.setCoreState(team.getOponentTeam(), true, false);
-				event.setCancelled(true);
-				event.getBlock().setType(Material.BEDROCK);
-			} else if(MainCommand.getConfigLocation(team.getDebugColor() + ".core.1", world).equals(location) || MainCommand.getConfigLocation(team.getDebugColor() + ".core.2", world).equals(location)) {
-				player.sendMessage(Main.PREFIX + "Du kannst deinen eigenen Core nicht zerstören. Gehe zu deinen Gegnern!");
-				event.setCancelled(true);
-			}*/
 			Core core = gameManager.getCore(location);
 			if(core != null) {
 				event.setCancelled(true);
-				Bukkit.broadcastMessage(gameManager.getCores().size() + " size");
+				
 				gameManager.getCores().remove(core);
 				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
 				event.getBlock().setType(Material.BEDROCK);
 				if(!gameManager.checkWin()) {
-					gameManager.playSound(Sound.ENTITY_ENDER_DRAGON_DEATH, world, 1);
+					gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
 				}
 				ScoreboardManager.drawAll();
 				
