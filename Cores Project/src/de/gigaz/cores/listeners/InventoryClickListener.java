@@ -2,6 +2,7 @@ package de.gigaz.cores.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,10 +14,13 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import de.gigaz.cores.classes.GameManager;
+import de.gigaz.cores.classes.GameruleSetting;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.AdminToolInventory;
+import de.gigaz.cores.inventories.GameruleSettings;
 import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
@@ -71,6 +75,31 @@ public class InventoryClickListener implements Listener {
 				}
 				player.closeInventory();
 				event.setCancelled(true);		
+			}
+			if(player.getOpenInventory().getTitle().equalsIgnoreCase("Gamerule Settings")) {
+				if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
+					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()+1);
+					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
+						if(gameruleSetting.getItem().equals(setting)) {
+							gameruleSetting.setValue(false);
+							ItemMeta meta = item.getItemMeta();
+							meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
+							item.setItemMeta(meta);
+							player.getOpenInventory().getItem(event.getSlot()+2).removeEnchantment(Enchantment.ARROW_INFINITE);
+						}
+					}
+				} else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE)) {
+					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()-1);
+					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
+						if(gameruleSetting.getItem().equals(setting)) {
+							gameruleSetting.setValue(true);
+							ItemMeta meta = item.getItemMeta();
+							meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
+							item.setItemMeta(meta);
+							player.getOpenInventory().getItem(event.getSlot()-2).removeEnchantment(Enchantment.ARROW_INFINITE);
+						}
+					}
+				}
 			}
 		}
 		/*Bukkit.broadcastMessage(player.getInventory().toString());

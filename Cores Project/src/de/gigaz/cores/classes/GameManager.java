@@ -18,6 +18,7 @@ import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
+import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
 
 public class GameManager {
@@ -30,9 +31,13 @@ public class GameManager {
 	private EndingState endingState;
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
 	private ArrayList<Location> builtBlocks = new ArrayList<Location>();					
-							
-
-	
+	private HashMap<String, GameruleSetting> gameruleSettings = new HashMap<String, GameruleSetting>() {{
+		put("test", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test").build()));
+		put("test1", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test1").build()));
+		put("test2", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test2").build()));
+		put("test3", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test3").build()));
+		put("test4", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test4").build()));
+	}};
 	
 	private int blockProtectionRadius = 2;
 	private int blockProtectionHeight = 4;
@@ -43,7 +48,12 @@ public class GameManager {
 	
 	public GameManager() {
 		//new LobbyState();
-		this.map = getMap();
+		FileConfiguration config = Main.getPlugin().getConfig();
+		String name = config.getString(Main.CONFIG_ROOT + "currentMap");
+		//Main.getPlugin().saveConfig();
+		if(name == null)
+			return;
+		this.map = Main.getPlugin().getWorld(name);
 		
 	}
 
@@ -56,19 +66,29 @@ public class GameManager {
 		//TODO check map valid
 		//this.map = Main.getPlugin().getWorld(name);
 		//TODO copy map
+		this.map = Main.getPlugin().getWorld(name);
+		
+		if(currentGameState.equals(GameState.INGAME_STATE))
+			IngameState.stop(Team.UNSET);
+		for(Player player : Main.getPlugin().getWorld("currentworld").getPlayers())
+			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
+		Main.getPlugin().setMap(this.map.getName());
+		
 		FileConfiguration config = Main.getPlugin().getConfig();
-		config.set(Main.CONFIG_ROOT + "currentMap", name);
-		this.map = Bukkit.getWorld(name);
-		Main.getPlugin().setMap(name);
-		Main.getPlugin().saveConfig();
+		config.set(Main.CONFIG_ROOT + "currentMap", this.map.getName());
+		//Main.getPlugin().saveConfig();
+		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+			
+			@Override
+			public void run() {
+				Main.getPlugin().saveConfig();
+			}
+		}, 1*20);
+		
 	}
 	
 	public World getMap() {
-		FileConfiguration config = Main.getPlugin().getConfig();
-		String name = config.getString(Main.CONFIG_ROOT + "currentMap");
-		Main.getPlugin().saveConfig();
-		if(name == null) return null;
-		return Bukkit.getWorld(name);
+		return this.map;
 	}
 	
 	public boolean checkWin() {
@@ -157,7 +177,8 @@ public class GameManager {
 	
 	public ArrayList<Player> getPlayersOfTeam(Team team) {
 		ArrayList<Player> players = new ArrayList<Player>();
-		for(Player player : Bukkit.getOnlinePlayers()) {
+		for(PlayerProfile playerProfile : getPlayerProfiles()/*Bukkit.getOnlinePlayers()*/) {
+			Player player = playerProfile.getPlayer();
 			if(Main.getPlugin().getGameManager().getPlayerProfile(player).getTeam() == team) {
 				players.add(player);
 			}
@@ -356,10 +377,13 @@ public class GameManager {
 		int red = 0;
 		int blue = 0;
 		for(PlayerProfile player : getPlayerProfiles()) {
-			if(player.getTeam().equals(Team.RED))
-				red++;
-			else if(player.getTeam().equals(Team.BLUE))
-				blue++;
+			if(player.getPlayer().isOnline() || Main.autoteamcountoffline) {
+				if(player.getTeam().equals(Team.RED))
+					red++;
+				else if(player.getTeam().equals(Team.BLUE))
+					blue++;
+			}
+			
 		}
 		if(red < blue)
 			playerProfile.setTeam(Team.RED);
@@ -368,10 +392,38 @@ public class GameManager {
 	}
 	
 	public void setTeams() {
+		ArrayList<PlayerProfile> offlinePlayers = new ArrayList<PlayerProfile>();
 		for(PlayerProfile playerProfile : getPlayerProfiles()) {
+			Player player = playerProfile.getPlayer();
+			if(!player.isOnline()) {
+				offlinePlayers.add(playerProfile);
+				continue;
+			}
 			if(playerProfile.getTeam().equals(Team.UNSET))
 				autoTeam(playerProfile);
 		}
+		if(Main.autoteamsetoffline) {
+			for(PlayerProfile playerProfile : offlinePlayers) {
+				if(playerProfile.getTeam().equals(Team.UNSET))
+					autoTeam(playerProfile);
+			}
+		}
+	}
+	
+	public HashMap<String, GameruleSetting> getGameruleSettings() {
+		return gameruleSettings;
+	}
+	
+	public void setGameruleSettings(HashMap<String, GameruleSetting> gameruleSettings) {
+		this.gameruleSettings = gameruleSettings;
+	}
+	
+	public GameruleSetting getGameRuleSetting(String name) {
+		return gameruleSettings.get(name);
+	}
+	
+	public void setGameRuleSetting(String name, GameruleSetting gameruleSetting) {
+		gameruleSettings.put(name, gameruleSetting);
 	}
 }
   

@@ -89,12 +89,15 @@ public class MainCommand implements CommandExecutor {
 					if(args[0].equalsIgnoreCase("configure")) {				
 						//World world = Main.getPlugin().getWorld(args[1]);
 						if(Bukkit.getWorlds().contains(Bukkit.getWorld(args[1]))) {
-							World world = Bukkit.getWorld(args[1]);
+							World world = Main.getPlugin().getWorld(args[1]);
 							player.teleport(world.getSpawnLocation());
+							String root = Main.CONFIG_ROOT+"worlds."+world.getName();
 							FileConfiguration config = Main.getPlugin().getConfig();
-							config.set(Main.CONFIG_ROOT + "worlds." + args[1], null);
-							Main.getPlugin().saveConfig();
-							player.sendMessage(Main.PREFIX + "§7Du hast die Welt §2" + args[1] + "§7erstellt");
+							if(!config.contains(root)) {
+								config.set(root, "");
+								Main.getPlugin().saveConfig();
+							}
+							player.sendMessage(Main.PREFIX + "§7Du hast die Welt §2" + args[1] + " §7erstellt");
 						}
 					} else if(args[0].equalsIgnoreCase("setspawn")) {
 						if(args[1].equalsIgnoreCase("blue")) {
@@ -108,7 +111,7 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[0].equalsIgnoreCase("setmap")) {
 						//Main.getPlugin().setMap(args[1]);
 						if(Bukkit.getWorld(args[1]) != null) {
-							if(gameManager.checkMap(Bukkit.getWorld(args[1]), true)) {
+							if(gameManager.checkMap(Main.getPlugin().getWorld(args[1]), true)) {
 								gameManager.setMap(args[1]);
 								Bukkit.broadcastMessage(Main.PREFIX + "§7Die Map: §6" + args[1] + "§7 wurde von " + player.getName() + " ausgewählt");
 							}
@@ -137,7 +140,132 @@ public class MainCommand implements CommandExecutor {
 				}
 
 				
-			} else if(args.length == 4) {
+			} else if(args.length >= 3) {
+				
+				if(player.hasPermission("cores.admin")) {
+					if(args[0].equalsIgnoreCase("remove")) {
+						FileConfiguration config = Main.getPlugin().getConfig();
+						World world = Bukkit.getWorld(args[1]);
+						if(world == null) {
+							player.sendMessage(Main.PREFIX+"Diese Welt existiert nicht");
+							return false;
+						}
+						if(!config.contains(Main.CONFIG_ROOT+"worlds."+world.getName())) {
+							player.sendMessage(Main.PREFIX+"Diese Welt ist nicht in der Config gespeichert");
+							return false;
+						}
+						if(args[2].equalsIgnoreCase("deathhight")) {
+							if(!containsConfigLocation("deathhight", world)) {
+								player.sendMessage(Main.PREFIX+"Die Deathhight ist nicht in der Config gespeichert");
+								return false;
+							}
+							removeConfigLocation("deathhight", world);
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich die Deathhight von der Map §6"+world.getName()+"§r entfernt");
+							return false;
+						}
+						if(args[2].equalsIgnoreCase("map")) {
+							config.set(Main.CONFIG_ROOT+"worlds."+world.getName(), null);
+							Main.getPlugin().saveConfig();
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich die Map §6"+world.getName()+"§r entfernt");
+							return false;
+						}
+						if(args[2].equalsIgnoreCase("spawn")) {
+							if(args.length < 4) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle ein Team aus");
+								return false;
+							}
+							Team team = Team.getTeam(args[3]);
+							if(team.equals(Team.UNSET)) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
+								return false;
+							}
+							if(!containsConfigLocation(team.getDebugColor()+".spawn", world)) {
+								player.sendMessage(Main.PREFIX+"Der Spawn von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert");
+								return false;
+							}
+							removeConfigLocation(team.getDebugColor()+".spawn", world);
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Spawn von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
+							return false;
+						}
+						if(args[2].equalsIgnoreCase("core")) {
+							if(args.length < 4) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle ein Team aus");
+								return false;
+							}
+							Team team = Team.getTeam(args[3]);
+							if(team.equals(Team.UNSET)) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
+								return false;
+							}
+							if(args.length < 5) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle einen Core aus");
+								return false;
+							}
+							if(args[4].equalsIgnoreCase("all")) {
+								if(!containsConfigLocation(team.getDebugColor()+".core", world)) {
+									player.sendMessage(Main.PREFIX+"Die Cores von Team "+team.getDisplayColor()+" sind nicht in der Config gespeichert");
+									return false;
+								}
+								removeConfigLocation(team.getDebugColor()+".core", world);
+								player.sendMessage(Main.PREFIX+"Du hast erfolgreich alle Cores von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
+								return false;
+							}
+							if(!containsConfigLocation(team.getDebugColor()+".core."+args[4], world)) {
+								player.sendMessage(Main.PREFIX+"Der Core §b"+args[4]+"§r von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert, gebe eine vorhandene Nummer an");
+								return false;
+							}
+							removeConfigLocation(team.getDebugColor()+".core."+args[4], world);
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[4]+"§r von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
+							return false;
+						}
+						if(args[2].equalsIgnoreCase("team")) {
+							if(args.length < 4) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle ein Team aus");
+								return false;
+							}
+							Team team = Team.getTeam(args[3]);
+							if(team.equals(Team.UNSET)) {
+								player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
+								return false;
+							}
+							if(!containsConfigLocation(team.getDebugColor(), world)) {
+								player.sendMessage(Main.PREFIX+"Das Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert");
+								return false;
+							}
+							removeConfigLocation(team.getDebugColor(), world);
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich das Team "+team.getDisplayColor()+" von der Map §6"+world.getName()+"§r entfernt");
+							return false;
+						}
+						player.sendMessage(Main.PREFIX+"Bitte gebe eine gültige Config Speicherung an: §7(map, team, spawn, core, deathhight)");
+						return false;
+						
+						
+						
+					} else if(args[0].equalsIgnoreCase("setcorename")) {
+						Team team = Team.getTeam(args[1]);
+						if(team.equals(Team.UNSET)) {
+							player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
+							return false;
+						}
+						if(!containsConfigLocation(team.getDebugColor()+".core."+args[2], gameManager.getMap())) {
+							player.sendMessage(Main.PREFIX+"Der Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert, gebe eine vorhandene Nummer an");
+							return false;
+						}
+						String name = "";
+						if(args.length >= 4) {
+							name = args[3];
+						} else {
+							
+						}
+						Core.setConfigCoreName(gameManager.getMap().getSpawnLocation(), team, args[2], name);
+						player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" zu §6"+name+"§r umbenannt");
+						
+					}
+				}
+				
+			} 
+			if(args.length == 4) {
+			
 				if(player.hasPermission("cores.admin")) {
 					if(args[0].equalsIgnoreCase("setcore")) {
 						if(args[1].equalsIgnoreCase("blue")) {
@@ -154,6 +282,17 @@ public class MainCommand implements CommandExecutor {
 			
 		}
 		return false;	
+	}
+	
+	public static boolean containsConfigLocation(String root, World world) {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		return config.contains(Main.CONFIG_ROOT + "worlds." + world.getName() + "." + root);
+	}
+	
+	public static void removeConfigLocation(String root, World world) {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		config.set(Main.CONFIG_ROOT + "worlds." + world.getName() + "." + root, null);
+		Main.getPlugin().saveConfig();
 	}
 
 	public static void setConfigLocation(String root, Location location) {

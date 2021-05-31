@@ -1,5 +1,7 @@
 package de.gigaz.cores.classes;
 
+import java.util.ArrayList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -28,7 +30,8 @@ public class IngameState {
 			gameManager.setTeams();
 		
 		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
-			ScoreboardManager.draw(playerProfile.getPlayer());
+			Player player = playerProfile.getPlayer();
+			ScoreboardManager.draw(player);
 			teleportPlayer(playerProfile);
 			giveItems(playerProfile);
 			deactivateEditMode(playerProfile);

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
@@ -31,8 +32,10 @@ import de.gigaz.cores.listeners.EntityDamageListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
+import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ScoreboardManager;
+import de.gigaz.cores.util.Team;
 
 public class Main extends JavaPlugin {
 
@@ -43,13 +46,15 @@ public class Main extends JavaPlugin {
 	
 	
 	
-	public static Main plugin;
+	private static Main plugin;
 	public static final String CONFIG_ROOT = "cores.";
 	public static final String PREFIX = "§8[§bCores§8] §r";
 	public static final String PERMISSION_DENIED = PREFIX + "§7Dazu hast du §ckeine §7Rechte";
 	public GameManager currentGameManager;
 	public static final boolean autoteamrejoin = false;
 	public static final boolean autoteam = true;
+	public static final boolean autoteamcountoffline = true;
+	public static final boolean autoteamsetoffline = false; //not recommended
 	
 	@Override
 	public void onEnable() {
@@ -96,7 +101,13 @@ public class Main extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		EndingState.replaceBlocks();
+		if(!currentGameManager.getCurrentGameState().equals(GameState.LOBBY_STATE)) {
+			EndingState.teleportPlayers();
+			EndingState.showTitle(Team.UNSET);
+			currentGameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, currentGameManager.getLobbySpawn().getWorld(), 5);
+			EndingState.replaceBlocks();
+			EndingState.stop();
+		}
 	}
 	
 	public static Main getPlugin() {

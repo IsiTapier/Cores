@@ -55,7 +55,7 @@ public class MultiToolInventory {
 		return rows;
 	}
 	
-	private static ArrayList<String> getLore(Team team) {
+	public static ArrayList<String> getLore(Team team) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		ArrayList<String> list = new ArrayList<String>();
 		for(Player player : gameManager.getPlayersOfTeam(team)) {

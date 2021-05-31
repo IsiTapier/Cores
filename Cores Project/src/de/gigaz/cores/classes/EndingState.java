@@ -25,6 +25,7 @@ public class EndingState {
 				showTitle(team);
 				gameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, gameManager.getLobbySpawn().getWorld(), 5);
 				replaceBlocks();
+				stop();
 			}
 		}, 2*20);
 			

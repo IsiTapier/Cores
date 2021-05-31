@@ -55,16 +55,22 @@ public class PlayerProfile {
 	}
 
 	public void setTeam(Team team) {
+		GameManager gameManager = Main.getPlugin().getGameManager();
 		this.team = team;
 		this.player.setPlayerListName(team.getColorCode() + player.getName());
-		if(Main.getPlugin().getGameManager().getCurrentGameState().equals(GameState.INGAME_STATE)) {
+		if(gameManager.getCurrentGameState().equals(GameState.INGAME_STATE)) {
 			ScoreboardManager.draw(getPlayer());
 			IngameState.teleportPlayer(this);
 			IngameState.giveItems(this);
 			IngameState.deactivateEditMode(this);
 			IngameState.setGameMode(this);
-		} else
+		} else {
+			for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
+				if(!playerProfile.isEditMode())
+					Inventories.setLobbyInventory(playerProfile);
+			}
 			Inventories.setLobbyInventory(this);
+		}
 	}
 
 	public Scoreboard getCurrentScoreboard() {

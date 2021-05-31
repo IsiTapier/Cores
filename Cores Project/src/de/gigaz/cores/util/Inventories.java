@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import de.gigaz.cores.classes.PlayerProfile;
+import de.gigaz.cores.inventories.MultiToolInventory;
 
 public class Inventories {
 	
@@ -21,7 +22,7 @@ public class Inventories {
 	
 	public static Inventory getDefaultInventory() {
 		Inventory inventory = Bukkit.createInventory(null, 1*9, defaultInventoryName);
-		inventory.setItem(0, new ItemBuilder(Material.STONE_SWORD).setBreakable(false).build());
+		inventory.setItem(0, new ItemBuilder(Material.IRON_SWORD).setBreakable(false).build());
 		inventory.setItem(1, new ItemBuilder(Material.BOW).setBreakable(false).build());
 		inventory.setItem(2, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
 		inventory.setItem(3, new ItemBuilder(Material.OAK_LOG).setAmount(64).build());
@@ -85,19 +86,20 @@ public class Inventories {
 		inventory.clear();
 		//teamBlueSelector.getCopy().addEnchantment(Enchantment.ARROW_INFINITE, 10).build()
 		if(playerProfile.getTeam().equals(Team.BLUE)) {
-			inventory.setItem(3, new ItemBuilder(teamBlueSelector.getType()).setName(teamBlueSelector.getName()).addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
-			inventory.setItem(5, teamRedSelector.build());
+			inventory.setItem(3, new ItemBuilder(teamBlueSelector.getType()).setName(teamBlueSelector.getName()).addEnchantment(Enchantment.ARROW_INFINITE, 10).setLore(MultiToolInventory.getLore(Team.BLUE)).build());
+			inventory.setItem(5, teamRedSelector.setLore(MultiToolInventory.getLore(Team.RED)).build());
 		} else if(playerProfile.getTeam().equals(Team.RED)) {
-			inventory.setItem(3, teamBlueSelector.build());
-			inventory.setItem(5, new ItemBuilder(teamRedSelector.getType()).setName(teamRedSelector.getName()).addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
+			inventory.setItem(3, teamBlueSelector.setLore(MultiToolInventory.getLore(Team.BLUE)).build());
+			inventory.setItem(5, new ItemBuilder(teamRedSelector.getType()).setName(teamRedSelector.getName()).addEnchantment(Enchantment.ARROW_INFINITE, 10).setLore(MultiToolInventory.getLore(Team.RED)).build());
 		} else {
-			inventory.setItem(3, teamBlueSelector.build());
-			inventory.setItem(5, teamRedSelector.build());
+			inventory.setItem(3, teamBlueSelector.setLore(MultiToolInventory.getLore(Team.BLUE)).build());
+			inventory.setItem(5, teamRedSelector.setLore(MultiToolInventory.getLore(Team.RED)).build());
 		}
 		inventory.setItem(0, new ItemBuilder(Material.PAPER).setName("§7Map-Voting").build());
 		inventory.setItem(1, new ItemBuilder(Material.CHEST).setName("customize inventory").build());
 		inventory.setItem(4, multiTool.build());
 		if(player.isOp()) {
+			inventory.setItem(7, new ItemBuilder(Material.WRITABLE_BOOK).setName("Gamerule Settings").build());
 			inventory.setItem(8, adminTool.build());
 			/*inventory.setItem(1, new ItemBuilder(Material.MAP).setName("§7Select Map").build());
 			inventory.setItem(6, new ItemBuilder(Material.CLOCK).setName("start Game").build());
