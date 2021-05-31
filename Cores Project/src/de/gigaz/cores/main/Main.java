@@ -31,6 +31,7 @@ import de.gigaz.cores.listeners.EntityDamageListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
+import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ScoreboardManager;
 
 public class Main extends JavaPlugin {
@@ -47,6 +48,8 @@ public class Main extends JavaPlugin {
 	public static final String PREFIX = "§8[§bCores§8] §r";
 	public static final String PERMISSION_DENIED = PREFIX + "§7Dazu hast du §ckeine §7Rechte";
 	public GameManager currentGameManager;
+	public static final boolean autoteamrejoin = false;
+	public static final boolean autoteam = true;
 	
 	@Override
 	public void onEnable() {
@@ -69,7 +72,9 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new ScoreboardManager(), this);
 		
 		for(Player player : Bukkit.getOnlinePlayers()) {
-			currentGameManager.getPlayerProfiles().put(player.getName(), new PlayerProfile(player));
+			currentGameManager.getPlayerProfiles().add(new PlayerProfile(player));
+			player.teleport(MainCommand.getConfigGeneralLocation("lobbyspawn"));
+			Inventories.setLobbyInventory(currentGameManager.getPlayerProfile(player));
 		}
 	}
 	
@@ -143,19 +148,43 @@ public class Main extends JavaPlugin {
 	            }
 	        }
 	    } catch (IOException e) {
-	 
+	    	Bukkit.broadcastMessage("World copy error");
 	    }
 	}
 	
-	public void setMap(String name) {
+	public boolean deleteWorld(File path) {
+	      if(path.exists()) {
+	          File files[] = path.listFiles();
+	          for(int i=0; i<files.length; i++) {
+	              if(files[i].isDirectory()) {
+	                  deleteWorld(files[i]);
+	              } else {
+	                  files[i].delete();
+	              }
+	          }
+	      }
+	      return(path.delete());
+	}
+	
+	public void unloadWorld(World world) {
+	    World _world = Bukkit.getWorld(""); //??????????????
+	    if(!world.equals(null)) {
+	        Bukkit.getServer().unloadWorld(world, true);
+	    }
+	}
+	
+	public World setMap(String name) {
 		World worldtemplate = getWorld(name);
 		File templateFolder = worldtemplate.getWorldFolder();
-		World worldcopy = Bukkit.getWorld("currentWorld");
-		File copyFolder = worldcopy.getWorldFolder();
+		World worldcopy = getWorld("currentWorld");
+		File copyFolder = worldcopy.getWorldFolder();//new File(Bukkit.getWorldContainer(), "currentworld");
+		unloadWorld(Bukkit.getWorld("currentworld"));
+		//deleteWorld(copyFolder);
 		copyWorld(templateFolder, copyFolder);
-		worldcopy = Bukkit.getWorld("currentWorld");
-		currentGameManager.setMap(name);
-		Bukkit.broadcastMessage(PREFIX + "Die Map wurde auf "+name+" gesetzt. copied from "+templateFolder.getName()+" "+worldtemplate.getName()+" "+copyFolder+" "+worldcopy.getName());
+		worldcopy = getWorld("currentWorld");
+		//currentGameManager.setMap(name);
+		return worldcopy;
+		//Bukkit.broadcastMessage(PREFIX + "Die Map wurde auf "+name+" gesetzt. copied from "+templateFolder.getName()+" "+worldtemplate.getName()+" "+copyFolder+" "+worldcopy.getName());
 	}
 		
 	public String getFallDeathMessage(PlayerProfile ...player) {

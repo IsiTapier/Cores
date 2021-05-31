@@ -41,7 +41,7 @@ public class Core {
 	
 	public String getConfigName() {
 		FileConfiguration config = Main.getPlugin().getConfig();
-		String root = Main.CONFIG_ROOT + "worlds." + location.getWorld().getName() + "." + team.getDebugColor() + ".core." + number;
+		String root = Main.CONFIG_ROOT + "worlds." + Main.getPlugin().getGameManager().getMap().getName() + "." + team.getDebugColor() + ".core." + number;
 		if(config.contains(root + ".name")) {
 			return config.getString(root + ".name");
 		} else {

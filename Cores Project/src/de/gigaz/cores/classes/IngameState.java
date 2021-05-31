@@ -24,8 +24,10 @@ public class IngameState {
 		gameManager = Main.getPlugin().getGameManager();
 		gameManager.stockCores();
 		ScoreboardManager.drawAll();
+		if(Main.autoteam)
+			gameManager.setTeams();
 		
-		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles().values()) {
+		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
 			ScoreboardManager.draw(playerProfile.getPlayer());
 			teleportPlayer(playerProfile);
 			giveItems(playerProfile);
@@ -41,11 +43,11 @@ public class IngameState {
 	}
 	
 	public static void giveItems(PlayerProfile playerProfile) {
-		
-		playerProfile.getPlayer().getInventory().clear();
+		Player player = playerProfile.getPlayer();
+		player.getInventory().clear();
 		Inventories.setIngameIventory(playerProfile);
-		playerProfile.getPlayer().setHealth(20);
-		playerProfile.getPlayer().setFoodLevel(20);
+		player.setHealth(20);
+		player.setFoodLevel(20);
 		
 	}
 	
@@ -81,10 +83,9 @@ public class IngameState {
 			
 			@Override
 			public void run() {
-				
 				for(Core core : gameManager.getCores()) {
 					boolean requestAttacked = false;
-					for(Player player : gameManager.getMap().getPlayers()) {
+					for(Player player : Main.getPlugin().getWorld("currentworld").getPlayers()) {
 						PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 						if(core.getTeam() != playerProfile.getTeam()) {
 							if(core.getLocation().distance(player.getLocation()) <= 7)
@@ -115,10 +116,10 @@ public class IngameState {
 					}
 				
 				}				
-				for(Player player : gameManager.getMap().getPlayers()) {
+				for(Player player : Main.getPlugin().getWorld("currentworld").getPlayers()) {
 					PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 					Team team = playerProfile.getTeam();
-					if(player.getLocation().getY() <= MainCommand.getConfigLocation("deathhight", player.getWorld()).getY()) {
+					if(player.getLocation().getY() <= MainCommand.getConfigLocation("deathhight", gameManager.getMap()).getY()) {
 						if(playerProfile.getLastAttacker() != null) {
 							Player attacker = playerProfile.getLastAttacker();
 							PlayerProfile attackerProfile = Main.getPlugin().getGameManager().getPlayerProfile(attacker);
@@ -129,7 +130,7 @@ public class IngameState {
 							Bukkit.broadcastMessage(Main.getPlugin().getVoidDeathMessage(playerProfile));
 						playerProfile.addDeath();
 						ScoreboardManager.draw(player);
-						Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", player.getWorld());
+						Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", gameManager.getMap());
 						player.teleport(location);
 						IngameState.giveItems(gameManager.getPlayerProfile(player));
 						//Bukkit.broadcastMessage(Main.PREFIX + playerProfile.getTeam().getColorCode() + player.getName() + "§7 ist gestorben");

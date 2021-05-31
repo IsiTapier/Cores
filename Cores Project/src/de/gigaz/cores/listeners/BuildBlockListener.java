@@ -17,7 +17,7 @@ public class BuildBlockListener implements Listener {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(event.getPlayer());
 		Player player = event.getPlayer();
-		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) {
+		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 			//BauProtection via Edit Mode
 			if(!playerProfile.isEditMode()) {
 				event.setCancelled(true);

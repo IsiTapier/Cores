@@ -1,5 +1,6 @@
 package de.gigaz.cores.listeners;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -18,7 +19,9 @@ public class BasicListeners implements Listener {
 	
 		@EventHandler
 	public void onFoodChange(FoodLevelChangeEvent event) {
-		if(Main.getPlugin().getGameManager().getCurrentGameState() != GameState.INGAME_STATE)
+		if(!(event.getEntity() instanceof Player))
+			return;
+		if(Main.getPlugin().getGameManager().getCurrentGameState() != GameState.INGAME_STATE || !event.getEntity().getWorld().equals(Main.getPlugin().getWorld("currentworld")))
 			event.setCancelled(true);
 	}
 }

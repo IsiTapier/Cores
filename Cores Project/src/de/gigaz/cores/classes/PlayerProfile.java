@@ -12,8 +12,10 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import de.gigaz.cores.util.Team;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ItemBuilder;
+import de.gigaz.cores.util.ScoreboardManager;
 
 public class PlayerProfile {
 	private Player player;
@@ -29,21 +31,10 @@ public class PlayerProfile {
 	
 	public PlayerProfile(Player player) {
 		this.player = player;
-		inventory = Bukkit.createInventory(null, 1*9, "customize inventory");
-		inventory.setItem(0, new ItemBuilder(Material.STONE_SWORD).setBreakable(false).build());
-		inventory.setItem(1, new ItemBuilder(Material.BOW).setBreakable(false).build());
-		inventory.setItem(2, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
-		inventory.setItem(3, new ItemBuilder(Material.OAK_LOG).setAmount(64).build());
-		inventory.setItem(4, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
-		inventory.setItem(5, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
-		//inventory.setItem(5, new ItemBuilder(Material.BEEF).setAmount(64).build());
-		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).build());
-		inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(12).build());
-		inventory.setItem(8, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build());
+		inventory = Inventories.getDefaultInventory();
 	}
 	
 	public Player getPlayer() {
-		
 		return player;
 	}
 	
@@ -66,7 +57,14 @@ public class PlayerProfile {
 	public void setTeam(Team team) {
 		this.team = team;
 		this.player.setPlayerListName(team.getColorCode() + player.getName());
-		Inventories.setLobbyInventory(this);
+		if(Main.getPlugin().getGameManager().getCurrentGameState().equals(GameState.INGAME_STATE)) {
+			ScoreboardManager.draw(getPlayer());
+			IngameState.teleportPlayer(this);
+			IngameState.giveItems(this);
+			IngameState.deactivateEditMode(this);
+			IngameState.setGameMode(this);
+		} else
+			Inventories.setLobbyInventory(this);
 	}
 
 	public Scoreboard getCurrentScoreboard() {

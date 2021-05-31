@@ -80,9 +80,9 @@ public class EntityDamageListener implements Listener {
 		if(event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
-			if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
+			if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 				if(event.getCause().equals(DamageCause.FALL)) {
-					Location location = gameManager.getSpawnOfTeam(playerProfile.getTeam(), player.getWorld());
+					Location location = gameManager.getSpawnOfTeam(playerProfile.getTeam(), gameManager.getMap());
 					if(location.distance(player.getLocation()) <= 3) {
 						event.setCancelled(true);
 						return;
@@ -129,7 +129,7 @@ public class EntityDamageListener implements Listener {
 		playerProfile.addDeath();
 		player.getInventory().clear();
 		Team team = gameManager.getPlayerProfile(player).getTeam();
-		Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", player.getWorld());
+		Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", gameManager.getMap());
 		player.teleport(location);
 		player.setHealth(20);
 		player.setFoodLevel(20);

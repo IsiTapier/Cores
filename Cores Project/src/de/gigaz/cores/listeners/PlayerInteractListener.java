@@ -32,13 +32,12 @@ public class PlayerInteractListener implements Listener {
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		Block block = event.getClickedBlock();
 		
-		if(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) {
+		if((Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 				if(block.getType().equals(Material.BEACON))
 					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 15*20, 0));
 			}
 		} else {
-
 	
 			if(player.getItemInHand().getType() == Inventories.getMultiTool().build().getType()) {
 				player.openInventory(MultiToolInventory.getInventory(playerProfile.getTeam()));

@@ -44,7 +44,7 @@ public class MainCommand implements CommandExecutor {
 							}
 						}
 
-					} else if(args[0].equalsIgnoreCase("stop")) {
+					} else if(args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("end")) {
 						if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
 							IngameState.stop(Team.UNSET);
 							player.sendMessage(Main.PREFIX + "§7Du hast das Spiel beendet");
@@ -108,7 +108,7 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[0].equalsIgnoreCase("setmap")) {
 						//Main.getPlugin().setMap(args[1]);
 						if(Bukkit.getWorld(args[1]) != null) {
-							if(gameManager.checkMap(Bukkit.getWorld(args[1]))) {
+							if(gameManager.checkMap(Bukkit.getWorld(args[1]), true)) {
 								gameManager.setMap(args[1]);
 								Bukkit.broadcastMessage(Main.PREFIX + "§7Die Map: §6" + args[1] + "§7 wurde von " + player.getName() + " ausgewählt");
 							}
@@ -178,6 +178,7 @@ public class MainCommand implements CommandExecutor {
 		}
 		if(location == null)
 			return null;
+		location.setWorld(Main.getPlugin().getWorld("currentworld"));
 		return location;
 	}
 

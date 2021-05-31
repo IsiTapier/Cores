@@ -28,11 +28,11 @@ public class BreakBlockListener implements Listener {
 		Player player = event.getPlayer();
 		FileConfiguration config = Main.getPlugin().getConfig();
 		Team team = gameManager.getPlayerProfile(player).getTeam();
-		World world = gameManager.getMap();
+		World world = Main.getPlugin().getWorld("currentworld"); // gameManager.getMap();
 		Location location = event.getBlock().getLocation();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 
-		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
+		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 			if(!gameManager.getBuiltBlocks().contains(location)) {
 				if(!playerProfile.isEditMode()) {
 					gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
@@ -67,9 +67,10 @@ public class BreakBlockListener implements Listener {
 				gameManager.getCores().remove(core);
 				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
 				event.getBlock().setType(Material.BEDROCK);
-				if(!gameManager.checkWin()) {
+				gameManager.checkWin();
+				//if(!gameManager.checkWin()) {
 					gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
-				}
+				//}
 				ScoreboardManager.drawAll();
 				
 			}

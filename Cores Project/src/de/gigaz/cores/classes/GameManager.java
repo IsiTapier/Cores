@@ -22,9 +22,9 @@ import de.gigaz.cores.util.Team;
 
 public class GameManager {
 	
-	private HashMap<String, PlayerProfile> playerProfiles = new HashMap<String, PlayerProfile>();;
+	private ArrayList<PlayerProfile> playerProfiles = new ArrayList<PlayerProfile>();;
 	private LobbyState gameStates[] = new LobbyState[3];
-	private GameState currentGameState;
+	private GameState currentGameState = GameState.LOBBY_STATE;
 	private LobbyState lobbyState;
 	private IngameState ingameState;
 	private EndingState endingState;
@@ -46,6 +46,11 @@ public class GameManager {
 		this.map = getMap();
 		
 	}
+
+	public void setMap(World map) {
+		this.map = map;
+		Main.getPlugin().setMap(map.getName());
+	}
 	
 	public void setMap(String name) {
 		//TODO check map valid
@@ -54,6 +59,7 @@ public class GameManager {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		config.set(Main.CONFIG_ROOT + "currentMap", name);
 		this.map = Bukkit.getWorld(name);
+		Main.getPlugin().setMap(name);
 		Main.getPlugin().saveConfig();
 	}
 	
@@ -93,6 +99,7 @@ public class GameManager {
 		for(int x = 0; x <= 30; x++) {
 			if(config.contains(root + x + ".location")) {
 				Location location = config.getLocation(root + x + ".location");
+				location.setWorld(Main.getPlugin().getWorld("currentworld"));
 				//Bukkit.broadcastMessage("§bCore" + x);
 				cores.add(new Core(location, Team.BLUE, x + ""));
 				valid = true;
@@ -102,6 +109,7 @@ public class GameManager {
 		for(int x = 0; x <= 30; x++) {
 			if(config.contains(root + x + ".location")) {
 				Location location = config.getLocation(root + x + ".location");
+				location.setWorld(Main.getPlugin().getWorld("currentworld"));
 				//Bukkit.broadcastMessage("§cCore" + x);
 				cores.add(new Core(location, Team.RED, x + ""));
 
@@ -209,11 +217,11 @@ public class GameManager {
 		return list;
 	}
 
-	public HashMap<String, PlayerProfile> getPlayerProfiles() {
+	public ArrayList<PlayerProfile> getPlayerProfiles() {
 		return playerProfiles;
 	}
 
-	public void setPlayerProfiles(HashMap<String, PlayerProfile> playerProfiles) {
+	public void setPlayerProfiles(ArrayList<PlayerProfile> playerProfiles) {
 		this.playerProfiles = playerProfiles;
 	}
 
@@ -239,21 +247,22 @@ public class GameManager {
 	public void setGameState(GameState gameState) {
 		this.currentGameState = gameState;
 	}
-
-	public void setMap(World map) {
-		this.map = map;
-	}
 	
 	public PlayerProfile getPlayerProfile(Player player) {
-		return playerProfiles.get(player.getName());
+		//return playerProfiles.get(player.getName());
+		for(PlayerProfile playerProfile : playerProfiles) {
+			if(playerProfile.getPlayer().getName().equals(player.getName()))
+				return playerProfile;
+		}
+		return null;
 	}
 	
 	public void addPlayer(Player player) {
-		playerProfiles.put(player.getName(), new PlayerProfile(player));
+		playerProfiles.add(new PlayerProfile(player));
 	}
 	
 	public void removePlayer(Player player) {
-		playerProfiles.remove(player.getName(), new PlayerProfile(player));
+		playerProfiles.remove(playerProfiles.indexOf(getPlayerProfile(player)));
 	}
  
 	public LobbyState[] getGameStates() {
@@ -341,6 +350,28 @@ public class GameManager {
 	}
 	public void playSound(Sound sound, World world) {
 		playSound(sound, world, 5);
+	}
+	
+	public void autoTeam(PlayerProfile playerProfile) {
+		int red = 0;
+		int blue = 0;
+		for(PlayerProfile player : getPlayerProfiles()) {
+			if(player.getTeam().equals(Team.RED))
+				red++;
+			else if(player.getTeam().equals(Team.BLUE))
+				blue++;
+		}
+		if(red < blue)
+			playerProfile.setTeam(Team.RED);
+		else
+			playerProfile.setTeam(Team.BLUE);
+	}
+	
+	public void setTeams() {
+		for(PlayerProfile playerProfile : getPlayerProfiles()) {
+			if(playerProfile.getTeam().equals(Team.UNSET))
+				autoTeam(playerProfile);
+		}
 	}
 }
   

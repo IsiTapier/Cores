@@ -54,15 +54,17 @@ public class EndingState {
 	}
 	public static void showTitle(Team team) {
 		for(Player player : Bukkit.getOnlinePlayers()) {
+			player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard()); 
+			Main.getPlugin().getGameManager().getPlayerProfile(player).resetStats();
 			player.sendTitle(team.getDisplayColor(), "§7hat gewonnen");
 		}
 	}
 	
 	public static void teleportPlayers() {
 		for(Player player : Bukkit.getOnlinePlayers()) {
-			player.sendMessage(player.getWorld().getName());
+			//player.sendMessage(player.getWorld().getName());
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
-			player.sendMessage(player.getWorld().getName());
+			//player.sendMessage(player.getWorld().getName());
 			
 			player.setHealth(20);
 			player.setFoodLevel(20);
