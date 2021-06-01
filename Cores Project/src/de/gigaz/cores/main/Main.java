@@ -42,10 +42,6 @@ public class Main extends JavaPlugin {
 	//Todos
 	//
 	// - Save location of items in inventory
-	
-	
-	
-	
 	private static Main plugin;
 	public static final String CONFIG_ROOT = "cores.";
 	public static final String PREFIX = "§8[§bCores§8] §r";
@@ -75,6 +71,7 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new EntityDamageListener(), this);
 		pluginManager.registerEvents(new BasicListeners(), this);
 		pluginManager.registerEvents(new ScoreboardManager(), this);
+		//VirtualAnvil.onEnable();
 		
 		for(Player player : Bukkit.getOnlinePlayers()) {
 			currentGameManager.getPlayerProfiles().add(new PlayerProfile(player));

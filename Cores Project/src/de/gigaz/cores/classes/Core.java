@@ -34,9 +34,14 @@ public class Core {
 		setConfigCoreName(core.getLocation(), core.getTeam(), core.getNumber(), name);
 	}
 	
-	public static String getConfigCoreName(Location location, Team team, String number, String name) {
+	public static String getConfigCoreName(Location location, Team team, String number) {
 		FileConfiguration config = Main.getPlugin().getConfig();
-		return config.getString(Main.CONFIG_ROOT + "worlds." + location.getWorld().getName() + "." + team.getDebugColor() + ".core." + number + ".name");
+		String root = Main.CONFIG_ROOT + "worlds." + location.getWorld().getName() + "." + team.getDebugColor() + ".core." + number;
+		if(config.contains(root + ".name")) {
+			return config.getString(root + ".name");
+		} else {
+			return number;
+		}
 	}
 	
 	public String getConfigName() {

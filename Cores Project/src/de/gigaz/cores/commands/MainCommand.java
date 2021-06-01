@@ -2,12 +2,21 @@ package de.gigaz.cores.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventoryAnvil;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
+import org.bukkit.inventory.AnvilInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 
 import de.gigaz.cores.classes.Core;
 import de.gigaz.cores.classes.GameManager;
@@ -15,8 +24,13 @@ import de.gigaz.cores.classes.IngameState;
 import de.gigaz.cores.classes.LobbyState;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.util.AnvilGUI;
+import de.gigaz.cores.util.AnvilGUI.AnvilClickEvent;
+import de.gigaz.cores.util.AnvilGUI.AnvilSlot;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
+
 
 public class MainCommand implements CommandExecutor {
 
@@ -25,7 +39,7 @@ public class MainCommand implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			GameManager gameManager = Main.getPlugin().getGameManager();
-			PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
+			PlayerProfile pProfile = gameManager.getPlayerProfile(player);
 			
 			if(args.length == 1) {
 				if(player.hasPermission("cores.admin")) {
@@ -65,11 +79,11 @@ public class MainCommand implements CommandExecutor {
 						player.sendMessage(Main.PREFIX + "§7Du hast die DeathHight auf §6" + Math.round(getConfigLocation("deathhight", player.getWorld()).getY()) + " §7gesetzt");
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
-							if(playerProfile.isEditMode()) {
-								playerProfile.setEditMode(false);
+							if(pProfile.isEditMode()) {
+								pProfile.setEditMode(false);
 								player.sendMessage(Main.PREFIX + "§7Der Edit Mode wurde §cdeaktiviert");
 							} else {
-								playerProfile.setEditMode(true);
+								pProfile.setEditMode(true);
 								player.sendMessage(Main.PREFIX + "§7Der Edit Mode wurde §aaktiviert");
 							}
 						}
@@ -127,11 +141,11 @@ public class MainCommand implements CommandExecutor {
 					player.sendMessage(Main.PERMISSION_DENIED);
 				}
 				if(args[0].equalsIgnoreCase("join")) {
-					if(args[1].equalsIgnoreCase("blue") && !playerProfile.getTeam().equals(Team.BLUE)) {
-						playerProfile.setTeam(Team.BLUE);
+					if(args[1].equalsIgnoreCase("blue") && !pProfile.getTeam().equals(Team.BLUE)) {
+						pProfile.setTeam(Team.BLUE);
 						Main.getPlugin().getGameManager().getPlayerProfile(player).getPlayer().sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.BLUE.getDisplayColor() + " §7beigetreten");
-					} else if(args[1].equalsIgnoreCase("red") && !playerProfile.getTeam().equals(Team.RED)) {
-						playerProfile.setTeam(Team.RED);
+					} else if(args[1].equalsIgnoreCase("red") && !pProfile.getTeam().equals(Team.RED)) {
+						pProfile.setTeam(Team.RED);
 						player.sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.RED.getDisplayColor() + " §7beigetreten");
 					} else {
 						
@@ -251,14 +265,27 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX+"Der Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert, gebe eine vorhandene Nummer an");
 							return false;
 						}
-						String name = "";
 						if(args.length >= 4) {
-							name = args[3];
+							String name = args[3];
+							Core.setConfigCoreName(gameManager.getMap().getSpawnLocation(), team, args[2], name);
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" zu §6"+name+"§r umbenannt");
 						} else {
+							AnvilGUI gui = new AnvilGUI(player, "§1enter core name", "textInput", new AnvilGUI.AnvilClickEventHandler() {
+				                @Override
+				                public void onAnvilClick(AnvilClickEvent event) {
+				                    if(event.getSlot() == AnvilGUI.AnvilSlot.OUTPUT) {
+				                        event.setWillClose(true);
+				                        event.setWillDestroy(true);
+				                        player.chat("/c setCoreName "+team.getDebugColor()+" "+args[2]+" "+event.getName());
+				                    } else {
+				                        event.setWillClose(false);
+				                        event.setWillDestroy(false);
+				                    }
+				                }
+				            }).setSlot(AnvilSlot.INPUT_LEFT, new ItemBuilder(Material.BEACON).setName(team.getColorCode()+Core.getConfigCoreName(gameManager.getMap().getSpawnLocation(), team, args[2])).setAmount(Integer.parseInt(args[2])).setLore("click ouput to submit").build());
 							
 						}
-						Core.setConfigCoreName(gameManager.getMap().getSpawnLocation(), team, args[2], name);
-						player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" zu §6"+name+"§r umbenannt");
+						
 						
 					}
 				}
@@ -332,6 +359,5 @@ public class MainCommand implements CommandExecutor {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		return config.getLocation(Main.CONFIG_ROOT + root);
 	}
-
 	
 }

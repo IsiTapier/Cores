@@ -1,6 +1,5 @@
 package de.gigaz.cores.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -10,8 +9,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -20,14 +18,11 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.GameruleSetting;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.AdminToolInventory;
-import de.gigaz.cores.inventories.GameruleSettings;
 import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
-import de.gigaz.cores.util.ItemBuilder;
-import de.gigaz.cores.util.Team;
 
 public class InventoryClickListener implements Listener {
 	
@@ -39,6 +34,10 @@ public class InventoryClickListener implements Listener {
 		Inventory clicked = event.getClickedInventory();
 		ItemStack item = event.getCurrentItem();
 		GameManager gameManager = Main.getPlugin().getGameManager();
+		
+		if(clicked.getType().equals(InventoryType.ANVIL)) {
+			return;
+		}
 		
 		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE || !player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 			if(player.getOpenInventory().getTitle().equalsIgnoreCase(AdminToolInventory.getTitle())) {
