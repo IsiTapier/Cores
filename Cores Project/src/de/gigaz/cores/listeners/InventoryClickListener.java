@@ -36,6 +36,7 @@ public class InventoryClickListener implements Listener {
 		Inventory clicked = event.getClickedInventory();
 		ItemStack item = event.getCurrentItem();
 		GameManager gameManager = Main.getPlugin().getGameManager();
+		int slot = event.getSlot();
 		
 		if(clicked.getType().equals(InventoryType.ANVIL)) {
 			return;
@@ -95,7 +96,32 @@ public class InventoryClickListener implements Listener {
 				player.closeInventory();
 				event.setCancelled(true);
 				
+			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(ManageTeamsInventory.getTitle())) {
+				event.setCancelled(true);
+				if(item.getType().equals(Material.PLAYER_HEAD))
+					return;
+				if(item.getType().equals(Material.GRAY_STAINED_GLASS_PANE))
+					return;
+				if(item.containsEnchantment(Enchantment.ARROW_INFINITE))
+					item.removeEnchantment(Enchantment.ARROW_INFINITE);
+				int shift = 0;
+				if(item.equals(Inventories.getTeamBlueSelector().disenchant().build()))
+					shift = 1;
+				else if(item.equals(Inventories.getTeamRedSelector().disenchant().build()))
+					shift = 2;
+				else if(item.getType().equals(Material.COMMAND_BLOCK))
+					shift = 3;
+				Player selectedPlayer = Bukkit.getPlayer(clicked.getItem(slot-shift).getItemMeta().getDisplayName());
+				if(item.equals(Inventories.getTeamBlueSelector().disenchant().build()))
+					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" blue");*/selectedPlayer.chat("/c join blue");
+				else if(item.equals(Inventories.getTeamRedSelector().disenchant().build()))
+					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" red");*/selectedPlayer.chat("/c join red");
+				else if(item.getType().equals(Material.COMMAND_BLOCK))
+					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" random");*/selectedPlayer.chat("/c join random");
+				player.openInventory(ManageTeamsInventory.getInventory());
+				
 			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase("Gamerule Settings")) {
+				event.setCancelled(true);
 				if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
 					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()+1);
 					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {

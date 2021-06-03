@@ -3,14 +3,13 @@ package de.gigaz.cores.listeners;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -23,7 +22,6 @@ import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
-import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
 
 
@@ -42,19 +40,22 @@ public class PlayerInteractListener implements Listener {
 					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 15*20, 0));
 			}
 		} else {
-			     if(player.getItemInHand().equals(Inventories.getMultiTool().build()))
+			ItemStack mainHand = player.getInventory().getItemInMainHand();
+			if(mainHand.containsEnchantment(Enchantment.ARROW_INFINITE))
+				mainHand.removeEnchantment(Enchantment.ARROW_INFINITE);
+			     if(mainHand.equals(Inventories.getMultiTool().build()))
 				player.openInventory(MultiToolInventory.getInventory(playerProfile.getTeam()));
-			else if(player.getItemInHand().equals(Inventories.getAdminTool().build()))
+			else if(mainHand.equals(Inventories.getAdminTool().build()))
 				player.openInventory(AdminToolInventory.getInventory());		
-			else if(player.getItemInHand().equals(Inventories.getTeamRedSelector().disenchant().build()))
+			else if(mainHand.equals(Inventories.getTeamRedSelector().disenchant().setLore(MultiToolInventory.getLore(Team.RED)).build()))
 				player.chat("/c join red");	
-			else if(player.getItemInHand().equals(Inventories.getTeamBlueSelector().disenchant().build()))
+			else if(mainHand.equals(Inventories.getTeamBlueSelector().disenchant().setLore(MultiToolInventory.getLore(Team.BLUE)).build()))
 				player.chat("/c join blue");	
 			else if(player.getItemInHand().equals(Inventories.getGameruleSettings().build()))
 				player.openInventory(GameruleSettings.buildInventory());
-			else if(player.getItemInHand().equals(Inventories.getCustomizeInventory().build()))
+			else if(mainHand.equals(Inventories.getCustomizeInventory().build()))
 				player.openInventory(playerProfile.getInventory());
-			else if(player.getItemInHand().equals(Inventories.getMapVote().build()))
+			else if(mainHand.equals(Inventories.getMapVote().build()))
 				player.openInventory(MapSelectInventory.getNormalInventory());
 			    
 			if(!playerProfile.isEditMode())

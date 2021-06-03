@@ -20,14 +20,14 @@ public class LobbyState {
 	
 	private static final boolean uselast = false;
 
-	private int countdown;
+	private static boolean countdownActive = false;
 	
 	//voting
 	private static HashMap<Player, World> voted = new HashMap<Player, World>();
 	private static HashMap<World, Integer> votes = new HashMap<World, Integer>();
 	
-	public LobbyState(int countdown) {
-		this.countdown = countdown;
+	public LobbyState() {
+		
 	}
 	
 	
@@ -57,6 +57,7 @@ public class LobbyState {
 	}
 	
 	private static void startCountdown() {
+		countdownActive = true;
 		CountdownTimer timer = new CountdownTimer(Main.getPlugin(), 10, 10, 1,
 				//before timer
 		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in §c20§e Sekunden!");},

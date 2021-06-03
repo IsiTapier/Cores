@@ -3,6 +3,7 @@ package de.gigaz.cores.classes;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -20,6 +21,10 @@ import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.ScoreboardManager;
 
 public class PlayerProfile {
+	
+	private static final boolean changeEditGameMode = true;
+	
+	
 	private Player player;
 	private boolean editMode = false;
 	private Team team = Team.UNSET;
@@ -28,8 +33,6 @@ public class PlayerProfile {
 	private Scoreboard currentScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 	private Player lastAttacker;
 	private Inventory inventory;
-	
-
 	
 	public PlayerProfile(Player player) {
 		this.player = player;
@@ -53,7 +56,13 @@ public class PlayerProfile {
 	}
 
 	public void setEditMode(boolean editMode) {
+		if(this.editMode == editMode)
+			return;
 		this.editMode = editMode;
+		if(editMode && changeEditGameMode)
+			player.setGameMode(GameMode.CREATIVE);
+		else
+			player.setGameMode(GameMode.SURVIVAL);
 	}
 
 	public void setTeam(Team team) {

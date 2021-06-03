@@ -200,8 +200,8 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[1].equalsIgnoreCase("red") && !playerProfile.getTeam().equals(Team.RED)) {
 						playerProfile.setTeam(Team.RED);
 						player.sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.RED.getDisplayColor() + " §7beigetreten");
-					} else {
-						
+					} else if(args[1].equalsIgnoreCase("blue") || args[1].equalsIgnoreCase("red")) {
+						player.sendMessage(Main.PREFIX + "§7Du bist bereits dem Team " + playerProfile.getTeam().getDisplayColor() + " §7beigetreten");
 					}
 				
 				}

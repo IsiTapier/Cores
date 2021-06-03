@@ -19,6 +19,7 @@ public class Inventories {
 	private static ItemBuilder adminTool = new ItemBuilder(Material.REDSTONE_TORCH).setName("§cAdmin Tool");
 	private static ItemBuilder teamRedSelector = new ItemBuilder(Material.RED_CONCRETE).setName("§7Team " + Team.RED.getDisplayColor()).hideEnchants();
 	private static ItemBuilder teamBlueSelector = new ItemBuilder(Material.BLUE_CONCRETE).setName("§7Team "+ Team.BLUE.getDisplayColor()).hideEnchants();
+	private static ItemBuilder teamRandomSelector = new ItemBuilder(Material.COMMAND_BLOCK).setName("§7Team§r Random").hideEnchants();
 	private static ItemBuilder gameruleSettings = new ItemBuilder(Material.WRITABLE_BOOK).setName("Gamerule Settings");
 	public static final String defaultInventoryName = "customize inventory";
 	
@@ -127,6 +128,10 @@ public class Inventories {
 
 	public static ItemBuilder getTeamBlueSelector() {
 		return teamBlueSelector;
+	}
+	
+	public static ItemBuilder getTeamRandomSelector() {
+		return teamRandomSelector;
 	}
 	
 	public static ItemBuilder getGameruleSettings() {

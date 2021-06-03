@@ -106,5 +106,12 @@ public class ItemBuilder implements Cloneable {
 	public List<String> getLore() {
 		return itemMeta.getLore();
 	}
+	
+	public static ItemStack rename(ItemStack item, String name) {
+		ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(name);
+		item.setItemMeta(meta);
+		return item;
+	}
 
 }
