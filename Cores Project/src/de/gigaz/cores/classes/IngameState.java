@@ -8,6 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
@@ -26,7 +28,7 @@ public class IngameState {
 		gameManager.setGameState(GameState.INGAME_STATE);
 		gameManager.stockCores();
 		ScoreboardManager.drawAll();
-		if(Main.autoteam)
+		if(gameManager.getGameruleSetting(gameManager.autoTeamGamerule).getValue())
 			gameManager.setTeams();
 		
 		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
@@ -36,6 +38,22 @@ public class IngameState {
 			giveItems(playerProfile);
 			deactivateEditMode(playerProfile);
 			setGameMode(playerProfile);
+			if(gameManager.getGameruleSetting(gameManager.aquaGamerule).getValue()) {
+				player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, gameManager.getGameruleSetting(gameManager.speedGamerule).getValue() ? 1 : 0, false, false, false));
+				player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
+			}
+			if(gameManager.getGameruleSetting(gameManager.hasteGamerule).getValue())
+				player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 2, false, false, false));
+			if(gameManager.getGameruleSetting(gameManager.jumpboostGamerule).getValue())
+				player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 1, false, false, false));
+			if(gameManager.getGameruleSetting(gameManager.speedGamerule).getValue())
+				player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, false, false, false));
+			if(gameManager.getGameruleSetting(gameManager.invisibilityGamerule).getValue())
+				player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
+			if(gameManager.getGameruleSetting(gameManager.glowingGamerule).getValue())
+				player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
+		
 		}
 		
 		checkUpLoop();

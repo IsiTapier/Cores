@@ -20,7 +20,7 @@ import de.gigaz.cores.util.Team;
 public class ManageTeamsInventory {
 	
 	private static String title = "§8Manage Teams";
-	private static int rows = (int) ((int) 3*Math.ceil(Main.getPlugin().getGameManager().getPlayerProfiles().size()/2.0));
+	private static int rows = (int) Math.ceil(Main.getPlugin().getGameManager().getPlayerProfiles().size()/2.0);
 
 	
 	private static Inventory buildInventory(String title, int rows) {
@@ -31,10 +31,6 @@ public class ManageTeamsInventory {
 		ItemStack barrier = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build();
 		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
 			Player player = playerProfile.getPlayer();
-			if(index%9==4) {
-				inventory.setItem(index, barrier);
-				index++;
-			}
 			
 			Inventories.getTeamBlueSelector().disenchant().clearLore();
 			Inventories.getTeamRedSelector().disenchant().clearLore();
@@ -59,23 +55,6 @@ public class ManageTeamsInventory {
 			inventory.setItem(index+2, red);
 			inventory.setItem(index+3, random);
 			index+=4;
-			
-			inventory.setItem(index, skull);
-			inventory.setItem(index+1, blue);
-			inventory.setItem(index+2, red);
-			inventory.setItem(index+3, random);
-			index+=4;
-			if(!player.getName().equalsIgnoreCase("isitapier")) {
-			if(index%9==4) {
-				inventory.setItem(index, barrier);
-				index++;
-			}
-			inventory.setItem(index, skull);
-			inventory.setItem(index+1, blue);
-			inventory.setItem(index+2, red);
-			inventory.setItem(index+3, random);
-			index+=4;
-			}
 		}
 		//fill rest
 		while(index%9>0) {

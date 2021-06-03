@@ -63,6 +63,8 @@ public class PlayerProfile {
 			player.setGameMode(GameMode.CREATIVE);
 		else
 			player.setGameMode(GameMode.SURVIVAL);
+		if(!this.editMode)
+			Inventories.setLobbyInventory(this);
 	}
 
 	public void setTeam(Team team) {

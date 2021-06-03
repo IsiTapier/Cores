@@ -19,6 +19,7 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.GameruleSetting;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.AdminToolInventory;
+import de.gigaz.cores.inventories.GameruleSettings;
 import de.gigaz.cores.inventories.ManageTeamsInventory;
 import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
@@ -122,29 +123,61 @@ public class InventoryClickListener implements Listener {
 				
 			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase("Gamerule Settings")) {
 				event.setCancelled(true);
-				if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
-					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()+1);
-					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
-						if(gameruleSetting.getItem().equals(setting)) {
-							gameruleSetting.setValue(false);
-							ItemMeta meta = item.getItemMeta();
-							meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-							item.setItemMeta(meta);
-							player.getOpenInventory().getItem(event.getSlot()+2).removeEnchantment(Enchantment.ARROW_INFINITE);
+				/*if(GameruleSettings.getUiMode()) {
+					if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
+						ItemStack setting = player.getOpenInventory().getItem(event.getSlot()+1);
+						for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
+							if(gameruleSetting.getItem().equals(setting)) {
+								gameruleSetting.setValue(false);
+								ItemMeta meta = item.getItemMeta();
+								meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
+								item.setItemMeta(meta);
+								player.getOpenInventory().getItem(event.getSlot()+2).removeEnchantment(Enchantment.ARROW_INFINITE);
+							}
+						}
+					} else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE)) {
+						ItemStack setting = player.getOpenInventory().getItem(event.getSlot()-1);
+						for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
+							if(gameruleSetting.getItem().equals(setting)) {
+								gameruleSetting.setValue(true);
+								ItemMeta meta = item.getItemMeta();
+								meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
+								item.setItemMeta(meta);
+								player.getOpenInventory().getItem(event.getSlot()-2).removeEnchantment(Enchantment.ARROW_INFINITE);
+							}
 						}
 					}
-				} else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE)) {
+				} else {
 					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()-1);
 					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
 						if(gameruleSetting.getItem().equals(setting)) {
-							gameruleSetting.setValue(true);
-							ItemMeta meta = item.getItemMeta();
-							meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-							item.setItemMeta(meta);
-							player.getOpenInventory().getItem(event.getSlot()-2).removeEnchantment(Enchantment.ARROW_INFINITE);
+							gameruleSetting.switchValue();
+							player.getOpenInventory().setItem(slot, gameruleSetting.getValue()?GameruleSettings.getEnable():GameruleSettings.getDisable());
 						}
 					}
+				}*/
+				if(!item.getType().equals(Material.RED_STAINED_GLASS_PANE) && !item.getType().equals(Material.GREEN_STAINED_GLASS_PANE))
+					return;
+				ItemStack setting;
+				int shift;
+				if(GameruleSettings.getUiMode() && item.getType().equals(Material.RED_STAINED_GLASS_PANE))
+					shift = 1;
+				else
+					shift = -1;
+				setting = player.getOpenInventory().getItem(event.getSlot()+shift);
+				
+				for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
+					if(gameruleSetting.getItem().equals(setting)) {
+						if(GameruleSettings.getUiMode()) {
+							if(item.getType().equals(Material.RED_STAINED_GLASS_PANE))
+								gameruleSetting.setValue(false);
+							else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE))
+								gameruleSetting.setValue(true);
+						} else
+							gameruleSetting.switchValue();
+					}
 				}
+				player.openInventory(GameruleSettings.buildInventory());
 			}
 		}
 		/*Bukkit.broadcastMessage(player.getInventory().toString());

@@ -9,8 +9,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
+import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.MultiToolInventory;
+import de.gigaz.cores.main.Main;
 
 public class Inventories {
 	private static ItemBuilder voteMap = new ItemBuilder(Material.PAPER).setName("§7Map-Voting");
@@ -24,21 +26,34 @@ public class Inventories {
 	public static final String defaultInventoryName = "customize inventory";
 	
 	public static Inventory getDefaultInventory() {
+		GameManager gameManager = Main.getPlugin().getGameManager();
 		Inventory inventory = Bukkit.createInventory(null, 1*9, defaultInventoryName);
 		inventory.setItem(0, new ItemBuilder(Material.IRON_SWORD).setBreakable(false).build());
-		inventory.setItem(1, new ItemBuilder(Material.BOW).setBreakable(false).build());
-		inventory.setItem(2, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
+		if(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue())
+			inventory.setItem(1, new ItemBuilder(Material.CROSSBOW).setName("X-BOW").setLore("The legend X-Bow of strengthness.").setAmount(1).addEnchantment(Enchantment.QUICK_CHARGE, 5).setBreakable(false).build());
+		else if(gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue())
+			inventory.setItem(1, new ItemBuilder(Material.CROSSBOW).setBreakable(false).build());
+		else
+			inventory.setItem(1, new ItemBuilder(Material.BOW).setBreakable(false).build());
+		if(gameManager.getGameruleSetting(gameManager.combatAxeGamerule).getValue())
+			inventory.setItem(2, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
+		else
+			inventory.setItem(2, new ItemBuilder(Material.GOLDEN_AXE).setBreakable(false).addEnchantment(Enchantment.DIG_SPEED, 1).build());
 		inventory.setItem(3, new ItemBuilder(Material.OAK_LOG).setAmount(64).build());
 		inventory.setItem(4, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
 		inventory.setItem(5, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
 		//inventory.setItem(5, new ItemBuilder(Material.BEEF).setAmount(64).build());
-		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).build());
-		inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(12).build());
+		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:16).build());
+		if(gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue())
+			inventory.setItem(7, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue()||gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue()?2:1).setBreakable(false).build());
+		else
+			inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:12).build());
 		inventory.setItem(8, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build());
 		return inventory;
 	}
 	
 	public static void setIngameIventory(PlayerProfile playerProfile) {
+		GameManager gameManager = Main.getPlugin().getGameManager();
 		Player player = playerProfile.getPlayer();
 		Inventory inventory = player.getInventory();
 		inventory.clear();
@@ -56,6 +71,23 @@ public class Inventories {
 					inventory.setItem(i, new ItemBuilder(Material.WARPED_STEM).setAmount(64).build());
 				else if(inventory.getItem(i).getType().equals(Material.OAK_PLANKS))
 					inventory.setItem(i, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());
+				else if(!gameManager.getGameruleSetting(gameManager.combatAxeGamerule).getValue() && inventory.getItem(i).getType().equals(Material.IRON_AXE))
+					inventory.setItem(i, new ItemBuilder(Material.GOLDEN_AXE).setBreakable(false).addEnchantment(Enchantment.DIG_SPEED, 1).build());
+				else if(gameManager.getGameruleSetting(gameManager.combatAxeGamerule).getValue() && inventory.getItem(i).getType().equals(Material.GOLDEN_AXE))
+					inventory.setItem(i, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
+				else if(gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue() && inventory.getItem(i).getType().equals(Material.ARROW))
+					inventory.setItem(i, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue()||gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue()?2:1).setBreakable(false).build());
+				else if(!gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue() && inventory.getItem(i).getType().equals(Material.ARROW))
+					inventory.setItem(i, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreArrowsGamerule).getValue()?64:12).build());
+				else if(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue() && (inventory.getItem(i).getType().equals(Material.BOW) || inventory.getItem(i).getType().equals(Material.CROSSBOW) && !inventory.getItem(i).getItemMeta().getDisplayName().equals("X-BOW")))
+					inventory.setItem(i, new ItemBuilder(Material.CROSSBOW).setName("X-BOW").setLore("The legend X-Bow of strengthness.").setAmount(1).addEnchantment(Enchantment.QUICK_CHARGE, 5).setBreakable(false).build());
+				else if(gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue() && (inventory.getItem(i).getType().equals(Material.BOW) || inventory.getItem(i).getItemMeta().getDisplayName().equals("X-BOW")))
+					inventory.setItem(i, new ItemBuilder(Material.CROSSBOW).setBreakable(false).build());
+				else if(!gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue() && inventory.getItem(i).getType().equals(Material.CROSSBOW))
+					inventory.setItem(i, new ItemBuilder(Material.BOW).setBreakable(false).build());
+				else if(inventory.getItem(i).getType().equals(Material.GOLDEN_APPLE))
+					inventory.setItem(i, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:16).build());
+
 			}
 			/*inventory.setItem(3, new ItemBuilder(Material.WARPED_STEM).setAmount(64).build());
 			inventory.setItem(4, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());
@@ -71,6 +103,22 @@ public class Inventories {
 					inventory.setItem(i, new ItemBuilder(Material.CRIMSON_STEM).setAmount(64).build());
 				else if(inventory.getItem(i).getType().equals(Material.OAK_PLANKS))
 					inventory.setItem(i, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());
+				else if(!gameManager.getGameruleSetting(gameManager.combatAxeGamerule).getValue() && inventory.getItem(i).getType().equals(Material.IRON_AXE))
+					inventory.setItem(i, new ItemBuilder(Material.GOLDEN_AXE).setBreakable(false).addEnchantment(Enchantment.DIG_SPEED, 1).build());
+				else if(gameManager.getGameruleSetting(gameManager.combatAxeGamerule).getValue() && inventory.getItem(i).getType().equals(Material.GOLDEN_AXE))
+					inventory.setItem(i, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
+				else if(gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue() && inventory.getItem(i).getType().equals(Material.ARROW))
+					inventory.setItem(i, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue()||gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue()?2:1).setBreakable(false).build());
+				else if(!gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue() && inventory.getItem(i).getType().equals(Material.ARROW))
+					inventory.setItem(i, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreArrowsGamerule).getValue()?64:12).build());
+				else if(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue() && (inventory.getItem(i).getType().equals(Material.BOW) || inventory.getItem(i).getType().equals(Material.CROSSBOW) && !inventory.getItem(i).getItemMeta().getDisplayName().equals("X-BOW")))
+					inventory.setItem(i, new ItemBuilder(Material.CROSSBOW).setName("X-BOW").setLore("The legend X-Bow of strengthness.").setAmount(1).addEnchantment(Enchantment.QUICK_CHARGE, 5).setBreakable(false).build());
+				else if(gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue() && (inventory.getItem(i).getType().equals(Material.BOW) || inventory.getItem(i).getItemMeta().getDisplayName().equals("X-BOW")))
+					inventory.setItem(i, new ItemBuilder(Material.CROSSBOW).setBreakable(false).build());
+				else if(!gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue() && inventory.getItem(i).getType().equals(Material.CROSSBOW))
+					inventory.setItem(i, new ItemBuilder(Material.BOW).setBreakable(false).build());
+				else if(inventory.getItem(i).getType().equals(Material.GOLDEN_APPLE))
+					inventory.setItem(i, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:16).build());
 			}
 			/*inventory.setItem(3, new ItemBuilder(Material.CRIMSON_STEM).setAmount(64).build());
 			inventory.setItem(4, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());
@@ -81,6 +129,8 @@ public class Inventories {
 			player.getInventory().setChestplate(setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
 			player.getInventory().setHelmet(setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
 		}
+		if(gameManager.getGameruleSetting(gameManager.shieldGamerule).getValue())
+			player.getInventory().setItemInOffHand(new ItemBuilder(Material.SHIELD).setBreakable(false).build());
 	}
 	
 	public static void setLobbyInventory(PlayerProfile playerProfile) {

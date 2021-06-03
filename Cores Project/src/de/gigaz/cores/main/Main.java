@@ -31,6 +31,7 @@ import de.gigaz.cores.listeners.BuildBlockListener;
 import de.gigaz.cores.listeners.ConnectionListener;
 import de.gigaz.cores.listeners.DropListener;
 import de.gigaz.cores.listeners.EntityDamageListener;
+import de.gigaz.cores.listeners.EntityShootBowListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
@@ -49,8 +50,8 @@ public class Main extends JavaPlugin {
 	public static final String PREFIX = "§8[§bCores§8] §r";
 	public static final String PERMISSION_DENIED = PREFIX + "§7Dazu hast du §ckeine §7Rechte";
 	public GameManager currentGameManager;
-	public static final boolean autoteamrejoin = false;
-	public static final boolean autoteam = true;
+	public boolean autoteamrejoin; 
+	public boolean autoteam; 
 	public static final boolean autoteamcountoffline = true;
 	public static final boolean autoteamsetoffline = false; //not recommended
 	
@@ -73,6 +74,7 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new EntityDamageListener(), this);
 		pluginManager.registerEvents(new BasicListeners(), this);
 		pluginManager.registerEvents(new ScoreboardManager(), this);
+		pluginManager.registerEvents(new EntityShootBowListener(), this);
 
 		Location spawn = MainCommand.getConfigGeneralLocation("lobbyspawn");
 		if(spawn == null)

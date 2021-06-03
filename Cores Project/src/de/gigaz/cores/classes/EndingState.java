@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
@@ -65,9 +66,10 @@ public class EndingState {
 			//player.sendMessage(player.getWorld().getName());
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
 			//player.sendMessage(player.getWorld().getName());
-			
 			player.setHealth(20);
 			player.setFoodLevel(20);
+			for(PotionEffect effect : player.getActivePotionEffects())
+				player.removePotionEffect(effect.getType());
 			Inventories.setLobbyInventory(Main.getPlugin().getGameManager().getPlayerProfile(player));
 		}
 	}

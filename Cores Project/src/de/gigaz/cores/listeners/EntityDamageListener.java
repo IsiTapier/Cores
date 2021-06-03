@@ -54,7 +54,9 @@ public class EntityDamageListener implements Listener {
 		Player attacker = attackerProfile.getPlayer();
 		Player target = targetProfile.getPlayer();
 		
-		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && targetProfile.getTeam() != attackerProfile.getTeam()) {		
+		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && targetProfile.getTeam() != attackerProfile.getTeam()) {	
+			if(gameManager.getGameruleSetting(gameManager.onehitGamerule).getValue())
+				event.setDamage(Double.MAX_VALUE);
 			if(target.getHealth() - event.getDamage() < 1) {
 				if(attackerProfile.getPlayer() != targetProfile.getPlayer())
 					attackerProfile.addKill();
@@ -83,7 +85,7 @@ public class EntityDamageListener implements Listener {
 			if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 				if(event.getCause().equals(DamageCause.FALL)) {
 					Location location = gameManager.getSpawnOfTeam(playerProfile.getTeam(), gameManager.getMap());
-					if(location.distance(player.getLocation()) <= 3) {
+					if(location.distance(player.getLocation()) <= 3 || gameManager.getGameruleSetting(gameManager.noFallDamageGamerule).getValue()) {
 						event.setCancelled(true);
 						return;
 					}

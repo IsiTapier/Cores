@@ -22,6 +22,9 @@ public class LobbyState {
 
 	private static boolean countdownActive = false;
 	
+	private static CountdownTimer countdownLong;
+	private static CountdownTimer countdownShort;
+	
 	//voting
 	private static HashMap<Player, World> voted = new HashMap<Player, World>();
 	private static HashMap<World, Integer> votes = new HashMap<World, Integer>();
@@ -39,13 +42,24 @@ public class LobbyState {
 	}
 	
 	public static void stop() {
+		if(countdownLong != null)
+			countdownLong.stopTimer();
 		setMap();
 		clearVotes();
+		countdownActive = true;
 		startCountdown();
 	}
 	
+	public static void earlyStop() {
+		if(countdownShort != null)
+			countdownShort.stopTimer();
+		Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel hat begonnen!");
+		countdownActive = false;
+		IngameState.start();
+	}
+	
 	private static void startTimer() {
-		CountdownTimer timer = new CountdownTimer(Main.getPlugin(), 5*60, 0, 60,
+		countdownLong = new CountdownTimer(Main.getPlugin(), 5*60, 0, 60,
 				//before timer
 		        () -> {},
 		        //after timer
@@ -53,20 +67,20 @@ public class LobbyState {
 		        //while timer
 		        (t) -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + (t.getSecondsLeft()/60) + " Minuten!");}
 		);
-		timer.scheduleTimer();
+		countdownLong.scheduleTimer();
 	}
 	
 	private static void startCountdown() {
 		countdownActive = true;
-		CountdownTimer timer = new CountdownTimer(Main.getPlugin(), 10, 10, 1,
+		countdownShort = new CountdownTimer(Main.getPlugin(), 10, 10, 1,
 				//before timer
 		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in §c20§e Sekunden!");},
 		        //after timer
-		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel hat begonnen!"); IngameState.start();},
+		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel hat begonnen!"); countdownActive = false; IngameState.start();},
 		        //while timer
 		        (t) -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + ChatColor.RED + t.getSecondsLeft() + ChatColor.YELLOW + " Sekunden!");}
 		);
-		timer.scheduleTimer();
+		countdownShort.scheduleTimer();
 	}
 	
 	private static void setMap() {
@@ -165,6 +179,10 @@ public class LobbyState {
 		Bukkit.broadcastMessage(Main.PREFIX+"§6Winner: §b"+world.getName());
 		Bukkit.broadcastMessage("<<<<<<<<<<>>>>>>>>>>");
 		Bukkit.broadcastMessage("");
+	}
+	
+	public static boolean isStarting() {
+		return countdownActive;
 	}
 	
 }

@@ -48,6 +48,15 @@ public class MainCommand implements CommandExecutor {
 						setConfigGeneralLocation(player, "lobbyspawn");
 						player.sendMessage(Main.PREFIX + "§7Du hast den Lobbyspawn gesetzt");
 					} else if(args[0].equalsIgnoreCase("start")) {
+						if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
+							player.sendMessage(Main.PREFIX + "§7Das Spiel hat bereits begonnen");
+							return false;
+						}
+						if(gameManager.getCurrentGameState() == GameState.LOBBY_STATE && LobbyState.isStarting()) {
+							LobbyState.earlyStop();
+							player.sendMessage(Main.PREFIX + "§7Du hast den Countdown übersprugen");
+							return false;
+						}
 						FileConfiguration config = Main.getPlugin().getConfig();
 						if(!config.contains(Main.CONFIG_ROOT+"worlds"))
 							return false;
@@ -59,6 +68,9 @@ public class MainCommand implements CommandExecutor {
 								valid = true;
 						if(!valid)
 							return false;
+						player.sendMessage(Main.PREFIX + "§7Du hast den Countdown §6gestartet");
+						player.sendMessage(Main.PREFIX + "§7Benutze erneut /start um den Countdown zu überspringen");
+						LobbyState.stop();
 						/*if(gameManager.getMap() == null && gameManager.getLastMap() == null) {
 							player.sendMessage(Main.PREFIX+"Bitte setzte zuerst die Map");
 							return false;
@@ -66,12 +78,6 @@ public class MainCommand implements CommandExecutor {
 						if(gameManager.getMap() == null)
 							gameManager.setMap(gameManager.getLastMap());
 						if(gameManager.checkMap(gameManager.getMap())) {*/
-						if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) {
-							player.sendMessage(Main.PREFIX + "§7Du hast das Spiel §6gestartet");
-							LobbyState.stop();
-						} else {
-							player.sendMessage(Main.PREFIX + "§7Das Spiel hat bereits begonnen");
-						}
 						//}						
 					} else if(args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("end")) {
 						if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {

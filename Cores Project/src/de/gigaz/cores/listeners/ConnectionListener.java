@@ -28,7 +28,7 @@ public class ConnectionListener implements Listener {
 		if(playerProfile == null) {
 			gameManager.addPlayer(player);
 			playerProfile = gameManager.getPlayerProfile(player);
-			if(Main.autoteamrejoin) {
+			if(gameManager.getGameruleSetting(gameManager.autoTeamGamerule).getValue()) {
 				gameManager.autoTeam(playerProfile);
 				ScoreboardManager.draw(playerProfile.getPlayer());
 				IngameState.teleportPlayer(playerProfile);

@@ -1,6 +1,7 @@
 package de.gigaz.cores.classes;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
 import de.gigaz.cores.commands.MainCommand;
@@ -22,6 +24,33 @@ import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
 
 public class GameManager {
+	//Gamerule Names
+	//effects
+	public final String aquaGamerule = "aqua";
+	public final String hasteGamerule = "haste";
+	public final String jumpboostGamerule = "jumpboost";
+	public final String speedGamerule = "speed";
+	public final String invisibilityGamerule = "invisibility";
+	public final String glowingGamerule = "glowing";
+	
+	public final String autoTeamGamerule = "auto Team";
+	public final String randomTeamGamerule = "random Teams"; //TODO
+	
+	public final String noFallDamageGamerule = "no Fall Damage";
+	
+	//inventory
+	public final String combatAxeGamerule = "Combat Axe";
+	public final String shieldGamerule = "Shield";
+	public final String infiniteArrowsGamerule = "infinite arrows";
+	public final String superCrossbowGamerule = "super Crossbow";
+	public final String onehitGamerule = "onehit";
+	public final String moreArrowsGamerule = "more arrows";
+	public final String moreGoldApplesGamerule = "more gold apples";
+	public final String crossbowGamerule = "Crossbow";
+	
+	
+	private final ArrayList<World> aquaMaps = new ArrayList<World>(Arrays.asList(Bukkit.getWorld("aquaMap")));
+	
 	
 	private ArrayList<PlayerProfile> playerProfiles = new ArrayList<PlayerProfile>();;
 	private LobbyState gameStates[] = new LobbyState[3];
@@ -31,12 +60,24 @@ public class GameManager {
 	private EndingState endingState;
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
 	private ArrayList<Location> builtBlocks = new ArrayList<Location>();					
-	private HashMap<String, GameruleSetting> gameruleSettings = new HashMap<String, GameruleSetting>() {{
-		put("test", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test").build()));
-		put("test1", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test1").build()));
-		put("test2", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test2").build()));
-		put("test3", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test3").build()));
-		put("test4", new GameruleSetting(new ItemBuilder(Material.TNT).setName("test4").build()));
+	private final HashMap<String, GameruleSetting> gameruleSettings = new HashMap<String, GameruleSetting>() {{
+		put(aquaGamerule, new GameruleSetting(new ItemBuilder(Material.WATER_BUCKET).setName(aquaGamerule).build()));
+		put(hasteGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_PICKAXE).setName(hasteGamerule).build()));
+		put(jumpboostGamerule, new GameruleSetting(new ItemBuilder(Material.RABBIT_FOOT).setName(jumpboostGamerule).build()));
+		put(speedGamerule, new GameruleSetting(new ItemBuilder(Material.LEATHER_BOOTS).setName(speedGamerule).build()));
+		put(invisibilityGamerule, new GameruleSetting(new ItemBuilder(Material.WHITE_STAINED_GLASS).setName(invisibilityGamerule).build()));
+		put(glowingGamerule, new GameruleSetting(new ItemBuilder(Material.SPECTRAL_ARROW).setName(glowingGamerule).build()));
+		put(autoTeamGamerule, new GameruleSetting(new ItemBuilder(Material.STRUCTURE_BLOCK).setName(autoTeamGamerule).build(), true));
+		put(randomTeamGamerule, new GameruleSetting(new ItemBuilder(Material.COMMAND_BLOCK).setName(randomTeamGamerule).build()));
+		put(noFallDamageGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_BOOTS).setName(noFallDamageGamerule).addEnchantment(Enchantment.PROTECTION_FALL, 10).build()));
+		put(combatAxeGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_AXE).setName(combatAxeGamerule).build(), true));
+		put(shieldGamerule, new GameruleSetting(new ItemBuilder(Material.SHIELD).setName(shieldGamerule).build()));
+		put(infiniteArrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setName(infiniteArrowsGamerule).addEnchantment(Enchantment.ARROW_INFINITE, 10).build()));
+		put(superCrossbowGamerule, new GameruleSetting(new ItemBuilder(Material.CROSSBOW).setName(superCrossbowGamerule).addEnchantment(Enchantment.QUICK_CHARGE, 10).build()));
+		put(onehitGamerule, new GameruleSetting(new ItemBuilder(Material.NETHERITE_SWORD).setName(onehitGamerule).addEnchantment(Enchantment.DAMAGE_ALL, 10).build()));
+		put(moreArrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setName(moreArrowsGamerule).setAmount(64).build()));
+		put(moreGoldApplesGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_APPLE).setName(moreGoldApplesGamerule).setAmount(64).build()));
+		put(crossbowGamerule, new GameruleSetting(new ItemBuilder(Material.CROSSBOW).setName(crossbowGamerule).build()));
 	}};
 	
 	private int blockProtectionRadius = 2;
@@ -69,6 +110,9 @@ public class GameManager {
 		for(Player player : Main.getPlugin().getWorld("currentworld").getPlayers())
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
 		Main.getPlugin().setMap(map.getName());
+
+		
+		gameruleSettings.get(aquaGamerule).setValue(aquaMaps.contains(map) ? true : false);
 		
 		/*FileConfiguration config = Main.getPlugin().getConfig();
 		config.set(Main.CONFIG_ROOT + "currentMap", this.map.getName());
@@ -276,9 +320,11 @@ public class GameManager {
 			if(coreLocation.getY() - location.getY() >= blockProtectionHeight) continue;
 			location = new Location(location.getWorld(), location.getX(), coreLocation.getY(), location.getZ());
 			if(coreLocation.distance(location) < blockProtectionRadius) {
-				if(location != coreLocation) {
-					return true;
-				}			
+				boolean iscore = false;
+				for(Core core_ : getCores()) {
+					if(location == core_.getLocation())
+						iscore = true;
+				}
 			}		
 		}
 		return false;
@@ -433,11 +479,7 @@ public class GameManager {
 		return gameruleSettings;
 	}
 	
-	public void setGameruleSettings(HashMap<String, GameruleSetting> gameruleSettings) {
-		this.gameruleSettings = gameruleSettings;
-	}
-	
-	public GameruleSetting getGameRuleSetting(String name) {
+	public GameruleSetting getGameruleSetting(String name) {
 		return gameruleSettings.get(name);
 	}
 	
