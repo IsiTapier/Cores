@@ -63,16 +63,17 @@ public class BreakBlockListener implements Listener {
 			Core core = gameManager.getCore(location);
 			if(core != null) {
 				event.setCancelled(true);
-				
-				gameManager.getCores().remove(core);
-				Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
-				event.getBlock().setType(Material.BEDROCK);
-				gameManager.checkWin();
-				//if(!gameManager.checkWin()) {
-					gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
-				//}
-				ScoreboardManager.drawAll();
-				
+				if(!core.getTeam().equals(playerProfile.getTeam())) {
+					gameManager.getCores().remove(core);
+					Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
+					event.getBlock().setType(Material.BEDROCK);
+					gameManager.checkWin();
+					//if(!gameManager.checkWin()) {
+						gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
+					//}
+					ScoreboardManager.drawAll();
+				} else
+					player.sendMessage(Main.PREFIX + "§7Du kannst deinen eigenen Core nicht abbauen");
 			}
 		}
 	}	
