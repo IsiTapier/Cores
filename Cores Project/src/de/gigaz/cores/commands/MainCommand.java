@@ -1,6 +1,7 @@
 package de.gigaz.cores.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -39,7 +40,7 @@ public class MainCommand implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			GameManager gameManager = Main.getPlugin().getGameManager();
-			PlayerProfile pProfile = gameManager.getPlayerProfile(player);
+			PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 			
 			if(args.length == 1) {
 				if(player.hasPermission("cores.admin")) {
@@ -47,17 +48,31 @@ public class MainCommand implements CommandExecutor {
 						setConfigGeneralLocation(player, "lobbyspawn");
 						player.sendMessage(Main.PREFIX + "§7Du hast den Lobbyspawn gesetzt");
 					} else if(args[0].equalsIgnoreCase("start")) {
-						if(gameManager.getMap() != null) {
-							if(gameManager.checkMap(gameManager.getMap())) {
-								if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) {
-									player.sendMessage(Main.PREFIX + "§7Du hast das Spiel §6gestartet");
-									LobbyState.stop();
-								} else {
-									player.sendMessage(Main.PREFIX + "§7Das Spiel hat bereits begonnen");
-								}
-							}
+						FileConfiguration config = Main.getPlugin().getConfig();
+						if(!config.contains(Main.CONFIG_ROOT+"worlds"))
+							return false;
+						if(!(config.getConfigurationSection(Main.CONFIG_ROOT+"worlds").getValues(false).size() > 0))
+							return false;
+						boolean valid = false;
+						for(String worldname : config.getConfigurationSection(Main.CONFIG_ROOT+"worlds").getValues(false).keySet())
+							if(Main.getPlugin().worldValid(worldname) != null)
+								valid = true;
+						if(!valid)
+							return false;
+						/*if(gameManager.getMap() == null && gameManager.getLastMap() == null) {
+							player.sendMessage(Main.PREFIX+"Bitte setzte zuerst die Map");
+							return false;
 						}
-
+						if(gameManager.getMap() == null)
+							gameManager.setMap(gameManager.getLastMap());
+						if(gameManager.checkMap(gameManager.getMap())) {*/
+						if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) {
+							player.sendMessage(Main.PREFIX + "§7Du hast das Spiel §6gestartet");
+							LobbyState.stop();
+						} else {
+							player.sendMessage(Main.PREFIX + "§7Das Spiel hat bereits begonnen");
+						}
+						//}						
 					} else if(args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("end")) {
 						if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
 							IngameState.stop(Team.UNSET);
@@ -72,18 +87,22 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + " §8(§7Name: §6" + core.getName() + "§8)");
 						}
 					} else if(args[0].equalsIgnoreCase("gamestate")) {
-						player.sendMessage(Main.PREFIX + "§7" + gameManager.getCurrentGameState().getName());
-										
-					} else if(args[0].equalsIgnoreCase("setdeathhight")) {
+						player.sendMessage(Main.PREFIX + "§7" + gameManager.getCurrentGameState().getName());			
+					} else if(args[0].equalsIgnoreCase("setDeathHight")) {
+						World world = gameManager.getConfigureMap();
+						if(world == null) {
+							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
+							return false;
+						}
 						setConfigLocation("deathhight", player.getLocation());
 						player.sendMessage(Main.PREFIX + "§7Du hast die DeathHight auf §6" + Math.round(getConfigLocation("deathhight", player.getWorld()).getY()) + " §7gesetzt");
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
-							if(pProfile.isEditMode()) {
-								pProfile.setEditMode(false);
+							if(playerProfile.isEditMode()) {
+								playerProfile.setEditMode(false);
 								player.sendMessage(Main.PREFIX + "§7Der Edit Mode wurde §cdeaktiviert");
 							} else {
-								pProfile.setEditMode(true);
+								playerProfile.setEditMode(true);
 								player.sendMessage(Main.PREFIX + "§7Der Edit Mode wurde §aaktiviert");
 							}
 						}
@@ -94,13 +113,31 @@ public class MainCommand implements CommandExecutor {
 						player.sendMessage("§7╠ §6Spawns§7: §8/§7c setspawn <Team>");
 						player.sendMessage("§7╠ §6Deathhight§7: §8/§7c setDeathHight");
 						player.sendMessage("§7╚ §6Map-Auswahl§7: §8/§7c setmap <Map>");
+					} else if(args[0].equalsIgnoreCase("setItem")) {
+						World world = gameManager.getConfigureMap();
+						if(world == null) {
+							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
+							return false;
+						}
+						ItemStack item = player.getItemInHand();
+						if(item.getType().equals(Material.AIR)) {
+							player.sendMessage(Main.PREFIX+"Bitte halte ein Item in deiner Hand");
+							return false;
+						}
+						FileConfiguration config = Main.getPlugin().getConfig();
+						config.set(Main.CONFIG_ROOT + "worlds." + world.getName() + ".item", item.getType().toString());
+						Main.getPlugin().saveConfig();
+						player.sendMessage(Main.PREFIX+"Du hast erfolgreich das Item für die Map §6"+world.getName()+"§r gesetzt ("+item.getType().toString()+")");
+					} else if(args[0].equalsIgnoreCase("spawn") || args[0].equalsIgnoreCase("lobby") || args[0].equalsIgnoreCase("l") || args[0].equalsIgnoreCase("hub")) {
+						playerProfile.teleportToSpawn();
+						player.sendMessage(Main.PREFIX+"Du hast dich zum Lobby Spawn teleportiert");
 					}
 				} else {
 					player.sendMessage(Main.PERMISSION_DENIED);
 				}
 			} else if(args.length == 2) {
 				if(player.hasPermission("cores.admin")) {
-					if(args[0].equalsIgnoreCase("configure")) {				
+					if(args[0].equalsIgnoreCase("configure")) {
 						//World world = Main.getPlugin().getWorld(args[1]);
 						if(Bukkit.getWorlds().contains(Bukkit.getWorld(args[1]))) {
 							World world = Main.getPlugin().getWorld(args[1]);
@@ -111,9 +148,18 @@ public class MainCommand implements CommandExecutor {
 								config.set(root, "");
 								Main.getPlugin().saveConfig();
 							}
-							player.sendMessage(Main.PREFIX + "§7Du hast die Welt §2" + args[1] + " §7erstellt");
-						}
+							gameManager.setConfigureMap(world);
+							player.sendMessage(Main.PREFIX + "§7Du bearbeitest nun die Welt §2" + args[1]);
+							gameManager.getPlayerProfile(player).setEditMode(true);
+							player.setGameMode(GameMode.CREATIVE);
+						} else
+							player.sendMessage(Main.PREFIX+"Diese Welt existiert nicht");
 					} else if(args[0].equalsIgnoreCase("setspawn")) {
+						World world = gameManager.getConfigureMap();
+						if(world == null) {
+							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
+							return false;
+						}
 						if(args[1].equalsIgnoreCase("blue")) {
 							setConfigLocation("blue.spawn", player.getLocation());
 							player.sendMessage(Main.PREFIX + "§7Du hast den Spawn von Team " + Team.BLUE.getDisplayColor() + " §7gesetzt");
@@ -122,8 +168,7 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX + "§7Du hast den Spawn von Team " + Team.RED.getDisplayColor() + " §7gesetzt");
 						}
 						
-					} else if(args[0].equalsIgnoreCase("setmap")) {
-						//Main.getPlugin().setMap(args[1]);
+					} else if(args[0].equalsIgnoreCase("setMap")) {
 						if(Bukkit.getWorld(args[1]) != null) {
 							if(gameManager.checkMap(Main.getPlugin().getWorld(args[1]), true)) {
 								gameManager.setMap(args[1]);
@@ -134,18 +179,26 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX + "§7Die Map: §6" + args[1] + " §7existiert §cnicht");
 						}
 						
-					} else if(args[0].equalsIgnoreCase("deletemap")) {
-						
+					} else if(args[0].equalsIgnoreCase("voteMap")) {
+						if(!gameManager.getCurrentGameState().equals(GameState.LOBBY_STATE))
+							return false;
+						World world = Main.getPlugin().worldValid(args[1], player);
+						if(world == null)
+							return false;
+						if(LobbyState.voteMap(player, world))						
+							player.sendMessage(Main.PREFIX+"Du hast für die Welt §6"+world.getName()+"§r abgestimmt");
+						else
+							player.sendMessage(Main.PREFIX+"Du hast bereits für die Welt §6"+world.getName()+"§r abgestimmt");
 					}
 				} else {
 					player.sendMessage(Main.PERMISSION_DENIED);
 				}
 				if(args[0].equalsIgnoreCase("join")) {
-					if(args[1].equalsIgnoreCase("blue") && !pProfile.getTeam().equals(Team.BLUE)) {
-						pProfile.setTeam(Team.BLUE);
+					if(args[1].equalsIgnoreCase("blue") && !playerProfile.getTeam().equals(Team.BLUE)) {
+						playerProfile.setTeam(Team.BLUE);
 						Main.getPlugin().getGameManager().getPlayerProfile(player).getPlayer().sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.BLUE.getDisplayColor() + " §7beigetreten");
-					} else if(args[1].equalsIgnoreCase("red") && !pProfile.getTeam().equals(Team.RED)) {
-						pProfile.setTeam(Team.RED);
+					} else if(args[1].equalsIgnoreCase("red") && !playerProfile.getTeam().equals(Team.RED)) {
+						playerProfile.setTeam(Team.RED);
 						player.sendMessage(Main.PREFIX + "§7Du bist dem Team " + Team.RED.getDisplayColor() + " §7beigetreten");
 					} else {
 						
@@ -154,12 +207,17 @@ public class MainCommand implements CommandExecutor {
 				}
 
 				
-			} else if(args.length >= 3) {
-				
+			}
+			if(args.length >= 2 && args.length < 5) {
 				if(player.hasPermission("cores.admin")) {
 					if(args[0].equalsIgnoreCase("remove")) {
+						World world = gameManager.getConfigureMap();
+						if(world == null) {
+							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
+							return false;
+						}
 						FileConfiguration config = Main.getPlugin().getConfig();
-						World world = Bukkit.getWorld(args[1]);
+						/*World world = Bukkit.getWorld(args[1]);
 						if(world == null) {
 							player.sendMessage(Main.PREFIX+"Diese Welt existiert nicht");
 							return false;
@@ -167,8 +225,8 @@ public class MainCommand implements CommandExecutor {
 						if(!config.contains(Main.CONFIG_ROOT+"worlds."+world.getName())) {
 							player.sendMessage(Main.PREFIX+"Diese Welt ist nicht in der Config gespeichert");
 							return false;
-						}
-						if(args[2].equalsIgnoreCase("deathhight")) {
+						}*/
+						if(args[1].equalsIgnoreCase("deathhight")) {
 							if(!containsConfigLocation("deathhight", world)) {
 								player.sendMessage(Main.PREFIX+"Die Deathhight ist nicht in der Config gespeichert");
 								return false;
@@ -177,18 +235,21 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX+"Du hast erfolgreich die Deathhight von der Map §6"+world.getName()+"§r entfernt");
 							return false;
 						}
-						if(args[2].equalsIgnoreCase("map")) {
+						if(args[1].equalsIgnoreCase("map")) {
 							config.set(Main.CONFIG_ROOT+"worlds."+world.getName(), null);
 							Main.getPlugin().saveConfig();
+							playerProfile.teleportToSpawn();
+							playerProfile.setEditMode(false);
+							player.setGameMode(GameMode.SURVIVAL);
 							player.sendMessage(Main.PREFIX+"Du hast erfolgreich die Map §6"+world.getName()+"§r entfernt");
 							return false;
 						}
-						if(args[2].equalsIgnoreCase("spawn")) {
-							if(args.length < 4) {
+						if(args[1].equalsIgnoreCase("spawn")) {
+							if(args.length < 3) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle ein Team aus");
 								return false;
 							}
-							Team team = Team.getTeam(args[3]);
+							Team team = Team.getTeam(args[2]);
 							if(team.equals(Team.UNSET)) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
 								return false;
@@ -201,21 +262,22 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Spawn von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
 							return false;
 						}
-						if(args[2].equalsIgnoreCase("core")) {
-							if(args.length < 4) {
+						if(args[1].equalsIgnoreCase("core")) {
+							Bukkit.broadcastMessage("test3");
+							if(args.length < 3) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle ein Team aus");
 								return false;
 							}
-							Team team = Team.getTeam(args[3]);
+							Team team = Team.getTeam(args[2]);
 							if(team.equals(Team.UNSET)) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
 								return false;
 							}
-							if(args.length < 5) {
+							if(args.length < 4) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle einen Core aus");
 								return false;
 							}
-							if(args[4].equalsIgnoreCase("all")) {
+							if(args[3].equalsIgnoreCase("all")) {
 								if(!containsConfigLocation(team.getDebugColor()+".core", world)) {
 									player.sendMessage(Main.PREFIX+"Die Cores von Team "+team.getDisplayColor()+" sind nicht in der Config gespeichert");
 									return false;
@@ -224,20 +286,20 @@ public class MainCommand implements CommandExecutor {
 								player.sendMessage(Main.PREFIX+"Du hast erfolgreich alle Cores von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
 								return false;
 							}
-							if(!containsConfigLocation(team.getDebugColor()+".core."+args[4], world)) {
-								player.sendMessage(Main.PREFIX+"Der Core §b"+args[4]+"§r von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert, gebe eine vorhandene Nummer an");
+							if(!containsConfigLocation(team.getDebugColor()+".core."+args[3], world)) {
+								player.sendMessage(Main.PREFIX+"Der Core §b"+args[3]+"§r von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert, gebe eine vorhandene Nummer an");
 								return false;
 							}
-							removeConfigLocation(team.getDebugColor()+".core."+args[4], world);
-							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[4]+"§r von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
+							removeConfigLocation(team.getDebugColor()+".core."+args[3], world);
+							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[3]+"§r von Team "+team.getDisplayColor()+" auf der Map §6"+world.getName()+"§r entfernt");
 							return false;
 						}
-						if(args[2].equalsIgnoreCase("team")) {
-							if(args.length < 4) {
+						if(args[1].equalsIgnoreCase("team")) {
+							if(args.length < 3) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle ein Team aus");
 								return false;
 							}
-							Team team = Team.getTeam(args[3]);
+							Team team = Team.getTeam(args[2]);
 							if(team.equals(Team.UNSET)) {
 								player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
 								return false;
@@ -256,18 +318,22 @@ public class MainCommand implements CommandExecutor {
 						
 						
 					} else if(args[0].equalsIgnoreCase("setcorename")) {
+						if(gameManager.getConfigureMap() == null) {
+							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
+							return false;
+						}
 						Team team = Team.getTeam(args[1]);
 						if(team.equals(Team.UNSET)) {
 							player.sendMessage(Main.PREFIX+"Bitte wähle ein gültiges Team aus");
 							return false;
 						}
-						if(!containsConfigLocation(team.getDebugColor()+".core."+args[2], gameManager.getMap())) {
+						if(!containsConfigLocation(team.getDebugColor()+".core."+args[2], gameManager.getConfigureMap())) {
 							player.sendMessage(Main.PREFIX+"Der Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" ist nicht in der Config gespeichert, gebe eine vorhandene Nummer an");
 							return false;
 						}
 						if(args.length >= 4) {
 							String name = args[3];
-							Core.setConfigCoreName(gameManager.getMap().getSpawnLocation(), team, args[2], name);
+							Core.setConfigCoreName(gameManager.getConfigureMap().getSpawnLocation(), team, args[2], name);
 							player.sendMessage(Main.PREFIX+"Du hast erfolgreich den Core §b"+args[2]+"§r von Team "+team.getDisplayColor()+" zu §6"+name+"§r umbenannt");
 						} else {
 							AnvilGUI gui = new AnvilGUI(player, "§1enter core name", "textInput", new AnvilGUI.AnvilClickEventHandler() {
@@ -282,7 +348,7 @@ public class MainCommand implements CommandExecutor {
 				                        event.setWillDestroy(false);
 				                    }
 				                }
-				            }).setSlot(AnvilSlot.INPUT_LEFT, new ItemBuilder(Material.BEACON).setName(team.getColorCode()+Core.getConfigCoreName(gameManager.getMap().getSpawnLocation(), team, args[2])).setAmount(Integer.parseInt(args[2])).setLore("click ouput to submit").build());
+				            }).setSlot(AnvilSlot.INPUT_LEFT, new ItemBuilder(Material.BEACON).setName(team.getColorCode()+Core.getConfigCoreName(gameManager.getConfigureMap().getSpawnLocation(), team, args[2])).setAmount(Integer.parseInt(args[2])).setLore("click ouput to submit").build());
 							
 						}
 						
@@ -290,18 +356,19 @@ public class MainCommand implements CommandExecutor {
 					}
 				}
 				
-			} 
+			}
 			if(args.length == 4) {
-			
+				World world = gameManager.getConfigureMap();
+				if(world == null) {
+					player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
+					return false;
+				}
 				if(player.hasPermission("cores.admin")) {
 					if(args[0].equalsIgnoreCase("setcore")) {
 						if(args[1].equalsIgnoreCase("blue")) {
 							new SetCoreCommand(player, Team.BLUE, args[2], args[3]);
-							
 						} else if(args[1].equalsIgnoreCase("red")) {
 							new SetCoreCommand(player, Team.RED, args[2], args[3]);
-						} else {
-							
 						}
 					}
 				}
@@ -309,6 +376,11 @@ public class MainCommand implements CommandExecutor {
 			
 		}
 		return false;	
+	}
+	
+	public static boolean containsWorld(World world) {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		return config.contains(Main.CONFIG_ROOT + "worlds." + world.getName());
 	}
 	
 	public static boolean containsConfigLocation(String root, World world) {
@@ -336,6 +408,8 @@ public class MainCommand implements CommandExecutor {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		root = Main.CONFIG_ROOT + "worlds." + world.getName() + "." + root;
 		//Bukkit.broadcastMessage(root);
+		if(!config.contains(root))
+			return null;
 		Location location = config.getLocation(root);
 		if(root != null) {
 			if(modifyWorld) {
@@ -357,7 +431,10 @@ public class MainCommand implements CommandExecutor {
 	
 	public static Location getConfigGeneralLocation(String root) {
 		FileConfiguration config = Main.getPlugin().getConfig();
-		return config.getLocation(Main.CONFIG_ROOT + root);
+		root = Main.CONFIG_ROOT+root;
+		if(!config.contains(root))
+			return null;
+		return config.getLocation(root);
 	}
 	
 }

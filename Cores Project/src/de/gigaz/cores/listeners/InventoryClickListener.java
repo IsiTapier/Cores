@@ -1,5 +1,6 @@
 package de.gigaz.cores.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -18,6 +19,7 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.GameruleSetting;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.AdminToolInventory;
+import de.gigaz.cores.inventories.ManageTeamsInventory;
 import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
@@ -48,24 +50,42 @@ public class InventoryClickListener implements Listener {
 				}
 				if(item.getType() == AdminToolInventory.getAdminEditTeams().getType()) {
 					player.sendMessage(Main.PREFIX + "§7edit teams");
-					player.closeInventory();
+					//player.closeInventory();
+					player.openInventory(ManageTeamsInventory.getInventory());
 				}
 				if(item.getType() == AdminToolInventory.getAdminSelectMap().getType()) {
 					player.closeInventory();
-					player.openInventory(MapSelectInventory.getInventory());		
+					player.openInventory(MapSelectInventory.getAdminInventory());		
 				}
 				if(item.getType() == AdminToolInventory.getAdminStartGame().getType()) {
 					player.chat("/c start");
 					player.closeInventory();
 				}
+				event.setCancelled(true);
 				
-				event.setCancelled(true);	
-			}
-			if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle())) {
-				player.chat("/c setmap " + item.getItemMeta().getDisplayName());
-				event.setCancelled(true);		
-			}
-			if(player.getOpenInventory().getTitle().equalsIgnoreCase(MultiToolInventory.getTitle())) {
+			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle(true))) {
+				event.setCancelled(true);
+				if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+					if(item.getType().equals(Material.BARRIER) || item.getType().equals(Material.WHITE_STAINED_GLASS_PANE)) {
+						player.sendMessage(Main.PREFIX+"Diese Welt ist nicht vollständig konfiguriert und kann daher nicht ausgewählt werden");
+						return;
+					}
+					player.getOpenInventory().close();
+					player.chat("/c setmap " + item.getItemMeta().getDisplayName());
+				}
+						
+			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle(false))) {
+				event.setCancelled(true);
+				if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+					if(item.getType().equals(Material.BARRIER) || item.getType().equals(Material.WHITE_STAINED_GLASS_PANE)) {
+						player.sendMessage(Main.PREFIX+"Diese Welt ist nicht vollständig konfiguriert und kann daher nicht ausgewählt werden");
+						return;
+					}
+					player.getOpenInventory().close();
+					player.chat("/c votemap " + item.getItemMeta().getDisplayName());
+				}
+						
+			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MultiToolInventory.getTitle())) {
 				if(item.getType().equals(Inventories.getTeamRedSelector().build().getType())) {
 					player.chat("/c join red");
 				}
@@ -73,9 +93,9 @@ public class InventoryClickListener implements Listener {
 					player.chat("/c join blue");
 				}
 				player.closeInventory();
-				event.setCancelled(true);		
-			}
-			if(player.getOpenInventory().getTitle().equalsIgnoreCase("Gamerule Settings")) {
+				event.setCancelled(true);
+				
+			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase("Gamerule Settings")) {
 				if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
 					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()+1);
 					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {

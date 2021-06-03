@@ -11,9 +11,11 @@ import java.util.Arrays;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -71,13 +73,20 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new EntityDamageListener(), this);
 		pluginManager.registerEvents(new BasicListeners(), this);
 		pluginManager.registerEvents(new ScoreboardManager(), this);
-		//VirtualAnvil.onEnable();
+
+		Location spawn = MainCommand.getConfigGeneralLocation("lobbyspawn");
+		if(spawn == null)
+			Bukkit.getScheduler().runTaskLater(this, new Runnable() { @Override public void run() {
+				Bukkit.broadcastMessage(PREFIX+"§cWarning: §rDer Lobby Spawn muss noch gesetzt werden");}}, 0L);
+		else
+			for(Player player : Bukkit.getOnlinePlayers()) {
+				currentGameManager.getPlayerProfiles().add(new PlayerProfile(player));
+				player.teleport(spawn);
+				Inventories.setLobbyInventory(currentGameManager.getPlayerProfile(player));
+			}
 		
-		for(Player player : Bukkit.getOnlinePlayers()) {
-			currentGameManager.getPlayerProfiles().add(new PlayerProfile(player));
-			player.teleport(MainCommand.getConfigGeneralLocation("lobbyspawn"));
-			Inventories.setLobbyInventory(currentGameManager.getPlayerProfile(player));
-		}
+		Bukkit.getScheduler().runTaskLater(this, new Runnable() { @Override public void run() {
+			Bukkit.broadcastMessage(PREFIX+"§6Enabled");}}, 0L);
 	}
 	
 	
@@ -105,6 +114,12 @@ public class Main extends JavaPlugin {
 			EndingState.replaceBlocks();
 			EndingState.stop();
 		}
+		FileConfiguration config = getConfig();
+		if(currentGameManager.getLastMap() != null && !config.get(CONFIG_ROOT + "currentMap").equals(currentGameManager.getLastMap().getName())) {
+			config.set(CONFIG_ROOT + "currentMap", currentGameManager.getLastMap().getName());
+			saveConfig();
+		}
+		Bukkit.broadcastMessage(PREFIX+"§6Disabled");
 	}
 	
 	public static Main getPlugin() {
@@ -115,6 +130,28 @@ public class Main extends JavaPlugin {
 		return currentGameManager;
 	}
 	
+	public World worldValid(String name, Player player) {
+		World world = Bukkit.getWorld(name);
+		if(world == null) {
+			if(player != null)
+				player.sendMessage(Main.PREFIX+"Diese Welt existiert nicht, bitte wähle eine gültige Map aus");
+			return null;
+		}
+		if(!MainCommand.containsWorld(world)) {
+			if(player != null)
+				player.sendMessage(Main.PREFIX+"Diese Map ist nicht in der Config gespeichert, bitte wähle eine gültige Map aus");
+			return null;
+		}
+		if(!currentGameManager.checkMap(world)) {
+			if(player != null)
+				player.sendMessage(Main.PREFIX+"Diese Map ist nicht vollständig konfiguriert, bitte wähle eine gültige Map aus");
+			return null;
+		}
+		return world;
+	}
+	public World worldValid(String name) {
+		return worldValid(name, null);
+	}
 	
 	public World getWorld(final String name) {;
 		World world = Bukkit.getWorld(name);

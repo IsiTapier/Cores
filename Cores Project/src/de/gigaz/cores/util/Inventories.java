@@ -13,11 +13,13 @@ import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.MultiToolInventory;
 
 public class Inventories {
-	
+	private static ItemBuilder voteMap = new ItemBuilder(Material.PAPER).setName("§7Map-Voting");
+	private static ItemBuilder customizeInventory = new ItemBuilder(Material.CHEST).setName("customize inventory");
 	private static ItemBuilder multiTool = new ItemBuilder(Material.BEACON).setName("§bTeam Selection");
 	private static ItemBuilder adminTool = new ItemBuilder(Material.REDSTONE_TORCH).setName("§cAdmin Tool");
-	private static ItemBuilder teamRedSelector = new ItemBuilder(Material.RED_CONCRETE).setName("§7Team " + Team.RED.getDisplayColor());
-	private static ItemBuilder teamBlueSelector = new ItemBuilder(Material.BLUE_CONCRETE).setName("§7Team "+ Team.BLUE.getDisplayColor());
+	private static ItemBuilder teamRedSelector = new ItemBuilder(Material.RED_CONCRETE).setName("§7Team " + Team.RED.getDisplayColor()).hideEnchants();
+	private static ItemBuilder teamBlueSelector = new ItemBuilder(Material.BLUE_CONCRETE).setName("§7Team "+ Team.BLUE.getDisplayColor()).hideEnchants();
+	private static ItemBuilder gameruleSettings = new ItemBuilder(Material.WRITABLE_BOOK).setName("Gamerule Settings");
 	public static final String defaultInventoryName = "customize inventory";
 	
 	public static Inventory getDefaultInventory() {
@@ -84,28 +86,31 @@ public class Inventories {
 		Player player = playerProfile.getPlayer();
 		Inventory inventory = player.getInventory();
 		inventory.clear();
-		//teamBlueSelector.getCopy().addEnchantment(Enchantment.ARROW_INFINITE, 10).build()
-		if(playerProfile.getTeam().equals(Team.BLUE)) {
-			inventory.setItem(3, new ItemBuilder(teamBlueSelector.getType()).setName(teamBlueSelector.getName()).addEnchantment(Enchantment.ARROW_INFINITE, 10).setLore(MultiToolInventory.getLore(Team.BLUE)).build());
-			inventory.setItem(5, teamRedSelector.setLore(MultiToolInventory.getLore(Team.RED)).build());
-		} else if(playerProfile.getTeam().equals(Team.RED)) {
-			inventory.setItem(3, teamBlueSelector.setLore(MultiToolInventory.getLore(Team.BLUE)).build());
-			inventory.setItem(5, new ItemBuilder(teamRedSelector.getType()).setName(teamRedSelector.getName()).addEnchantment(Enchantment.ARROW_INFINITE, 10).setLore(MultiToolInventory.getLore(Team.RED)).build());
-		} else {
-			inventory.setItem(3, teamBlueSelector.setLore(MultiToolInventory.getLore(Team.BLUE)).build());
-			inventory.setItem(5, teamRedSelector.setLore(MultiToolInventory.getLore(Team.RED)).build());
-		}
-		inventory.setItem(0, new ItemBuilder(Material.PAPER).setName("§7Map-Voting").build());
-		inventory.setItem(1, new ItemBuilder(Material.CHEST).setName("customize inventory").build());
+		inventory.setItem(3, teamBlueSelector.disenchant().setLore(MultiToolInventory.getLore(Team.BLUE)).build());
+		inventory.setItem(5, teamRedSelector.disenchant().setLore(MultiToolInventory.getLore(Team.RED)).build());
+		if(playerProfile.getTeam().equals(Team.BLUE))
+			inventory.setItem(3, teamBlueSelector.addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
+		else if(playerProfile.getTeam().equals(Team.RED))
+			inventory.setItem(5, teamRedSelector.addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
+		inventory.setItem(0, voteMap.build());
+		inventory.setItem(1, customizeInventory.build());
 		inventory.setItem(4, multiTool.build());
 		if(player.isOp()) {
-			inventory.setItem(7, new ItemBuilder(Material.WRITABLE_BOOK).setName("Gamerule Settings").build());
+			inventory.setItem(7, gameruleSettings.build());
 			inventory.setItem(8, adminTool.build());
 			/*inventory.setItem(1, new ItemBuilder(Material.MAP).setName("§7Select Map").build());
 			inventory.setItem(6, new ItemBuilder(Material.CLOCK).setName("start Game").build());
 			inventory.setItem(7, new ItemBuilder(Material.WHITE_CONCRETE).setName("change Teams").build());
 			inventory.setItem(8, new ItemBuilder(Material.ARROW).setName("Edit Mode").build());*/
 		}
+	}
+	
+	public static ItemBuilder getMapVote() {
+		return voteMap;
+	}
+	
+	public static ItemBuilder getCustomizeInventory() {
+		return customizeInventory;
 	}
 
 	public static ItemBuilder getMultiTool() {
@@ -124,12 +129,15 @@ public class Inventories {
 		return teamBlueSelector;
 	}
 	
+	public static ItemBuilder getGameruleSettings() {
+		return gameruleSettings;
+	}
+	
 	public static ItemStack setColor(ItemStack armor, Color c) {
 		LeatherArmorMeta meta = (LeatherArmorMeta) armor.getItemMeta();
 		meta.setColor(c);
 		armor.setItemMeta(meta);
 		return armor;
 	}
-	
 	
 }

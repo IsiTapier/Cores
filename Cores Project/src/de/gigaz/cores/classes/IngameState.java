@@ -22,8 +22,8 @@ public class IngameState {
 	private static int checkUpLoopID;
 	
 	public static void start() {
-		Main.getPlugin().getGameManager().setGameState(GameState.INGAME_STATE);
 		gameManager = Main.getPlugin().getGameManager();
+		gameManager.setGameState(GameState.INGAME_STATE);
 		gameManager.stockCores();
 		ScoreboardManager.drawAll();
 		if(Main.autoteam)

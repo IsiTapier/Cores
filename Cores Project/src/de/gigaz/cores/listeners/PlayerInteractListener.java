@@ -18,6 +18,7 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.AdminToolInventory;
 import de.gigaz.cores.inventories.GameruleSettings;
+import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
@@ -41,22 +42,23 @@ public class PlayerInteractListener implements Listener {
 					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 15*20, 0));
 			}
 		} else {
-	
-			if(player.getItemInHand().getType() == Inventories.getMultiTool().build().getType())
+			     if(player.getItemInHand().equals(Inventories.getMultiTool().build()))
 				player.openInventory(MultiToolInventory.getInventory(playerProfile.getTeam()));
-			if(player.getItemInHand().getType() == Inventories.getAdminTool().build().getType())
+			else if(player.getItemInHand().equals(Inventories.getAdminTool().build()))
 				player.openInventory(AdminToolInventory.getInventory());		
-			if(player.getItemInHand().getType() == Inventories.getTeamRedSelector().build().getType())
+			else if(player.getItemInHand().equals(Inventories.getTeamRedSelector().disenchant().build()))
 				player.chat("/c join red");	
-			if(player.getItemInHand().getType() == Inventories.getTeamBlueSelector().build().getType())
+			else if(player.getItemInHand().equals(Inventories.getTeamBlueSelector().disenchant().build()))
 				player.chat("/c join blue");	
-			if(player.getItemInHand().getType().equals(Material.WRITABLE_BOOK))
+			else if(player.getItemInHand().equals(Inventories.getGameruleSettings().build()))
 				player.openInventory(GameruleSettings.buildInventory());
+			else if(player.getItemInHand().equals(Inventories.getCustomizeInventory().build()))
+				player.openInventory(playerProfile.getInventory());
+			else if(player.getItemInHand().equals(Inventories.getMapVote().build()))
+				player.openInventory(MapSelectInventory.getNormalInventory());
+			    
 			if(!playerProfile.isEditMode())
 				event.setCancelled(true);
-			if(player.getItemInHand().getType() == Material.CHEST) {
-				player.openInventory(playerProfile.getInventory());
-			}
 		}
 	}
 }

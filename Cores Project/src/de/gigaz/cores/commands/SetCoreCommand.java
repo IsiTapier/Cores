@@ -26,9 +26,11 @@ public class SetCoreCommand {
 		} else {
 			player.sendMessage(Main.PREFIX + "§7Der Core " + number + " von " + team.getDisplayColor() + "§7 wurde gesetzt");
 		}
-		if(gameManager.getMap() != null) {
+		if(gameManager.getConfigureMap() != null) {
 			player.sendMessage(Main.PREFIX + "§7Bereits konfigurierte Cores §7:");
+			gameManager.setVirtualMap(gameManager.getConfigureMap());
 			gameManager.registerCores();
+			gameManager.resetMap();
 			for(Core core : gameManager.getCores()) {		
 				player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + "§8(§7Name: §6" + core.getName() + "§8)");
 			}

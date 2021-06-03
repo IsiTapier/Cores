@@ -18,7 +18,6 @@ public class EndingState {
 		GameManager gameManager = Main.getPlugin().getGameManager();	
 		Main.getPlugin().getGameManager().setGameState(GameState.ENDING_STATE);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
-			
 			@Override
 			public void run() {
 				teleportPlayers();

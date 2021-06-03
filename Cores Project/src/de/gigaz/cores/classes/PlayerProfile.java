@@ -3,6 +3,7 @@ package de.gigaz.cores.classes;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -11,6 +12,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.Scoreboard;
 
 import de.gigaz.cores.util.Team;
+import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
@@ -69,7 +71,6 @@ public class PlayerProfile {
 				if(!playerProfile.isEditMode())
 					Inventories.setLobbyInventory(playerProfile);
 			}
-			Inventories.setLobbyInventory(this);
 		}
 	}
 
@@ -147,5 +148,11 @@ public class PlayerProfile {
 	
 	public void setInventory(Inventory inventory) {
 		this.inventory = inventory;
+	}
+	
+	public void teleportToSpawn() {
+		Location spawn = MainCommand.getConfigGeneralLocation("lobbyspawn");
+		if(spawn != null)
+			player.teleport(spawn);
 	}
 }

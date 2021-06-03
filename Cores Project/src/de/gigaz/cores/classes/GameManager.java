@@ -43,38 +43,34 @@ public class GameManager {
 	private int blockProtectionHeight = 4;
 	
 	private World map;
+	private World lastMap;
+	private World configureMap;
 	private ArrayList<Core> cores = new ArrayList<Core>();
 	private ArrayList<Core> stockedCores = new ArrayList<Core>();
 	
 	public GameManager() {
 		//new LobbyState();
 		FileConfiguration config = Main.getPlugin().getConfig();
-		String name = config.getString(Main.CONFIG_ROOT + "currentMap");
-		//Main.getPlugin().saveConfig();
-		if(name == null)
-			return;
-		this.map = Main.getPlugin().getWorld(name);
-		
+		if(config.contains(Main.CONFIG_ROOT + "currentMap")) {
+			String name = config.getString(Main.CONFIG_ROOT + "currentMap");
+			//Main.getPlugin().saveConfig();
+			if(name == null)
+				return;
+			lastMap = Main.getPlugin().getWorld(name);
+		}
 	}
 
 	public void setMap(World map) {
 		this.map = map;
-		Main.getPlugin().setMap(map.getName());
-	}
-	
-	public void setMap(String name) {
-		//TODO check map valid
-		//this.map = Main.getPlugin().getWorld(name);
-		//TODO copy map
-		this.map = Main.getPlugin().getWorld(name);
+		lastMap = map;
 		
 		if(currentGameState.equals(GameState.INGAME_STATE))
 			IngameState.stop(Team.UNSET);
 		for(Player player : Main.getPlugin().getWorld("currentworld").getPlayers())
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
-		Main.getPlugin().setMap(this.map.getName());
+		Main.getPlugin().setMap(map.getName());
 		
-		FileConfiguration config = Main.getPlugin().getConfig();
+		/*FileConfiguration config = Main.getPlugin().getConfig();
 		config.set(Main.CONFIG_ROOT + "currentMap", this.map.getName());
 		//Main.getPlugin().saveConfig();
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
@@ -83,21 +79,45 @@ public class GameManager {
 			public void run() {
 				Main.getPlugin().saveConfig();
 			}
-		}, 1*20);
+		}, 1*20);*/
 		
 	}
 	
+	public void setMap(String name) {
+		setMap(Main.getPlugin().getWorld(name));
+	}
+	
+	public void setVirtualMap(World world) {
+		map = world;
+	}
+	
 	public World getMap() {
-		return this.map;
+		return map;
+	}
+	
+	public World getLastMap() {
+		return lastMap;
+	}
+	
+	public World getConfigureMap() {
+		return configureMap;
+	}
+	
+	public void setConfigureMap(World world) {
+		configureMap = world;
+	}
+	
+	public void resetMap() {
+		map = null;
 	}
 	
 	public boolean checkWin() {
 		if(getCores(Team.BLUE).size() == 0) {
-			endGame(Team.BLUE);
+			endGame(Team.RED);
 			return true;
 		}
 		if(getCores(Team.RED).size() == 0) {
-			endGame(Team.RED);
+			endGame(Team.BLUE);
 			return true;
 		}
 		return false;
@@ -138,7 +158,6 @@ public class GameManager {
 		}
 		//Bukkit.broadcastMessage(cores.size() + " size");
 		if(valid == false) {
-		
 				Bukkit.broadcastMessage(Main.PREFIX + "§7Das Spiel besitzt §ckeine§7 vollständig konfigurierte Map");
 		}
 		
