@@ -86,14 +86,18 @@ public class MainCommand implements CommandExecutor {
 						} else {
 							player.sendMessage(Main.PREFIX + "§7Es läuft noch gar kein Spiel");
 						}
+					} else if((args[0].equalsIgnoreCase("inv")) || (args[0].equalsIgnoreCase("inventory"))) {
+						player.openInventory(playerProfile.getInventory());
 						
 					} else if(args[0].equalsIgnoreCase("corelist")) {
 						player.sendMessage(Main.PREFIX + "§7Core Liste:");
 						for(Core core : gameManager.getCores()) {		
 							player.sendMessage("§8> " + core.getTeam().getColorCode() + core.getNumber() + " §8(§7Name: §6" + core.getName() + "§8)");
 						}
+					
 					} else if(args[0].equalsIgnoreCase("gamestate")) {
 						player.sendMessage(Main.PREFIX + "§7" + gameManager.getCurrentGameState().getName());			
+					
 					} else if(args[0].equalsIgnoreCase("setDeathHight")) {
 						World world = gameManager.getConfigureMap();
 						if(world == null) {
@@ -102,6 +106,14 @@ public class MainCommand implements CommandExecutor {
 						}
 						setConfigLocation("deathhight", player.getLocation());
 						player.sendMessage(Main.PREFIX + "§7Du hast die DeathHight auf §6" + Math.round(getConfigLocation("deathhight", player.getWorld()).getY()) + " §7gesetzt");
+					
+					} else if(args[0].equalsIgnoreCase("setActionBlock")) {
+						Location location = player.getLocation();
+						location.setY(location.getY() - 1);
+						FileConfiguration config = Main.getPlugin().getConfig();
+						config.set(Main.CONFIG_ROOT + "worlds." + gameManager.getConfigureMap().getName() + ".actionBlocks", location);
+
+
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
 							if(playerProfile.isEditMode()) {

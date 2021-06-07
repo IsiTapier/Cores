@@ -12,8 +12,8 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=Cores Project/src"/>
-        <file path="/Cores Project/.project"/>
         <file path="/Cores Project/.classpath"/>
+        <file path="/Cores Project/.project"/>
         <file path="/Cores Project/plugin.yml"/>
     </selectedElements>
 </jardesc>

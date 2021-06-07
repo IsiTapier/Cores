@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.event.entity.ProjectileHitEvent;
 
 import de.gigaz.cores.classes.GameManager;
@@ -71,6 +72,10 @@ public class EntityDamageListener implements Listener {
 				//attackerProfile.getPlayer().sendMessage("Kill #"+attackerProfile.getKills());
 				//target.sendMessage("§6K§7/§6D§7: "+targetProfile.getKills()+ "/" + targetProfile.getDeaths());
 			}
+			if(gameManager.getGameruleSetting(gameManager.noKnockbackGamerule).getValue()) {
+				event.setCancelled(true);
+				target.damage(event.getDamage());
+			}
 		} else {
 			event.setCancelled(true);
 		}
@@ -129,14 +134,8 @@ public class EntityDamageListener implements Listener {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		Player player = playerProfile.getPlayer();
 		playerProfile.addDeath();
-		player.getInventory().clear();
-		Team team = gameManager.getPlayerProfile(player).getTeam();
-		Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", gameManager.getMap());
-		player.teleport(location);
-		player.setHealth(20);
-		player.setFoodLevel(20);
-		IngameState.giveItems(gameManager.getPlayerProfile(player));
-		ScoreboardManager.draw(player);
+		
+		gameManager.getPlayerProfile(player).respawn();
 	}
 	
 }

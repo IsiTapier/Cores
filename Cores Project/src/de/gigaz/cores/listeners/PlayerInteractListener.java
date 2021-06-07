@@ -1,10 +1,15 @@
 package de.gigaz.cores.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -34,10 +39,24 @@ public class PlayerInteractListener implements Listener {
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		Block block = event.getClickedBlock();
 		
-		if((Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
+		if((Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) && player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {
 			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-				if(block.getType().equals(Material.BEACON))
+				if(block.getType().equals(Material.BEACON) && gameManager.getGameruleSetting(gameManager.miningFatiqueGamerule).getValue())
 					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 15*20, 0));
+			} else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+	            if (player.getItemInHand().getType() == Material.WITHER_SKELETON_SKULL) {
+	            	event.setCancelled(true);
+	                //if(!player.getInventory().contains()) {
+	               //player.sendMessage(ChatColor.DARK_AQUA + "You need a flint to shoot!");
+	            	//player.playSound(player.getLocation(), Sound.WOOD_CLICK, 1, 0);
+	            	//e.setCancelled(true);
+	            	float yaw = player.getLocation().getYaw();
+	            	double D = 1.0;
+	            	double x = -D*Math.sin(yaw*Math.PI/180);
+	            	double z = D*Math.cos(yaw*Math.PI/180);
+	            	Entity skull = player.getWorld().spawn(player.getLocation().add(x, 1.62, z), WitherSkull.class);
+	            	skull.setVelocity(player.getLocation().getDirection().multiply(2));
+	            }
 			}
 		} else {
 			ItemStack mainHand = player.getInventory().getItemInMainHand();
@@ -51,10 +70,11 @@ public class PlayerInteractListener implements Listener {
 				player.chat("/c join red");	
 			else if(mainHand.equals(Inventories.getTeamBlueSelector().disenchant().setLore(MultiToolInventory.getLore(Team.BLUE)).build()))
 				player.chat("/c join blue");	
-			else if(player.getItemInHand().equals(Inventories.getGameruleSettings().build()))
+			else if(mainHand.equals(Inventories.getGameruleSettings().build())) {
+				GameruleSettings.nextPage();
 				player.openInventory(GameruleSettings.buildInventory());
-			else if(mainHand.equals(Inventories.getCustomizeInventory().build()))
-				player.openInventory(playerProfile.getInventory());
+			} else if(mainHand.equals(Inventories.getCustomizeInventory().build()))
+				player.chat("/c inventory");
 			else if(mainHand.equals(Inventories.getMapVote().build()))
 				player.openInventory(MapSelectInventory.getNormalInventory());
 			    

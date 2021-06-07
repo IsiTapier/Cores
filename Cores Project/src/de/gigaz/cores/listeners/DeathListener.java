@@ -22,7 +22,8 @@ public class DeathListener implements Listener {
 		Player player = event.getEntity();
 		event.setDeathMessage(null);
 		Team team = gameManager.getPlayerProfile(player).getTeam();
-		Location location = MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", world);
-		player.teleport(location);
+		gameManager.getPlayerProfile(player).respawn();
+			
+		
 	}
 }

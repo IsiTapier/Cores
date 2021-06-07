@@ -47,7 +47,7 @@ public class Inventories {
 		if(gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue())
 			inventory.setItem(7, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue()||gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue()?2:1).setBreakable(false).build());
 		else
-			inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:12).build());
+			inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreArrowsGamerule).getValue()?64:12).build());
 		inventory.setItem(8, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build());
 		return inventory;
 	}
@@ -56,6 +56,7 @@ public class Inventories {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		Player player = playerProfile.getPlayer();
 		Inventory inventory = player.getInventory();
+		Team team = playerProfile.getTeam();
 		inventory.clear();
 		inventory.setContents(playerProfile.getInventory().getContents());
 		/*inventory.setItem(0, new ItemBuilder(Material.STONE_SWORD).setBreakable(false).build());
@@ -65,9 +66,11 @@ public class Inventories {
 		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).build());
 		inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(12).build());
 		inventory.setItem(8, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build());*/
-		if(playerProfile.getTeam().equals(Team.BLUE)) {
-			for(int i = 0; i < 9; i++) {
-				if(inventory.getItem(i).getType().equals(Material.OAK_LOG))
+		/*if(playerProfile.getTeam().equals(Team.BLUE) && gameManager.getGameruleSetting(gameManager.armorGamerule).getValue()) {
+			/*for(int i = 0; i < 9; i++) {
+				if(inventory.getItem(i) == null)
+					continue;
+				/*if(inventory.getItem(i).getType().equals(Material.OAK_LOG))
 					inventory.setItem(i, new ItemBuilder(Material.WARPED_STEM).setAmount(64).build());
 				else if(inventory.getItem(i).getType().equals(Material.OAK_PLANKS))
 					inventory.setItem(i, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());
@@ -88,17 +91,17 @@ public class Inventories {
 				else if(inventory.getItem(i).getType().equals(Material.GOLDEN_APPLE))
 					inventory.setItem(i, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:16).build());
 
-			}
+			}*/
 			/*inventory.setItem(3, new ItemBuilder(Material.WARPED_STEM).setAmount(64).build());
 			inventory.setItem(4, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());
 			inventory.setItem(5, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build());*/
-			Color c = Color.fromRGB(0, 0, 255);
-			player.getInventory().setBoots(setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), c));
-			player.getInventory().setLeggings(setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), c));
-			player.getInventory().setChestplate(setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
-			player.getInventory().setHelmet(setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
-		} else if(playerProfile.getTeam().equals(Team.RED)) {
-			for(int i = 0; i < 9; i++) {
+			/*Color c = Color.fromRGB(0, 0, 255);
+			player.getInventory().setBoots(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), c));
+			player.getInventory().setLeggings(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), c));
+			player.getInventory().setChestplate(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
+			player.getInventory().setHelmet(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
+		} else if(playerProfile.getTeam().equals(Team.RED) && gameManager.getGameruleSetting(gameManager.armorGamerule).getValue()) {
+			/*for(int i = 0; i < 9; i++) {
 				if(inventory.getItem(i).getType().equals(Material.OAK_LOG))
 					inventory.setItem(i, new ItemBuilder(Material.CRIMSON_STEM).setAmount(64).build());
 				else if(inventory.getItem(i).getType().equals(Material.OAK_PLANKS))
@@ -123,11 +126,17 @@ public class Inventories {
 			/*inventory.setItem(3, new ItemBuilder(Material.CRIMSON_STEM).setAmount(64).build());
 			inventory.setItem(4, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());
 			inventory.setItem(5, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build());*/
-			Color c = Color.fromRGB(255, 0, 0);
-			player.getInventory().setBoots(setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), c));
-			player.getInventory().setLeggings(setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), c));
-			player.getInventory().setChestplate(setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
-			player.getInventory().setHelmet(setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
+		/*	Color c = Color.fromRGB(255, 0, 0);
+			player.getInventory().setBoots(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), c));
+			player.getInventory().setLeggings(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), c));
+			player.getInventory().setChestplate(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
+			player.getInventory().setHelmet(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
+		}*/
+		if(gameManager.getGameruleSetting(gameManager.armorGamerule).getValue()) {
+			player.getInventory().setBoots(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), team.getColor()));
+			player.getInventory().setLeggings(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), team.getColor()));
+			player.getInventory().setChestplate(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), team.getColor()));
+			player.getInventory().setHelmet(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), team.getColor()));
 		}
 		if(gameManager.getGameruleSetting(gameManager.shieldGamerule).getValue())
 			player.getInventory().setItemInOffHand(new ItemBuilder(Material.SHIELD).setBreakable(false).build());
@@ -186,13 +195,6 @@ public class Inventories {
 	
 	public static ItemBuilder getGameruleSettings() {
 		return gameruleSettings;
-	}
-	
-	public static ItemStack setColor(ItemStack armor, Color c) {
-		LeatherArmorMeta meta = (LeatherArmorMeta) armor.getItemMeta();
-		meta.setColor(c);
-		armor.setItemMeta(meta);
-		return armor;
 	}
 	
 }

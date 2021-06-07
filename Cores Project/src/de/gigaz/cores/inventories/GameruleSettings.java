@@ -22,17 +22,33 @@ public class GameruleSettings {
 	private static ItemStack disable = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("disable"+(useTwoInputs?"":"d")).build();
 	private static ItemStack enable = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).setName("enable"+(useTwoInputs?"":"d")).build();
 	
+	private static int page = 0;
+	
 	public static Inventory buildInventory() {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		HashMap<String, GameruleSetting> gameruleSettings = gameManager.getGameruleSettings();
 		int rows = (int)Math.ceil((double)gameruleSettings.size()/(useTwoInputs?2:4));
+		int pages = (int)Math.ceil((double)rows/6);
+		if(page > pages)
+			page = 1;
+		rows -= 6*(page-1);
+		if(rows > 6)
+			rows = 6;
 		Inventory inventory = Bukkit.createInventory(null, rows*9, "Gamerule Settings");
 		ItemStack barrier = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build();
 		int i = 0;
 		for(Entry<String, GameruleSetting> gamerule : gameruleSettings.entrySet()) {
-			
+			if(i < (page-1)*6*9) {
+				if(i%9==0)
+					i++;
+				if(useTwoInputs)
+					i+=4;
+				else
+					i+=2;
+				continue;
+			}
 			if(i%9==0) {
-				inventory.setItem(i, barrier);
+				inventory.setItem((i%(6*9)), barrier);
 				i++;
 			}
 			ItemStack inputSlot;
@@ -56,19 +72,21 @@ public class GameruleSettings {
 					inputSlot = disable;
 			}
 			if(useTwoInputs) {
-				inventory.setItem(i, disable);
-				inventory.setItem(i+1, gamerule.getValue().getItem());
-				inventory.setItem(i+2, enable);
-				inventory.setItem(i+3, barrier);
+				inventory.setItem((i%(6*9)), disable);
+				inventory.setItem((i%(6*9))+1, gamerule.getValue().getItem());
+				inventory.setItem((i%(6*9))+2, enable);
+				inventory.setItem((i%(6*9))+3, barrier);
 				i+=4;
 			} else {
-				inventory.setItem(i, gamerule.getValue().getItem());
-				inventory.setItem(i+1, inputSlot);
+				inventory.setItem((i%(6*9)), gamerule.getValue().getItem());
+				inventory.setItem((i%(6*9))+1, inputSlot);
 				i+=2;
 			}
+			if(i >= ((page-1)*6+rows)*9)
+				break;
 		}
 		while(i%9>0) {
-			inventory.setItem(i, barrier);
+			inventory.setItem((i%(6*9)), barrier);
 			i++;
 		}
 		return inventory;
@@ -84,5 +102,9 @@ public class GameruleSettings {
 	
 	public static ItemStack getDisable() {
 		return disable;
+	}
+	
+	public static void nextPage() {
+		page++;
 	}
 }

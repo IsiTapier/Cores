@@ -170,11 +170,11 @@ public class InventoryClickListener implements Listener {
 					if(gameruleSetting.getItem().equals(setting)) {
 						if(GameruleSettings.getUiMode()) {
 							if(item.getType().equals(Material.RED_STAINED_GLASS_PANE))
-								gameruleSetting.setValue(false);
+								gameManager.setGameruleSetting(gameruleSetting, false);
 							else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE))
-								gameruleSetting.setValue(true);
+								gameManager.setGameruleSetting(gameruleSetting, true);
 						} else
-							gameruleSetting.switchValue();
+							gameManager.setGameruleSetting(gameruleSetting, !gameruleSetting.getValue());//gameruleSetting.switchValue();
 					}
 				}
 				player.openInventory(GameruleSettings.buildInventory());
@@ -191,7 +191,7 @@ public class InventoryClickListener implements Listener {
 		
 		//prevent Moving items between/in inventories
 		if(player.getWorld().equals(gameManager.getLobbySpawn().getWorld()) && !gameManager.getPlayerProfile(player).isEditMode()) {
-			if(!player.getOpenInventory().getTitle().contentEquals(Inventories.defaultInventoryName))
+			if(!(player.getOpenInventory().getTitle().contentEquals(Inventories.defaultInventoryName) || player.getOpenInventory().getTitle().equals(gameManager.getPlayerProfile(player).getInventoryName())))
 				event.setCancelled(true);
 			if(player.getInventory().equals(clicked))
 				event.setCancelled(true);
@@ -226,7 +226,7 @@ public class InventoryClickListener implements Listener {
 		PlayerProfile playerProfile = Main.getPlugin().getGameManager().getPlayerProfile(player);
 		Inventory inventory = event.getInventory();
 		String name = player.getOpenInventory().getTitle();
-		if(name.contentEquals(Inventories.defaultInventoryName)) {
+		if(name.contentEquals(Inventories.defaultInventoryName) || name.contentEquals(playerProfile.getInventoryName())) {
 			if(!event.getView().getCursor().getType().equals(Material.AIR)) {
 				inventory.addItem(event.getView().getCursor());
 				//Inventories.setLobbyInventory(playerProfile);

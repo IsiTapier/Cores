@@ -32,6 +32,7 @@ import de.gigaz.cores.listeners.ConnectionListener;
 import de.gigaz.cores.listeners.DropListener;
 import de.gigaz.cores.listeners.EntityDamageListener;
 import de.gigaz.cores.listeners.EntityShootBowListener;
+import de.gigaz.cores.listeners.ExplosionListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
@@ -49,6 +50,8 @@ public class Main extends JavaPlugin {
 	public static final String CONFIG_ROOT = "cores.";
 	public static final String PREFIX = "§8[§bCores§8] §r";
 	public static final String PERMISSION_DENIED = PREFIX + "§7Dazu hast du §ckeine §7Rechte";
+	public static final String COPIED_WORLD_NAME = "currentWorld";
+
 	public GameManager currentGameManager;
 	public boolean autoteamrejoin; 
 	public boolean autoteam; 
@@ -61,7 +64,6 @@ public class Main extends JavaPlugin {
 		currentGameManager = new GameManager();
 		loadWorlds();
 		getCommand("cores").setExecutor(new MainCommand());
-		getCommand("cross").setExecutor(new CrossCommand());
 		
 		PluginManager pluginManager = Bukkit.getPluginManager();
 		pluginManager.registerEvents(new BreakBlockListener(), this);
@@ -75,6 +77,7 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new BasicListeners(), this);
 		pluginManager.registerEvents(new ScoreboardManager(), this);
 		pluginManager.registerEvents(new EntityShootBowListener(), this);
+		pluginManager.registerEvents(new ExplosionListener(), this);
 
 		Location spawn = MainCommand.getConfigGeneralLocation("lobbyspawn");
 		if(spawn == null)
@@ -223,12 +226,12 @@ public class Main extends JavaPlugin {
 	public World setMap(String name) {
 		World worldtemplate = getWorld(name);
 		File templateFolder = worldtemplate.getWorldFolder();
-		World worldcopy = getWorld("currentWorld");
+		World worldcopy = getWorld(COPIED_WORLD_NAME);
 		File copyFolder = worldcopy.getWorldFolder();//new File(Bukkit.getWorldContainer(), "currentworld");
-		unloadWorld(Bukkit.getWorld("currentworld"));
+		unloadWorld(Bukkit.getWorld(COPIED_WORLD_NAME));
 		//deleteWorld(copyFolder);
 		copyWorld(templateFolder, copyFolder);
-		worldcopy = getWorld("currentWorld");
+		worldcopy = getWorld(COPIED_WORLD_NAME);
 		//currentGameManager.setMap(name);
 		return worldcopy;
 		//Bukkit.broadcastMessage(PREFIX + "Die Map wurde auf "+name+" gesetzt. copied from "+templateFolder.getName()+" "+worldtemplate.getName()+" "+copyFolder+" "+worldcopy.getName());

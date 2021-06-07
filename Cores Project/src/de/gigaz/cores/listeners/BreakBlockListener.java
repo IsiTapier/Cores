@@ -28,24 +28,23 @@ public class BreakBlockListener implements Listener {
 		Player player = event.getPlayer();
 		FileConfiguration config = Main.getPlugin().getConfig();
 		Team team = gameManager.getPlayerProfile(player).getTeam();
-		World world = Main.getPlugin().getWorld("currentworld"); // gameManager.getMap();
+		World world = gameManager.getCopiedWorld(); // gameManager.getMap();
 		Location location = event.getBlock().getLocation();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
-
-		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
-			if(!gameManager.getBuiltBlocks().contains(location)) {
-				if(!playerProfile.isEditMode()) {
-					gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
-					if(gameManager.checkCoreProtection(location)) {
-						event.setCancelled(true);
-						player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
-					}
-					
-					
-				} else {
-					player.sendMessage(Main.PREFIX + "§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + player.getWorld());
+		
+		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(world)) {
+			if(!playerProfile.isEditMode()) {
+				gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
+				if(gameManager.checkCoreProtection(location)) {
+					event.setCancelled(true);
+					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
 				}
+				
+				
+			} else {
+				player.sendMessage(Main.PREFIX + "§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + player.getWorld());
 			}
+			
 		} else {
 			//Abbau Protection via EditMode
 			if(!playerProfile.isEditMode()) {
@@ -53,8 +52,6 @@ public class BreakBlockListener implements Listener {
 				player.sendMessage(Main.PREFIX + "§7Du bist §cnicht§7 berechtigt einen Block abzubauen");
 			}
 		}
-		
-
 		
 		if(event.getBlock().getType().equals(Material.BEACON)) {
 			if(!(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE))

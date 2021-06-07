@@ -37,6 +37,9 @@ public class GameManager {
 	public final String randomTeamGamerule = "random Teams"; //TODO
 	
 	public final String noFallDamageGamerule = "no Fall Damage";
+	public final String noKnockbackGamerule = "no Knockback";
+	public final String miningFatiqueGamerule = "Abbaulähmung";
+	public final String quickRespawnGamerule = "Quick Respawn";
 	
 	//inventory
 	public final String combatAxeGamerule = "Combat Axe";
@@ -47,6 +50,24 @@ public class GameManager {
 	public final String moreArrowsGamerule = "more arrows";
 	public final String moreGoldApplesGamerule = "more gold apples";
 	public final String crossbowGamerule = "Crossbow";
+	public final String flintandsteelGamerule = "Flint and Steel";
+	public final String snowballGamerule = "Snowballs";
+	public final String lavaBukketGamerule = "Lava";
+	public final String waterBukketGamerule = "Water";
+	public final String enderpearlGamerule = "Enderpearls";
+	public final String fishingRodGamerule = "Fishing Rod";
+	
+	public final String swordGamerule = "Sword";
+	public final String bowGamerule = "Bow";
+	public final String axeGamerule = "Axe";
+	public final String blocksGamerule = "Blocks";
+	public final String goldApplesGamerule = "Gold Apples";
+	public final String arrowsGamerule = "Arrows";
+	public final String pickaxeGamerule = "Pickaxe";
+	public final String armorGamerule = "Armor";
+	
+	public final String witherSkullGamerule = "Wither Skulls";
+	public final String knockbackStickGamerule = "Knockback stick";
 	
 	
 	private final ArrayList<World> aquaMaps = new ArrayList<World>(Arrays.asList(Bukkit.getWorld("aquaMap")));
@@ -59,7 +80,7 @@ public class GameManager {
 	private IngameState ingameState;
 	private EndingState endingState;
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
-	private ArrayList<Location> builtBlocks = new ArrayList<Location>();					
+	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
 	private final HashMap<String, GameruleSetting> gameruleSettings = new HashMap<String, GameruleSetting>() {{
 		put(aquaGamerule, new GameruleSetting(new ItemBuilder(Material.WATER_BUCKET).setName(aquaGamerule).build()));
 		put(hasteGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_PICKAXE).setName(hasteGamerule).build()));
@@ -70,6 +91,7 @@ public class GameManager {
 		put(autoTeamGamerule, new GameruleSetting(new ItemBuilder(Material.STRUCTURE_BLOCK).setName(autoTeamGamerule).build(), true));
 		put(randomTeamGamerule, new GameruleSetting(new ItemBuilder(Material.COMMAND_BLOCK).setName(randomTeamGamerule).build()));
 		put(noFallDamageGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_BOOTS).setName(noFallDamageGamerule).addEnchantment(Enchantment.PROTECTION_FALL, 10).build()));
+		put(miningFatiqueGamerule, new GameruleSetting(new ItemBuilder(Material.WOODEN_SHOVEL).setName(miningFatiqueGamerule).build(), true));
 		put(combatAxeGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_AXE).setName(combatAxeGamerule).build(), true));
 		put(shieldGamerule, new GameruleSetting(new ItemBuilder(Material.SHIELD).setName(shieldGamerule).build()));
 		put(infiniteArrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setName(infiniteArrowsGamerule).addEnchantment(Enchantment.ARROW_INFINITE, 10).build()));
@@ -78,7 +100,57 @@ public class GameManager {
 		put(moreArrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setName(moreArrowsGamerule).setAmount(64).build()));
 		put(moreGoldApplesGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_APPLE).setName(moreGoldApplesGamerule).setAmount(64).build()));
 		put(crossbowGamerule, new GameruleSetting(new ItemBuilder(Material.CROSSBOW).setName(crossbowGamerule).build()));
+		put(swordGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_SWORD).setName(swordGamerule).build(), true));
+		put(bowGamerule, new GameruleSetting(new ItemBuilder(Material.BOW).setName(bowGamerule).build(), true));
+		put(axeGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_AXE).setName(axeGamerule).build()));
+		put(blocksGamerule, new GameruleSetting(new ItemBuilder(Material.OAK_PLANKS).setName(blocksGamerule).build(), true));
+		put(goldApplesGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).setName(goldApplesGamerule).build(), true));
+		put(arrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setAmount(12).setName(arrowsGamerule).build(), true));
+		put(pickaxeGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_PICKAXE).setName(pickaxeGamerule).build(), true));
+		put(armorGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_CHESTPLATE).setName(armorGamerule).build(), true));
+		put(flintandsteelGamerule, new GameruleSetting(new ItemBuilder(Material.FLINT_AND_STEEL).setName(flintandsteelGamerule).build()));
+		put(snowballGamerule, new GameruleSetting(new ItemBuilder(Material.SNOWBALL).setAmount(16).setName(snowballGamerule).build()));
+		put(lavaBukketGamerule, new GameruleSetting(new ItemBuilder(Material.LAVA_BUCKET).setName(lavaBukketGamerule).build()));
+		put(waterBukketGamerule, new GameruleSetting(new ItemBuilder(Material.WATER_BUCKET).setName(waterBukketGamerule).build()));
+		put(enderpearlGamerule, new GameruleSetting(new ItemBuilder(Material.ENDER_PEARL).setAmount(8).setName(enderpearlGamerule).build()));
+		put(fishingRodGamerule, new GameruleSetting(new ItemBuilder(Material.FISHING_ROD).setName(fishingRodGamerule).build()));
+		put(witherSkullGamerule, new GameruleSetting(new ItemBuilder(Material.WITHER_SKELETON_SKULL).setName(witherSkullGamerule).build()));
+		put(quickRespawnGamerule, new GameruleSetting(new ItemBuilder(Material.RED_BED).setName(quickRespawnGamerule).build()));
+		put(knockbackStickGamerule, new GameruleSetting(new ItemBuilder(Material.STICK).addEnchantment(Enchantment.ARROW_KNOCKBACK, 10).setName(knockbackStickGamerule).build()));
+		put(noKnockbackGamerule, new GameruleSetting(new ItemBuilder(Material.ANVIL).setName(noKnockbackGamerule).build()));
 	}};
+	
+	public void setGameruleSetting(GameruleSetting setting, boolean value) {
+		setting.setValue(value);
+		String name = setting.getItem().getItemMeta().getDisplayName();
+			   if(name.equals(arrowsGamerule) && value) {
+			getGameruleSetting(moreArrowsGamerule).setValue(false);
+			getGameruleSetting(infiniteArrowsGamerule).setValue(false);
+		} else if(name.equals(moreArrowsGamerule) && value) {
+			getGameruleSetting(arrowsGamerule).setValue(false);
+			getGameruleSetting(infiniteArrowsGamerule).setValue(false);
+		} else if(name.equals(infiniteArrowsGamerule) && value) {
+			getGameruleSetting(arrowsGamerule).setValue(false);
+			getGameruleSetting(moreArrowsGamerule).setValue(false);
+		} else if(name.equals(goldApplesGamerule) && value) {
+			getGameruleSetting(moreGoldApplesGamerule).setValue(false);
+		} else if(name.equals(moreGoldApplesGamerule) && value) {
+			getGameruleSetting(goldApplesGamerule).setValue(false);
+		} else if(name.equals(bowGamerule) && value) {
+			//getGameruleSetting(crossbowGamerule).setValue(false);
+			//getGameruleSetting(superCrossbowGamerule).setValue(false);
+		} else if(name.equals(crossbowGamerule) && value) {
+			getGameruleSetting(bowGamerule).setValue(false);
+			getGameruleSetting(superCrossbowGamerule).setValue(false);
+		} else if(name.equals(superCrossbowGamerule) && value) {
+			getGameruleSetting(bowGamerule).setValue(false);
+			getGameruleSetting(crossbowGamerule).setValue(false);
+		} else if(name.equals(axeGamerule) && value) {
+			getGameruleSetting(combatAxeGamerule).setValue(false);
+		} else if(name.equals(combatAxeGamerule) && value) {
+			getGameruleSetting(axeGamerule).setValue(false);
+		}
+	}
 	
 	private int blockProtectionRadius = 2;
 	private int blockProtectionHeight = 4;
@@ -107,7 +179,7 @@ public class GameManager {
 		
 		if(currentGameState.equals(GameState.INGAME_STATE))
 			IngameState.stop(Team.UNSET);
-		for(Player player : Main.getPlugin().getWorld("currentworld").getPlayers())
+		for(Player player : Main.getPlugin().getWorld("curretworld").getPlayers())
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
 		Main.getPlugin().setMap(map.getName());
 
@@ -139,6 +211,10 @@ public class GameManager {
 		return map;
 	}
 	
+	public World getCopiedWorld() {
+		return Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME);
+	}
+
 	public World getLastMap() {
 		return lastMap;
 	}
@@ -211,6 +287,15 @@ public class GameManager {
 	public Core getCore(Location location) {
 		for(Core core : cores) {
 			if(core.getLocation().equals(location)) {
+				return core;
+			}
+		}
+		return null;
+	}
+	
+	public Core getCore(Location location, int distance) {
+		for(Core core : cores) {
+			if(core.getLocation().distance(location)<=distance) {
 				return core;
 			}
 		}
@@ -486,5 +571,8 @@ public class GameManager {
 	public void setGameRuleSetting(String name, GameruleSetting gameruleSetting) {
 		gameruleSettings.put(name, gameruleSetting);
 	}
+	
 }
+
+
   

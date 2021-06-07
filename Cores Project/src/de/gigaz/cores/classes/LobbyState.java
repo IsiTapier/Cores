@@ -19,8 +19,8 @@ import de.gigaz.cores.util.GameState;
 public class LobbyState {
 	
 	private static final boolean uselast = false;
-
 	private static boolean countdownActive = false;
+	private static final int COUNTDOWN_SECONDS = 20;
 	
 	private static CountdownTimer countdownLong;
 	private static CountdownTimer countdownShort;
@@ -32,8 +32,7 @@ public class LobbyState {
 	public LobbyState() {
 		
 	}
-	
-	
+
 	public static void start() {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		gameManager.setGameState(GameState.LOBBY_STATE);
@@ -47,7 +46,7 @@ public class LobbyState {
 		setMap();
 		clearVotes();
 		countdownActive = true;
-		startCountdown();
+		startCountdown();	
 	}
 	
 	public static void earlyStop() {
@@ -71,14 +70,29 @@ public class LobbyState {
 	}
 	
 	private static void startCountdown() {
+		GameManager gameManager = Main.getPlugin().getGameManager();
 		countdownActive = true;
-		countdownShort = new CountdownTimer(Main.getPlugin(), 10, 10, 1,
+		countdownShort = new CountdownTimer(Main.getPlugin(), COUNTDOWN_SECONDS, 0, 1,
 				//before timer
-		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in §c20§e Sekunden!");},
+		        () -> {},
 		        //after timer
 		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel hat begonnen!"); countdownActive = false; IngameState.start();},
 		        //while timer
-		        (t) -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + ChatColor.RED + t.getSecondsLeft() + ChatColor.YELLOW + " Sekunden!");}
+		        (t) -> {
+						switch(t.getSecondsLeft()) {
+							case COUNTDOWN_SECONDS:
+							case COUNTDOWN_SECONDS/2:
+							case COUNTDOWN_SECONDS/4:
+							case 3: case 2: case 1:
+								Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + ChatColor.RED + t.getSecondsLeft() + ChatColor.YELLOW + " Sekunden!");
+								break;
+							default:
+								break;
+						}
+						for (PlayerProfile player : gameManager.getPlayerProfiles()) {
+							player.getPlayer().setLevel(t.getSecondsLeft());
+						}
+					 }
 		);
 		countdownShort.scheduleTimer();
 	}

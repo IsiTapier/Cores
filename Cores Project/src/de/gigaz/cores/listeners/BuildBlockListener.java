@@ -17,7 +17,7 @@ public class BuildBlockListener implements Listener {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(event.getPlayer());
 		Player player = event.getPlayer();
-		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
+		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE && player.getWorld().equals(gameManager.getCopiedWorld())) {
 			//BauProtection via Edit Mode
 			if(!playerProfile.isEditMode()) {
 				event.setCancelled(true);
@@ -25,9 +25,6 @@ public class BuildBlockListener implements Listener {
 			} 
 		} else {
 			if(!playerProfile.isEditMode()) {
-				if(!gameManager.getBuiltBlocks().contains(event.getBlock().getLocation())) {
-					gameManager.getBuiltBlocks().add(event.getBlock().getLocation());
-				}
 				if(gameManager.checkCoreProtection(event.getBlock().getLocation())) {
 					event.setCancelled(true);
 					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
