@@ -1,6 +1,8 @@
 package de.gigaz.cores.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -12,8 +14,11 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 
 public class BuildBlockListener implements Listener {
+	
+	private final int instantWallTime = 5;
 	
 	@EventHandler
 	public void onBuild(BlockPlaceEvent event) {
@@ -32,9 +37,42 @@ public class BuildBlockListener implements Listener {
 			} 
 		} else {
 			if(!playerProfile.isEditMode()) {
-				if((gameManager.checkCoreProtection(location) && gameManager.getGameruleSetting(gameManager.coreProtectionGamerule).getValue()) || (gameManager.checkSpawnProtection(location) && gameManager.getGameruleSetting(gameManager.spawnProtectionGamerule).getValue())) {
+				if((gameManager.checkCoreProtection(location) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(location) && Gamerules.getValue(Gamerules.spawnProtection))) {
 					event.setCancelled(true);
 					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke bauen");
+				}
+				if(Gamerules.getValue(Gamerules.instantWall) && block.getType().equals(Material.LIGHT_BLUE_STAINED_GLASS)) {
+					player.getInventory().getItem(player.getInventory().first(Material.LIGHT_BLUE_STAINED_GLASS)).setAmount(player.getInventory().getItem(player.getInventory().first(Material.LIGHT_BLUE_STAINED_GLASS)).getAmount()-1);
+					boolean modifyX = (player.getLocation().getYaw()%180 > 135 || player.getLocation().getYaw()%180 < -135 || (player.getLocation().getYaw()%180 > -45 && player.getLocation().getYaw()%180 < 45));
+					for(int x = -2; x < 3; x++) {
+						for(int y = 0; y < 5; y++) {
+							Location newlocation = block.getLocation();
+							newlocation.setY(newlocation.getY()+y);
+							if(modifyX)
+								newlocation.setX(newlocation.getX()+x);
+							else
+								newlocation.setZ(newlocation.getZ()+x);
+							if(newlocation.getBlock().getType().equals(Material.AIR) && !((gameManager.checkCoreProtection(newlocation) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(newlocation) && Gamerules.getValue(Gamerules.spawnProtection))))
+								newlocation.getBlock().setType(Material.LIGHT_BLUE_STAINED_GLASS);
+						}
+					}
+					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+
+						@Override
+						public void run() {
+							for(int x = -2; x < 3; x++) {
+								for(int y = 0; y < 5; y++) {
+									Location newlocation = block.getLocation();
+									newlocation.setY(newlocation.getY()+y);
+									if(modifyX)
+										newlocation.setX(newlocation.getX()+x);
+									else
+										newlocation.setZ(newlocation.getZ()+x);
+									if(newlocation.getBlock().getType().equals(Material.LIGHT_BLUE_STAINED_GLASS))
+										newlocation.getBlock().setType(Material.AIR);
+								}
+							}
+						}}, instantWallTime*20L);
 				}
 			} else {
 				player.sendMessage("§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + world.getName());

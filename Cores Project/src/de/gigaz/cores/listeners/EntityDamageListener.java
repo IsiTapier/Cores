@@ -5,24 +5,18 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.event.entity.ProjectileHitEvent;
 
 import de.gigaz.cores.classes.GameManager;
-import de.gigaz.cores.classes.IngameState;
 import de.gigaz.cores.classes.PlayerProfile;
-import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.ScoreboardManager;
-import de.gigaz.cores.util.Team;
 
 public class EntityDamageListener implements Listener {
 
@@ -57,7 +51,7 @@ public class EntityDamageListener implements Listener {
 		Player target = targetProfile.getPlayer();
 		
 		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && targetProfile.getTeam() != attackerProfile.getTeam()) {	
-			if(gameManager.getGameruleSetting(gameManager.onehitGamerule).getValue())
+			if(Gamerules.getValue(Gamerules.onehit))
 				event.setDamage(Double.MAX_VALUE);
 			if(target.getHealth() - event.getDamage() < 1) {
 				event.setCancelled(true);
@@ -75,7 +69,7 @@ public class EntityDamageListener implements Listener {
 				//attackerProfile.getPlayer().sendMessage("Kill #"+attackerProfile.getKills());
 				//target.sendMessage("§6K§7/§6D§7: "+targetProfile.getKills()+ "/" + targetProfile.getDeaths());
 			}
-			if(gameManager.getGameruleSetting(gameManager.noKnockbackGamerule).getValue()) {
+			if(Gamerules.getValue(Gamerules.noKnockback)) {
 				event.setCancelled(true);
 				target.damage(event.getDamage());
 			}
@@ -93,7 +87,7 @@ public class EntityDamageListener implements Listener {
 			if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
 				if(event.getCause().equals(DamageCause.FALL)) {
 					Location location = gameManager.getSpawnOfTeam(playerProfile.getTeam(), gameManager.getMap());
-					if(location.distance(player.getLocation()) <= 3 || gameManager.getGameruleSetting(gameManager.noFallDamageGamerule).getValue()) {
+					if(location.distance(player.getLocation()) <= 3 || Gamerules.getValue(Gamerules.noFallDamage)) {
 						event.setCancelled(true);
 						return;
 					}

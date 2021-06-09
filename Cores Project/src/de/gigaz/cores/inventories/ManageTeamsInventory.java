@@ -1,13 +1,11 @@
 package de.gigaz.cores.inventories;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
@@ -15,7 +13,6 @@ import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.SkullCreator;
-import de.gigaz.cores.util.Team;
 
 public class ManageTeamsInventory {
 	

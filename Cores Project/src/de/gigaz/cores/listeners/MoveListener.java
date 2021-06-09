@@ -1,6 +1,5 @@
 package de.gigaz.cores.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,12 +11,10 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.Inventory;
 
 import de.gigaz.cores.classes.GameManager;
-import de.gigaz.cores.classes.IngameState;
 import de.gigaz.cores.classes.PlayerProfile;
-import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
-import de.gigaz.cores.util.ItemBuilder;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Team;
 
 public class MoveListener implements Listener {
@@ -28,7 +25,7 @@ public class MoveListener implements Listener {
 
 	@EventHandler
 	public void onMove(PlayerMoveEvent event) {
-		if(!gameManager.getGameruleSetting(gameManager.autoBlockPlaceGamerule).getValue())
+		if(!Gamerules.getValue(Gamerules.autoBlockPlace))
 			return;
 		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE)
 			return;

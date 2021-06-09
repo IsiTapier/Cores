@@ -1,6 +1,5 @@
 package de.gigaz.cores.listeners;
 
-import java.awt.Color;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
@@ -19,7 +18,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -27,9 +25,9 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
-import net.minecraft.server.v1_16_R3.BlockBase.e;
 
 public class EntityShootBowListener implements Listener {
 	@EventHandler
@@ -39,8 +37,8 @@ public class EntityShootBowListener implements Listener {
 			Player player = (Player) event.getEntity();
 			if(gameManager.getCurrentGameState() != GameState.INGAME_STATE || !player.getWorld().equals(Main.getPlugin().getWorld("currentworld")))
 				event.setCancelled(true);
-			if(gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue()) {
-				player.getInventory().setItem(player.getInventory().first(Material.ARROW), new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue()||gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue()?2:1).setBreakable(false).build());
+			if(Gamerules.getValue(Gamerules.infiniteArrows)) {
+				player.getInventory().setItem(player.getInventory().first(Material.ARROW), new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(Gamerules.getValue(Gamerules.superCrossbow)||Gamerules.getValue(Gamerules.crossbow)?2:1).setBreakable(false).build());
 				Arrow arrow = (Arrow) event.getProjectile();
 				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
 			}
@@ -78,13 +76,15 @@ public class EntityShootBowListener implements Listener {
 		if(!(event.getEntity() instanceof Egg))
 			return;
 		GameManager gameManager = Main.getPlugin().getGameManager();
+		if(!Gamerules.getValue(Gamerules.bridgeEgg))
+			return;
 		Player player = (Player) event.getEntity().getShooter();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		Team team = playerProfile.getTeam();
 		Egg egg = (Egg) event.getEntity();
 		Location loc = egg.getLocation();
 		loc.setY(loc.getY()-1.5);
-		egg.teleport(loc);
+		egg.teleport(loc); 
 		
 		if(eggTimer != null)
 			Bukkit.getScheduler().cancelTask(eggTimer);
@@ -105,34 +105,37 @@ public class EntityShootBowListener implements Listener {
 					eggTimer = null;
 				}
 				Location location = egg.getLocation().clone();
-				if(location.getBlock().getType().equals(Material.AIR))
-					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
-						@Override
-						public void run() {
-							Location newlocation = location.getBlock().getLocation();
-							if(newlocation.getZ() < location.getZ())
-								newlocation.setZ(newlocation.getZ()-1);
-							else
-								newlocation.setZ(newlocation.getZ()+1);
-							if(newlocation.getX() < location.getX())
-								newlocation.setX(newlocation.getX()-1);
-							else
-								newlocation.setX(newlocation.getX()+1);
+				
+				Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+					@Override
+					public void run() {
+						Location newlocation = location.getBlock().getLocation();
+						if(newlocation.getZ() < location.getZ())
+							newlocation.setZ(newlocation.getZ()-1);
+						else
+							newlocation.setZ(newlocation.getZ()+1);
+						if(newlocation.getX() < location.getX())
+							newlocation.setX(newlocation.getX()-1);
+						else
+							newlocation.setX(newlocation.getX()+1);
+						if(newlocation.getBlock().getType().equals(Material.AIR) && !((gameManager.checkCoreProtection(newlocation) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(newlocation) && Gamerules.getValue(Gamerules.spawnProtection))))
 							newlocation.getBlock().setType(team.equals(Team.BLUE)?Material.WARPED_PLANKS:team.equals(Team.RED)?Material.CRIMSON_PLANKS:Material.OAK_PLANKS);
-							Random random = new Random();
-							newlocation.setX(location.getX()-1+random.nextFloat()*2);
-							//newlocation.setY(location.getY()-1+random.nextFloat()*2);
-							newlocation.setZ(location.getZ()-1+random.nextFloat()*2);
+						Random random = new Random();
+						newlocation.setX(location.getX()-1+random.nextFloat()*2);
+						//newlocation.setY(location.getY()-1+random.nextFloat()*2);
+						newlocation.setZ(location.getZ()-1+random.nextFloat()*2);
+						if(newlocation.getBlock().getType().equals(Material.AIR) && !((gameManager.checkCoreProtection(newlocation) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(newlocation) && Gamerules.getValue(Gamerules.spawnProtection))))
 							newlocation.getBlock().setType(team.equals(Team.BLUE)?Material.WARPED_PLANKS:team.equals(Team.RED)?Material.CRIMSON_PLANKS:Material.OAK_PLANKS);
-							//newlocation = location.getBlock().getLocation();
-							//newlocation.setX(location.getX()-1+random.nextFloat()*2);
-							//newlocation.setY(location.getY()-1+random.nextFloat()*2);
-							//newlocation.setZ(location.getZ()-1+random.nextFloat()*2);
-							//newlocation.getBlock().setType(team.equals(Team.BLUE)?Material.WARPED_PLANKS:team.equals(Team.RED)?Material.CRIMSON_PLANKS:Material.OAK_PLANKS);
+						//newlocation = location.getBlock().getLocation();
+						//newlocation.setX(location.getX()-1+random.nextFloat()*2);
+						//newlocation.setY(location.getY()-1+random.nextFloat()*2);
+						//newlocation.setZ(location.getZ()-1+random.nextFloat()*2);
+						//newlocation.getBlock().setType(team.equals(Team.BLUE)?Material.WARPED_PLANKS:team.equals(Team.RED)?Material.CRIMSON_PLANKS:Material.OAK_PLANKS);
+						if(location.getBlock().getType().equals(Material.AIR) && !((gameManager.checkCoreProtection(location) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(location) && Gamerules.getValue(Gamerules.spawnProtection))))
 							location.getBlock().setType(team.equals(Team.BLUE)?Material.WARPED_PLANKS:team.equals(Team.RED)?Material.CRIMSON_PLANKS:Material.OAK_PLANKS);
-							playerProfile.playSound(Sound.ENTITY_CHICKEN_EGG);
-						}
-					}, 2L);
+						playerProfile.playSound(Sound.ENTITY_CHICKEN_EGG);
+					}
+				}, 2L);
 			}
 		}, 3L, 1L);
 	}

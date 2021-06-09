@@ -25,6 +25,8 @@ import de.gigaz.cores.classes.IngameState;
 import de.gigaz.cores.classes.LobbyState;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.special.ActionBlock;
+import de.gigaz.cores.special.SpecialItemDrop;
 import de.gigaz.cores.util.AnvilGUI;
 import de.gigaz.cores.util.AnvilGUI.AnvilClickEvent;
 import de.gigaz.cores.util.AnvilGUI.AnvilSlot;
@@ -111,9 +113,18 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[0].equalsIgnoreCase("setActionBlock")) {
 						Location location = player.getLocation();
 						location.setY(location.getY() - 1);
-						FileConfiguration config = Main.getPlugin().getConfig();
-						config.set(Main.CONFIG_ROOT + "worlds." + gameManager.getConfigureMap().getName() + ".actionBlocks", location);
+						
+						
 
+						FileConfiguration config = Main.getPlugin().getConfig();
+						String root = Main.CONFIG_ROOT + "worlds." + gameManager.getConfigureMap().getName() + ".actionBlocks";
+						config.set("test", SpecialItemDrop.getSpecialItems());
+						Main.getPlugin().saveConfig();
+						/*
+						//gameManager.getActionBlocks(gameManager.getConfigureMap()).add(new ActionBlock());
+						config.set(root, gameManager.getActionBlocks());
+						
+						player.getWorld().getBlockAt(location).setType(Material.WHITE_CONCRETE);*/
 
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
@@ -225,8 +236,6 @@ public class MainCommand implements CommandExecutor {
 					}
 					ScoreboardManager.drawAll();				
 				}
-
-				
 			}
 			if(args.length >= 2 && args.length < 5) {
 				if(player.hasPermission("cores.admin")) {

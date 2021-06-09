@@ -11,6 +11,7 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 
 public class PlayerToggleSneakListener implements Listener {
 	
@@ -21,7 +22,7 @@ public class PlayerToggleSneakListener implements Listener {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		Player player = event.getPlayer();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
-		if(!gameManager.getGameruleSetting(gameManager.repairCoreGamerule).getValue())
+		if(!Gamerules.getValue(Gamerules.repairCore))
 			return;
 		if(!gameManager.getCurrentGameState().equals(GameState.INGAME_STATE) || !player.getWorld().equals(gameManager.getCopiedWorld()))
 			return;
@@ -31,7 +32,7 @@ public class PlayerToggleSneakListener implements Listener {
 		}
 		if(!player.getInventory().getItemInMainHand().getType().equals(Material.END_CRYSTAL))
 			return;
-		Core core = gameManager.getNearBrokenCore(player.getLocation(), 2, playerProfile.getTeam());
+		Core core = gameManager.getNearBrokenCore(player.getLocation(), coreRepairDistance, playerProfile.getTeam());
 		if(core != null)
 			playerProfile.startCoreRepairing(core);
 	}

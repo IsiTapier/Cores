@@ -15,9 +15,11 @@ import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.main.MainLoop;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ScoreboardManager;
 import de.gigaz.cores.util.Team;
+import de.gigaz.cores.special.SpecialItemManager;
 
 public class IngameState {
 	
@@ -29,16 +31,16 @@ public class IngameState {
 		gameManager.setGameState(GameState.INGAME_STATE);
 		gameManager.stockCores();
 		ScoreboardManager.drawAll();
-		if(gameManager.getGameruleSetting(gameManager.autoTeamGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.autoTeam))
 			gameManager.setTeams();
-		if(gameManager.getGameruleSetting(gameManager.nightGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.night))
 			Main.getPlugin().getWorld("currentworld").setTime(18000);
 		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
 			Player player = playerProfile.getPlayer();
 			gameManager.getPlayerProfile(player).respawn(true);
 		}
-		
 		MainLoop mainLoop = new MainLoop();
+		gameManager.setSpecialItemManager(new SpecialItemManager());
 	}
 	
 	public static void stop(Team team) {

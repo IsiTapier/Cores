@@ -1,14 +1,10 @@
 package de.gigaz.cores.classes;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -19,15 +15,12 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import de.gigaz.cores.util.Team;
 import de.gigaz.cores.util.inventory.InventoryClass;
-import de.gigaz.cores.util.inventory.InventoryItem;
-import de.gigaz.cores.util.inventory.InventoryItem.DisplayCondition;
-import de.gigaz.cores.util.inventory.InventorySlot;
 import de.gigaz.cores.commands.MainCommand;
+import de.gigaz.cores.inventories.IngameInventory;
 import de.gigaz.cores.main.Main;
-import de.gigaz.cores.util.CountdownTimer;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
-import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.ScoreboardManager;
 
 public class PlayerProfile {
@@ -41,12 +34,26 @@ public class PlayerProfile {
 	private int deaths = 0;
 	private Scoreboard currentScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 	private Player lastAttacker;
-	private Inventory inventory;
 	private GameManager gameManager = Main.getPlugin().getGameManager();
-	private InventoryClass normalInventory;
+	private InventoryClass normalInventory = IngameInventory.getInventory(team);
 	private Integer coreRepairing;
+	private int gamerulePage;
 	
+
+	public PlayerProfile(Player player) {
+		this.player = player;
+		//normalInventory 
+		player.setPlayerListName(team.getColorCode() + player.getName());
+	}
 	
+	public int getGamerulePage() {
+		return gamerulePage;
+	}
+
+	public void setGamerulePage(int gamerulePage) {
+		this.gamerulePage = gamerulePage;
+	}
+
 	public void startCoreRepairing(Core core) {
 		String coreName = team.getColorCode()+"Core "+core.getDisplayName()+"§7";
 		Bukkit.broadcastMessage(Main.PREFIX+team.getColorCode()+player.getName()+"§7 repariert den "+coreName+"!");
@@ -104,17 +111,6 @@ public class PlayerProfile {
 		this.coreRepairing = coreRepairing;
 	}
 
-	private boolean getGamerule(String name) {
-		return gameManager.getGameruleSetting(name).getValue();
-	}
-	
-	public PlayerProfile(Player player) {
-		this.player = player;
-		inventory = Inventories.getDefaultInventory();
-		normalInventory = getNormalInventory();
-		this.player.setPlayerListName(team.getColorCode() + player.getName());
-	}
-
 	public Player getPlayer() {
 		return player;
 	}
@@ -158,6 +154,7 @@ public class PlayerProfile {
 					Inventories.setLobbyInventory(playerProfile);
 			}
 		}
+		normalInventory = IngameInventory.getInventory(team);
 	}
 	
 	public void respawn() {
@@ -188,7 +185,7 @@ public class PlayerProfile {
 		addPotionEffects();	
 		player.setLevel(1);
 		player.setExp(0);
-		if(gameManager.getGameruleSetting(gameManager.quickRespawnGamerule).getValue() || isStarting) {
+		if(Gamerules.getValue(Gamerules.quickRespawn) || isStarting) {
 			player.teleport(gameManager.getSpawnOfTeam(team, gameManager.getMap()));
 		} else {
 			Location location = player.getLocation();
@@ -286,7 +283,7 @@ public class PlayerProfile {
 	}
 	
 	public void playSound(Sound sound) {
-		if(gameManager.getGameruleSetting(gameManager.soundEffectsGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.soundEffects))
 			player.playSound(player.getLocation(), sound, 5, 1);
 	}
 	
@@ -300,7 +297,6 @@ public class PlayerProfile {
 	}
 	
 	public void setInventory(Inventory inventory) {
-		//this.inventory = inventory;
 		this.normalInventory.setInventory(inventory);
 	}
 	
@@ -315,65 +311,22 @@ public class PlayerProfile {
 	}
 
 	private void addPotionEffects() {
-	if(gameManager.getGameruleSetting(gameManager.aquaGamerule).getValue()) {
+		if(Gamerules.getValue(Gamerules.aqua)) {
 			player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
-			player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, gameManager.getGameruleSetting(gameManager.speedGamerule).getValue() ? 1 : 0, false, false, false));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, Integer.MAX_VALUE, Gamerules.getValue(Gamerules.speed) ? 1 : 0, false, false, false));
 			player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
 		}
-		if(gameManager.getGameruleSetting(gameManager.hasteGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.haste))
 			player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 2, false, false, false));
-		if(gameManager.getGameruleSetting(gameManager.jumpboostGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.jumpboost))
 			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 1, false, false, false));
-		if(gameManager.getGameruleSetting(gameManager.speedGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.speed))
 			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, false, false, false));
-		if(gameManager.getGameruleSetting(gameManager.invisibilityGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.invisibility))
 			player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
-		if(gameManager.getGameruleSetting(gameManager.glowingGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.glowing))
 			player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
 	}
 
-	private InventoryClass getNormalInventory() {
-		return new InventoryClass("normal inventory", 18, new HashMap<Integer, InventorySlot>() {{
-		put(0, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.IRON_SWORD).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.swordGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.STICK).setName("Knockback Stick").addEnchantment(Enchantment.KNOCKBACK, 2).hideEnchants().build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.knockbackStickGamerule);}})));
-		put(1, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.CROSSBOW).setName("X-BOW").setLore("The legend X-Bow of strengthness.").setAmount(1).addEnchantment(Enchantment.QUICK_CHARGE, 5).hideEnchants().setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.superCrossbowGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.CROSSBOW).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.crossbowGamerule);}}),
-				new InventoryItem(2, new ItemBuilder(Material.BOW).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.bowGamerule);}})));
-		put(2, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.combatAxeGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.GOLDEN_AXE).setBreakable(false).addEnchantment(Enchantment.DIG_SPEED, 1).hideEnchants().build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.axeGamerule);}})));
-		put(3, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.OAK_LOG).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.UNSET) && getGamerule(gameManager.blocksGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.CRIMSON_STEM).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.RED) && getGamerule(gameManager.blocksGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.WARPED_STEM).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.BLUE) && getGamerule(gameManager.blocksGamerule);}})));
-		put(4, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.UNSET) && getGamerule(gameManager.blocksGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.RED) && getGamerule(gameManager.blocksGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.BLUE) && getGamerule(gameManager.blocksGamerule);}})));
-		put(5, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.UNSET) && getGamerule(gameManager.blocksGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.RED) && getGamerule(gameManager.blocksGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.BLUE) && getGamerule(gameManager.blocksGamerule);}})));
-		put(6, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.goldApplesGamerule);}}),
-				new InventoryItem(1, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.moreGoldApplesGamerule);}})));
-		put(7, new InventorySlot(
-				new InventoryItem(1, new ItemBuilder(Material.ARROW).setAmount(12).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.arrowsGamerule);}}),
-				new InventoryItem(2, new ItemBuilder(Material.ARROW).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.moreArrowsGamerule);}}),
-				new InventoryItem(0, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(1).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.infiniteArrowsGamerule) && !(getGamerule(gameManager.superCrossbowGamerule) || getGamerule(gameManager.crossbowGamerule));}}),
-				new InventoryItem(0, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(2).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.infiniteArrowsGamerule) && (getGamerule(gameManager.superCrossbowGamerule) || getGamerule(gameManager.crossbowGamerule));}}),
-				new InventoryItem(5, new ItemBuilder(Material.FLINT_AND_STEEL).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.flintandsteelGamerule);}}),
-				new InventoryItem(6, new ItemBuilder(Material.SNOWBALL).setAmount(16).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.snowballGamerule);}}),
-				new InventoryItem(7, new ItemBuilder(Material.LAVA_BUCKET).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.lavaBukketGamerule);}}),
-				new InventoryItem(8, new ItemBuilder(Material.WATER_BUCKET).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.waterBukketGamerule);}}),
-				new InventoryItem(3, new ItemBuilder(Material.ENDER_PEARL).setAmount(8).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.enderpearlGamerule);}}),
-				new InventoryItem(4, new ItemBuilder(Material.FISHING_ROD).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.fishingRodGamerule);}}),
-				new InventoryItem(0, new ItemBuilder(Material.WITHER_SKELETON_SKULL).setName("Wither Skull").setLore("Right click to throw a wither skull").build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.witherSkullGamerule);}})));
-		put(8, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return getGamerule(gameManager.pickaxeGamerule);}})));
-		}});
-		
-	}
+	
 }

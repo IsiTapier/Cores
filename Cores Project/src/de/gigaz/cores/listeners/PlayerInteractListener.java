@@ -1,12 +1,8 @@
 package de.gigaz.cores.listeners;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
@@ -26,6 +22,7 @@ import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.Team;
 
@@ -41,12 +38,12 @@ public class PlayerInteractListener implements Listener {
 		
 		if((Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) && player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {
 			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-				if(block.getType().equals(Material.BEACON) && gameManager.getGameruleSetting(gameManager.miningFatiqueGamerule).getValue())
+				if(block.getType().equals(Material.BEACON) && Gamerules.getValue(Gamerules.miningFatique))
 					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, 0, false, false, false));
 				else
 					player.removePotionEffect(PotionEffectType.SLOW_DIGGING);
 			} else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-	            if (player.getItemInHand().getType() == Material.WITHER_SKELETON_SKULL) {
+	            if (player.getInventory().getItemInMainHand().getType() == Material.WITHER_SKELETON_SKULL) {
 	            	event.setCancelled(true);
 	                //if(!player.getInventory().contains()) {
 	               //player.sendMessage(ChatColor.DARK_AQUA + "You need a flint to shoot!");
@@ -72,10 +69,9 @@ public class PlayerInteractListener implements Listener {
 				player.chat("/c join red");	
 			else if(mainHand.equals(Inventories.getTeamBlueSelector().disenchant().setLore(MultiToolInventory.getLore(Team.BLUE)).build()))
 				player.chat("/c join blue");	
-			else if(mainHand.equals(Inventories.getGameruleSettings().build())) {
-				GameruleSettings.nextPage();
-				player.openInventory(GameruleSettings.buildInventory());
-			} else if(mainHand.equals(Inventories.getCustomizeInventory().build()))
+			else if(mainHand.equals(Inventories.getGameruleSettings().build()))
+				player.openInventory(GameruleSettings.buildCategoryMenu());
+			else if(mainHand.equals(Inventories.getCustomizeInventory().build()))
 				player.chat("/c inventory");
 			else if(mainHand.equals(Inventories.getMapVote().build()))
 				player.openInventory(MapSelectInventory.getNormalInventory());

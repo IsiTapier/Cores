@@ -2,6 +2,7 @@ package de.gigaz.cores.classes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,72 +15,22 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
+import de.gigaz.cores.classes.GameruleSetting.GameruleCategory;
 import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.inventories.AdminToolInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.special.ActionBlock;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
+import de.gigaz.cores.special.SpecialItemManager;
 
 public class GameManager {
-	//Gamerule Names
-	//effects
-	public final String aquaGamerule = "aqua";
-	public final String hasteGamerule = "haste";
-	public final String jumpboostGamerule = "jumpboost";
-	public final String speedGamerule = "speed";
-	public final String invisibilityGamerule = "invisibility";
-	public final String glowingGamerule = "glowing";
-	
-	public final String autoTeamGamerule = "auto Team";
-	public final String randomTeamGamerule = "random Teams"; //TODO
-	public final String winMusicGamerule = "Play Win Music";
-	public final String soundEffectsGamerule = "Play Sound Effects";
-	public final String firstCoreWinsGamerule = "First Core Wins";
-	public final String repairCoreGamerule = "Repair Core";
-	
-	public final String noFallDamageGamerule = "no Fall Damage";
-	public final String noKnockbackGamerule = "no Knockback";
-	public final String miningFatiqueGamerule = "Abbaulähmung";
-	public final String quickRespawnGamerule = "Quick Respawn";
-	public final String autoBlockPlaceGamerule = "Auto Block Placement";
-	public final String nightGamerule = "Night";
-	public final String coreProtectionGamerule = "Core Protection";
-	public final String spawnProtectionGamerule = "Spawn Protection";
-	
-	//inventory
-	public final String combatAxeGamerule = "Combat Axe";
-	public final String shieldGamerule = "Shield";
-	public final String infiniteArrowsGamerule = "infinite arrows";
-	public final String superCrossbowGamerule = "super Crossbow";
-	public final String onehitGamerule = "onehit";
-	public final String moreArrowsGamerule = "more arrows";
-	public final String moreGoldApplesGamerule = "more gold apples";
-	public final String crossbowGamerule = "Crossbow";
-	public final String flintandsteelGamerule = "Flint and Steel";
-	public final String snowballGamerule = "Snowballs";
-	public final String lavaBukketGamerule = "Lava";
-	public final String waterBukketGamerule = "Water";
-	public final String enderpearlGamerule = "Enderpearls";
-	public final String fishingRodGamerule = "Fishing Rod";
-	
-	public final String swordGamerule = "Sword";
-	public final String bowGamerule = "Bow";
-	public final String axeGamerule = "Axe";
-	public final String blocksGamerule = "Blocks";
-	public final String goldApplesGamerule = "Gold Apples";
-	public final String arrowsGamerule = "Arrows";
-	public final String pickaxeGamerule = "Pickaxe";
-	public final String armorGamerule = "Armor";
-	
-	public final String witherSkullGamerule = "Wither Skulls";
-	public final String knockbackStickGamerule = "Knockback stick";
-	
 	
 	private final ArrayList<World> aquaMaps = new ArrayList<World>(Arrays.asList(Bukkit.getWorld("aquaMap")));
-	
 	
 	private ArrayList<PlayerProfile> playerProfiles = new ArrayList<PlayerProfile>();;
 	private LobbyState gameStates[] = new LobbyState[3];
@@ -87,86 +38,7 @@ public class GameManager {
 	private LobbyState lobbyState;
 	private IngameState ingameState;
 	private EndingState endingState;
-	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
-	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
-	private final HashMap<String, GameruleSetting> gameruleSettings = new HashMap<String, GameruleSetting>() {{
-		put(aquaGamerule, new GameruleSetting(new ItemBuilder(Material.PUFFERFISH_BUCKET).setName(aquaGamerule).build()));
-		put(hasteGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_PICKAXE).setName(hasteGamerule).build()));
-		put(jumpboostGamerule, new GameruleSetting(new ItemBuilder(Material.RABBIT_FOOT).setName(jumpboostGamerule).build()));
-		put(speedGamerule, new GameruleSetting(new ItemBuilder(Material.LEATHER_BOOTS).setName(speedGamerule).build()));
-		put(invisibilityGamerule, new GameruleSetting(new ItemBuilder(Material.WHITE_STAINED_GLASS).setName(invisibilityGamerule).build()));
-		put(glowingGamerule, new GameruleSetting(new ItemBuilder(Material.SPECTRAL_ARROW).setName(glowingGamerule).build()));
-		put(autoTeamGamerule, new GameruleSetting(new ItemBuilder(Material.STRUCTURE_BLOCK).setName(autoTeamGamerule).build(), true));
-		put(randomTeamGamerule, new GameruleSetting(new ItemBuilder(Material.COMMAND_BLOCK).setName(randomTeamGamerule).build()));
-		put(noFallDamageGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_BOOTS).setName(noFallDamageGamerule).addEnchantment(Enchantment.PROTECTION_FALL, 10).build()));
-		put(miningFatiqueGamerule, new GameruleSetting(new ItemBuilder(Material.WOODEN_SHOVEL).setName(miningFatiqueGamerule).build(), true));
-		put(combatAxeGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_AXE).setName(combatAxeGamerule).build(), true));
-		put(shieldGamerule, new GameruleSetting(new ItemBuilder(Material.SHIELD).setName(shieldGamerule).build()));
-		put(infiniteArrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setName(infiniteArrowsGamerule).addEnchantment(Enchantment.ARROW_INFINITE, 10).build()));
-		put(superCrossbowGamerule, new GameruleSetting(new ItemBuilder(Material.CROSSBOW).setName(superCrossbowGamerule).addEnchantment(Enchantment.QUICK_CHARGE, 10).build()));
-		put(onehitGamerule, new GameruleSetting(new ItemBuilder(Material.NETHERITE_SWORD).setName(onehitGamerule).addEnchantment(Enchantment.DAMAGE_ALL, 10).build()));
-		put(moreArrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setName(moreArrowsGamerule).setAmount(64).build()));
-		put(moreGoldApplesGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_APPLE).setName(moreGoldApplesGamerule).setAmount(64).build()));
-		put(crossbowGamerule, new GameruleSetting(new ItemBuilder(Material.CROSSBOW).setName(crossbowGamerule).build()));
-		put(swordGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_SWORD).setName(swordGamerule).build(), true));
-		put(bowGamerule, new GameruleSetting(new ItemBuilder(Material.BOW).setName(bowGamerule).build(), true));
-		put(axeGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_AXE).setName(axeGamerule).build()));
-		put(blocksGamerule, new GameruleSetting(new ItemBuilder(Material.OAK_PLANKS).setName(blocksGamerule).build(), true));
-		put(goldApplesGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).setName(goldApplesGamerule).build(), true));
-		put(arrowsGamerule, new GameruleSetting(new ItemBuilder(Material.ARROW).setAmount(12).setName(arrowsGamerule).build(), true));
-		put(pickaxeGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_PICKAXE).setName(pickaxeGamerule).build(), true));
-		put(armorGamerule, new GameruleSetting(new ItemBuilder(Material.IRON_CHESTPLATE).setName(armorGamerule).build(), true));
-		put(flintandsteelGamerule, new GameruleSetting(new ItemBuilder(Material.FLINT_AND_STEEL).setName(flintandsteelGamerule).build()));
-		put(snowballGamerule, new GameruleSetting(new ItemBuilder(Material.SNOWBALL).setAmount(16).setName(snowballGamerule).build()));
-		put(lavaBukketGamerule, new GameruleSetting(new ItemBuilder(Material.LAVA_BUCKET).setName(lavaBukketGamerule).build()));
-		put(waterBukketGamerule, new GameruleSetting(new ItemBuilder(Material.WATER_BUCKET).setName(waterBukketGamerule).build()));
-		put(enderpearlGamerule, new GameruleSetting(new ItemBuilder(Material.ENDER_PEARL).setAmount(8).setName(enderpearlGamerule).build()));
-		put(fishingRodGamerule, new GameruleSetting(new ItemBuilder(Material.FISHING_ROD).setName(fishingRodGamerule).build()));
-		put(witherSkullGamerule, new GameruleSetting(new ItemBuilder(Material.WITHER_SKELETON_SKULL).setName(witherSkullGamerule).build()));
-		put(quickRespawnGamerule, new GameruleSetting(new ItemBuilder(Material.RED_BED).setName(quickRespawnGamerule).build()));
-		put(knockbackStickGamerule, new GameruleSetting(new ItemBuilder(Material.STICK).addEnchantment(Enchantment.ARROW_KNOCKBACK, 10).setName(knockbackStickGamerule).build()));
-		put(noKnockbackGamerule, new GameruleSetting(new ItemBuilder(Material.ANVIL).setName(noKnockbackGamerule).build()));
-		put(autoBlockPlaceGamerule, new GameruleSetting(new ItemBuilder(Material.DROPPER).setName(autoBlockPlaceGamerule).build()));
-		put(nightGamerule, new GameruleSetting(new ItemBuilder(Material.CLOCK).setName(nightGamerule).build()));
-		put(coreProtectionGamerule, new GameruleSetting(new ItemBuilder(Material.BEDROCK).setName(coreProtectionGamerule).build(), true));
-		put(spawnProtectionGamerule, new GameruleSetting(new ItemBuilder(Material.BEDROCK).setName(spawnProtectionGamerule).build(), true));
-		put(winMusicGamerule, new GameruleSetting(new ItemBuilder(Material.JUKEBOX).setName(winMusicGamerule).build(), true));
-		put(soundEffectsGamerule, new GameruleSetting(new ItemBuilder(Material.NOTE_BLOCK).setName(soundEffectsGamerule).build(), true));
-		put(firstCoreWinsGamerule, new GameruleSetting(new ItemBuilder(Material.BEACON).setName(firstCoreWinsGamerule).build()));
-		put(repairCoreGamerule, new GameruleSetting(new ItemBuilder(Material.END_CRYSTAL).setName(repairCoreGamerule).build(), true));
-	}};
-	
-	public void setGameruleSetting(GameruleSetting setting, boolean value) {
-		setting.setValue(value);
-		String name = setting.getItem().getItemMeta().getDisplayName();
-			   if(name.equals(arrowsGamerule) && value) {
-			getGameruleSetting(moreArrowsGamerule).setValue(false);
-			getGameruleSetting(infiniteArrowsGamerule).setValue(false);
-		} else if(name.equals(moreArrowsGamerule) && value) {
-			getGameruleSetting(arrowsGamerule).setValue(false);
-			getGameruleSetting(infiniteArrowsGamerule).setValue(false);
-		} else if(name.equals(infiniteArrowsGamerule) && value) {
-			getGameruleSetting(arrowsGamerule).setValue(false);
-			getGameruleSetting(moreArrowsGamerule).setValue(false);
-		} else if(name.equals(goldApplesGamerule) && value) {
-			getGameruleSetting(moreGoldApplesGamerule).setValue(false);
-		} else if(name.equals(moreGoldApplesGamerule) && value) {
-			getGameruleSetting(goldApplesGamerule).setValue(false);
-		} else if(name.equals(bowGamerule) && value) {
-			//getGameruleSetting(crossbowGamerule).setValue(false);
-			//getGameruleSetting(superCrossbowGamerule).setValue(false);
-		} else if(name.equals(crossbowGamerule) && value) {
-			getGameruleSetting(bowGamerule).setValue(false);
-			getGameruleSetting(superCrossbowGamerule).setValue(false);
-		} else if(name.equals(superCrossbowGamerule) && value) {
-			getGameruleSetting(bowGamerule).setValue(false);
-			getGameruleSetting(crossbowGamerule).setValue(false);
-		} else if(name.equals(axeGamerule) && value) {
-			getGameruleSetting(combatAxeGamerule).setValue(false);
-		} else if(name.equals(combatAxeGamerule) && value) {
-			getGameruleSetting(axeGamerule).setValue(false);
-		}
-	}
+	private SpecialItemManager specialItemManager;
 	
 	private int blockProtectionRadius = 3;
 	private int blockProtectionHeight = 3;
@@ -176,6 +48,8 @@ public class GameManager {
 	private World configureMap;
 	private ArrayList<Core> cores = new ArrayList<Core>();
 	private ArrayList<Core> stockedCores = new ArrayList<Core>();
+	private ArrayList<ActionBlock> actionBlocks;
+	
 	
 	public GameManager() {
 		//new LobbyState();
@@ -187,6 +61,7 @@ public class GameManager {
 				return;
 			lastMap = Main.getPlugin().getWorld(name);
 		}
+		//actionBlocks = registerActionBlocks
 	}
 
 	public void setMap(World map) {
@@ -199,8 +74,7 @@ public class GameManager {
 			player.teleport(Main.getPlugin().getGameManager().getLobbySpawn());
 		Main.getPlugin().setMap(map.getName());
 
-		
-		gameruleSettings.get(aquaGamerule).setValue(aquaMaps.contains(map) ? true : false);
+		Gamerules.setValue(Gamerules.aqua, aquaMaps.contains(map) ? true : false);
 		
 		/*FileConfiguration config = Main.getPlugin().getConfig();
 		config.set(Main.CONFIG_ROOT + "currentMap", this.map.getName());
@@ -416,6 +290,45 @@ public class GameManager {
 		return list;
 	}
 
+	public ArrayList<ActionBlock> getActionBlocks(World world) {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		String root = Main.CONFIG_ROOT + ".actionBlocks";
+		ArrayList<ActionBlock> output = new ArrayList<ActionBlock>();
+		for(ActionBlock actionBlock : actionBlocks) {
+			if(actionBlock.getWorld().equals(world)) {
+				output.add(actionBlock);
+			}
+		}
+		return output;
+	}
+
+	public ArrayList<ActionBlock> getActionBlocks() {
+		ArrayList<ActionBlock> output = new ArrayList<ActionBlock>();
+		for(ActionBlock actionBlock : actionBlocks) {
+			if(actionBlock.getWorld().equals(getMap())) {
+				Location location = actionBlock.getLocation();
+				location.setWorld(getCopiedWorld());
+				output.add(actionBlock);
+			}
+		}
+		return output;
+	}
+
+	public void registerActionBlocks() {
+		FileConfiguration config = Main.getPlugin().getConfig();
+		String root = Main.CONFIG_ROOT + ".actionBlocks";
+		ArrayList<ActionBlock> output;
+		
+	}
+
+	public SpecialItemManager getSpecialItemManager() {
+		return specialItemManager;
+	}
+
+	public void setSpecialItemManager(SpecialItemManager specialItemManager) {
+		this.specialItemManager = specialItemManager;
+	}
+
 	public ArrayList<PlayerProfile> getPlayerProfiles() {
 		return playerProfiles;
 	}
@@ -506,10 +419,6 @@ public class GameManager {
 	public void setCurrentGameState(GameState currentGameState) {
 		this.currentGameState = currentGameState;
 	}
-
-	public HashMap<Location, Material> getBreakedBlocks() {
-		return breakedBlocks;
-	}
 	
 	public Location getLobbySpawn() {
 		Location location = MainCommand.getConfigGeneralLocation("lobbyspawn");
@@ -519,19 +428,6 @@ public class GameManager {
 	public Location getSpawnOfTeam(Team team, World world) {
 		return MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", world);
 	}
-
-	public void setBreakedBlocks(HashMap<Location, Material> breakedBlocks) {
-		this.breakedBlocks = breakedBlocks;
-	}
-
-	public ArrayList<Location> getBuiltBlocks() {
-		return builtBlocks;
-	}
-
-	public void setBuiltBlocks(ArrayList<Location> builtBlocks) {
-		this.builtBlocks = builtBlocks;
-	}
-	
 	
 	public int getBlockProtectionRadius() {
 		return blockProtectionRadius;
@@ -545,16 +441,16 @@ public class GameManager {
 		playSound(sound, world, tone, false);
 	}
 	public void playSound(Sound sound, World world, int tone, boolean isMusic) {
-		if(isMusic && !getGameruleSetting(winMusicGamerule).getValue())
+		if(isMusic && !Gamerules.getValue(Gamerules.winMusic))
 			return;
-		if(!isMusic && !getGameruleSetting(soundEffectsGamerule).getValue())
+		if(!isMusic && !Gamerules.getValue(Gamerules.soundEffects))
 			return;
 		for(Player player : world.getPlayers()) {
 			player.playSound(player.getLocation(), sound, tone, 1);		
 		}
 	}
 	public void playSound(Sound sound, World world, int tone, Team team) {
-		if(!getGameruleSetting(soundEffectsGamerule).getValue())
+		if(!Gamerules.getValue(Gamerules.soundEffects))
 			return;
 		for(Player player : world.getPlayers()) {
 			Team playerTeam = Main.getPlugin().getGameManager().getPlayerProfile(player).getTeam();
@@ -602,18 +498,6 @@ public class GameManager {
 					autoTeam(playerProfile);
 			}
 		}
-	}
-	
-	public HashMap<String, GameruleSetting> getGameruleSettings() {
-		return gameruleSettings;
-	}
-	
-	public GameruleSetting getGameruleSetting(String name) {
-		return gameruleSettings.get(name);
-	}
-	
-	public void setGameRuleSetting(String name, GameruleSetting gameruleSetting) {
-		gameruleSettings.put(name, gameruleSetting);
 	}
 	
 	public int getFloorHight() {

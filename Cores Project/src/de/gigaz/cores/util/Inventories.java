@@ -1,13 +1,9 @@
 package de.gigaz.cores.util;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
@@ -25,7 +21,7 @@ public class Inventories {
 	private static ItemBuilder gameruleSettings = new ItemBuilder(Material.WRITABLE_BOOK).setName("Gamerule Settings");
 	public static final String defaultInventoryName = "customize inventory";
 	
-	public static Inventory getDefaultInventory() {
+	/*public static Inventory getDefaultInventory() {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		Inventory inventory = Bukkit.createInventory(null, 1*9, defaultInventoryName);
 		inventory.setItem(0, new ItemBuilder(Material.IRON_SWORD).setBreakable(false).build());
@@ -35,7 +31,7 @@ public class Inventories {
 			inventory.setItem(1, new ItemBuilder(Material.CROSSBOW).setBreakable(false).build());
 		else
 			inventory.setItem(1, new ItemBuilder(Material.BOW).setBreakable(false).build());
-		if(gameManager.getGameruleSetting(gameManager.combatAxeGamerule).getValue())
+		if(gameManager.getGameruleSetting(gameManager.combatAxe))
 			inventory.setItem(2, new ItemBuilder(Material.IRON_AXE).setBreakable(false).build());
 		else
 			inventory.setItem(2, new ItemBuilder(Material.GOLDEN_AXE).setBreakable(false).addEnchantment(Enchantment.DIG_SPEED, 1).build());
@@ -43,14 +39,14 @@ public class Inventories {
 		inventory.setItem(4, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
 		inventory.setItem(5, new ItemBuilder(Material.OAK_PLANKS).setAmount(64).build());
 		//inventory.setItem(5, new ItemBuilder(Material.BEEF).setAmount(64).build());
-		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApplesGamerule).getValue()?64:16).build());
-		if(gameManager.getGameruleSetting(gameManager.infiniteArrowsGamerule).getValue())
+		inventory.setItem(6, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(gameManager.getGameruleSetting(gameManager.moreGoldApples)?64:16).build());
+		if(gameManager.getGameruleSetting(gameManager.infiniteArrows))
 			inventory.setItem(7, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(gameManager.getGameruleSetting(gameManager.superCrossbowGamerule).getValue()||gameManager.getGameruleSetting(gameManager.crossbowGamerule).getValue()?2:1).setBreakable(false).build());
 		else
-			inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreArrowsGamerule).getValue()?64:12).build());
+			inventory.setItem(7, new ItemBuilder(Material.ARROW).setAmount(gameManager.getGameruleSetting(gameManager.moreArrows)?64:12).build());
 		inventory.setItem(8, new ItemBuilder(Material.IRON_PICKAXE).setBreakable(false).build());
 		return inventory;
-	}
+	}*/
 	
 	public static void setIngameIventory(PlayerProfile playerProfile) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
@@ -132,13 +128,13 @@ public class Inventories {
 			player.getInventory().setChestplate(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), c));
 			player.getInventory().setHelmet(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), c));
 		}*/
-		if(gameManager.getGameruleSetting(gameManager.armorGamerule).getValue()) {
+		if(Gamerules.getValue(Gamerules.armor)) {
 			player.getInventory().setBoots(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_BOOTS).setBreakable(false).build(), team.getColor()));
 			player.getInventory().setLeggings(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_LEGGINGS).setBreakable(false).build(), team.getColor()));
 			player.getInventory().setChestplate(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_CHESTPLATE).setBreakable(false).build(), team.getColor()));
 			player.getInventory().setHelmet(ItemBuilder.setColor(new ItemBuilder(Material.LEATHER_HELMET).setBreakable(false).build(), team.getColor()));
 		}
-		if(gameManager.getGameruleSetting(gameManager.shieldGamerule).getValue())
+		if(Gamerules.getValue(Gamerules.shield))
 			player.getInventory().setItemInOffHand(new ItemBuilder(Material.SHIELD).setBreakable(false).build());
 	}
 	

@@ -17,7 +17,7 @@ import de.gigaz.cores.main.Main;
 
 public class ScoreboardManager implements Listener {
 	
-	public static final String SCOREBOARD_TITILE = "§8╔══ §b§lCores §r§8══╗";
+	public static final String SCOREBOARD_TITILE = "§8╔══ §b§lCores §r§8══╗ ";
 	
 	public static void draw(Player player) {
 		GameManager gameManager = Main.getPlugin().getGameManager();

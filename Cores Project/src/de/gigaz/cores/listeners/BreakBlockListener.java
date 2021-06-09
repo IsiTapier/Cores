@@ -17,6 +17,7 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.ScoreboardManager;
 import de.gigaz.cores.util.Team;
 
@@ -35,7 +36,7 @@ public class BreakBlockListener implements Listener {
 		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(world)) {
 			if(!playerProfile.isEditMode()) {
 				//gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
-				if((gameManager.checkCoreProtection(location) && gameManager.getGameruleSetting(gameManager.coreProtectionGamerule).getValue()) || (gameManager.checkSpawnProtection(location) && gameManager.getGameruleSetting(gameManager.spawnProtectionGamerule).getValue())) {
+				if((gameManager.checkCoreProtection(location) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(location) && Gamerules.getValue(Gamerules.spawnProtection))) {
 					event.setCancelled(true);
 					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
 				}
@@ -47,6 +48,7 @@ public class BreakBlockListener implements Listener {
 			if(!playerProfile.isEditMode()) {
 				event.setCancelled(true);
 				player.sendMessage(Main.PREFIX + "§7Du bist §cnicht§7 berechtigt einen Block abzubauen");
+				return;
 			}
 		}
 		
@@ -63,7 +65,7 @@ public class BreakBlockListener implements Listener {
 					gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
 					gameManager.checkWin();
 					ScoreboardManager.drawAll();
-					if(gameManager.getGameruleSetting(gameManager.firstCoreWinsGamerule).getValue())
+					if(Gamerules.getValue(Gamerules.firstCoreWins))
 						gameManager.endGame(team);
 				} else {
 					playerProfile.playSound(Sound.ENTITY_VILLAGER_NO);
@@ -71,5 +73,8 @@ public class BreakBlockListener implements Listener {
 				}
 			}
 		}
+		
+		if(block.getType().equals(Material.LIGHT_BLUE_STAINED_GLASS) && Gamerules.getValue(Gamerules.instantWall))
+			event.setCancelled(true);
 	}	
 }

@@ -13,10 +13,10 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.GameruleSetting;
+import de.gigaz.cores.classes.GameruleSetting.GameruleCategory;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.inventories.AdminToolInventory;
 import de.gigaz.cores.inventories.GameruleSettings;
@@ -25,6 +25,7 @@ import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
 
 public class InventoryClickListener implements Listener {
@@ -121,7 +122,13 @@ public class InventoryClickListener implements Listener {
 					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" random");*/selectedPlayer.chat("/c join random");
 				player.openInventory(ManageTeamsInventory.getInventory());
 				
-			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase("Gamerule Settings")) {
+			} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getCategorymenutitle())) {
+				event.setCancelled(true);
+				GameruleCategory category = GameruleCategory.getCategory(item);
+				gameManager.getPlayerProfile(player).setGamerulePage(0);
+				if(category != null)
+					player.openInventory(GameruleSettings.buildInventory(category, player));
+			} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getSettingsmenutitle())) {
 				event.setCancelled(true);
 				/*if(GameruleSettings.getUiMode()) {
 					if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
@@ -156,28 +163,34 @@ public class InventoryClickListener implements Listener {
 						}
 					}
 				}*/
-				if(!item.getType().equals(Material.RED_STAINED_GLASS_PANE) && !item.getType().equals(Material.GREEN_STAINED_GLASS_PANE))
+				if(item.equals(GameruleSettings.getMainMenuItem()))
+					player.openInventory(GameruleSettings.buildCategoryMenu());
+				if(item.equals(GameruleSettings.getLastPageItem()))
+					GameruleSettings.lastPage(player);
+				if(item.equals(GameruleSettings.getNextPageItem()))
+					GameruleSettings.nextPage(player);
+				if(!item.equals(GameruleSettings.getDisable()) && !item.equals(GameruleSettings.getEnable()))
 					return;
 				ItemStack setting;
 				int shift;
-				if(GameruleSettings.getUiMode() && item.getType().equals(Material.RED_STAINED_GLASS_PANE))
+				if(GameruleSettings.getUiMode() && item.equals(GameruleSettings.getDisable()))
 					shift = 1;
 				else
 					shift = -1;
-				setting = player.getOpenInventory().getItem(event.getSlot()+shift);
+				setting = player.getOpenInventory().getItem(slot+shift);
 				
-				for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
+				for(GameruleSetting gameruleSetting : Gamerules.getGameruleSettings().values()) {
 					if(gameruleSetting.getItem().equals(setting)) {
 						if(GameruleSettings.getUiMode()) {
-							if(item.getType().equals(Material.RED_STAINED_GLASS_PANE))
-								gameManager.setGameruleSetting(gameruleSetting, false);
-							else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE))
-								gameManager.setGameruleSetting(gameruleSetting, true);
+							if(item.equals(GameruleSettings.getDisable()))
+								Gamerules.setGameruleSetting(gameruleSetting, false);
+							else
+								Gamerules.setGameruleSetting(gameruleSetting, true);
 						} else
-							gameManager.setGameruleSetting(gameruleSetting, !gameruleSetting.getValue());//gameruleSetting.switchValue();
+							Gamerules.setGameruleSetting(gameruleSetting, !gameruleSetting.getValue());//gameruleSetting.switchValue();
 					}
 				}
-				player.openInventory(GameruleSettings.buildInventory());
+				player.openInventory(GameruleSettings.buildInventory(GameruleCategory.getCategory(clicked), player));
 			}
 		}
 		/*Bukkit.broadcastMessage(player.getInventory().toString());
