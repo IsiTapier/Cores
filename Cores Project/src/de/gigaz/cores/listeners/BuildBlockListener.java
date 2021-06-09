@@ -1,5 +1,8 @@
 package de.gigaz.cores.listeners;
 
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,9 +18,13 @@ public class BuildBlockListener implements Listener {
 	@EventHandler
 	public void onBuild(BlockPlaceEvent event) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
-		PlayerProfile playerProfile = gameManager.getPlayerProfile(event.getPlayer());
+		Block block = event.getBlock();
+		Location location = block.getLocation();
+		World world = location.getWorld();
 		Player player = event.getPlayer();
-		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE && player.getWorld().equals(gameManager.getCopiedWorld())) {
+		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
+		
+		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE || !world.equals(gameManager.getCopiedWorld())) {
 			//BauProtection via Edit Mode
 			if(!playerProfile.isEditMode()) {
 				event.setCancelled(true);
@@ -25,12 +32,12 @@ public class BuildBlockListener implements Listener {
 			} 
 		} else {
 			if(!playerProfile.isEditMode()) {
-				if(gameManager.checkCoreProtection(event.getBlock().getLocation())) {
+				if((gameManager.checkCoreProtection(location) && gameManager.getGameruleSetting(gameManager.coreProtectionGamerule).getValue()) || (gameManager.checkSpawnProtection(location) && gameManager.getGameruleSetting(gameManager.spawnProtectionGamerule).getValue())) {
 					event.setCancelled(true);
-					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
+					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke bauen");
 				}
 			} else {
-				player.sendMessage("§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + event.getPlayer().getWorld());
+				player.sendMessage("§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + world.getName());
 			}
 		}
 		

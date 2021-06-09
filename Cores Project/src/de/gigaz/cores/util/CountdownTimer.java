@@ -14,9 +14,9 @@ public class CountdownTimer implements Runnable {
 
     // Seconds and shiz
     private int seconds;
-    private int secondsLeft;
+    private float secondsLeft;
     private int delay;
-    private int interval;
+    private float interval;
 
     // Actions to perform while counting down, before and after
     private Consumer<CountdownTimer> everySecond;
@@ -25,7 +25,7 @@ public class CountdownTimer implements Runnable {
 
     // Construct a timer, you could create multiple so for example if
     // you do not want these "actions"
-    public CountdownTimer(JavaPlugin plugin, int seconds, int delay, int interval, Runnable beforeTimer, Runnable afterTimer, Consumer<CountdownTimer> everySecond) {
+    public CountdownTimer(JavaPlugin plugin, int seconds, int delay, float interval, Runnable beforeTimer, Runnable afterTimer, Consumer<CountdownTimer> everySecond) {
         // Initializing fields
         this.plugin = plugin;
 
@@ -80,7 +80,7 @@ public class CountdownTimer implements Runnable {
      *
      * @return Seconds left timer should run
      */
-    public int getSecondsLeft() {
+    public float getSecondsLeft() {
         return secondsLeft;
     }
 
@@ -90,7 +90,7 @@ public class CountdownTimer implements Runnable {
     public void scheduleTimer() {
     	beforeTimer.run();
         // Initialize our assigned task's id, for later use so we can cancel
-        this.assignedTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, delay*20L, this.interval*20L);
+        this.assignedTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, delay*20L, (int)(this.interval*20L));
     }
     
     public void stopTimer() {

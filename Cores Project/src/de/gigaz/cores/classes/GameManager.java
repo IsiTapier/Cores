@@ -35,11 +35,19 @@ public class GameManager {
 	
 	public final String autoTeamGamerule = "auto Team";
 	public final String randomTeamGamerule = "random Teams"; //TODO
+	public final String winMusicGamerule = "Play Win Music";
+	public final String soundEffectsGamerule = "Play Sound Effects";
+	public final String firstCoreWinsGamerule = "First Core Wins";
+	public final String repairCoreGamerule = "Repair Core";
 	
 	public final String noFallDamageGamerule = "no Fall Damage";
 	public final String noKnockbackGamerule = "no Knockback";
 	public final String miningFatiqueGamerule = "Abbaulähmung";
 	public final String quickRespawnGamerule = "Quick Respawn";
+	public final String autoBlockPlaceGamerule = "Auto Block Placement";
+	public final String nightGamerule = "Night";
+	public final String coreProtectionGamerule = "Core Protection";
+	public final String spawnProtectionGamerule = "Spawn Protection";
 	
 	//inventory
 	public final String combatAxeGamerule = "Combat Axe";
@@ -82,7 +90,7 @@ public class GameManager {
 	private HashMap<Location, Material> breakedBlocks = new HashMap<Location, Material>();
 	private ArrayList<Location> builtBlocks = new ArrayList<Location>();
 	private final HashMap<String, GameruleSetting> gameruleSettings = new HashMap<String, GameruleSetting>() {{
-		put(aquaGamerule, new GameruleSetting(new ItemBuilder(Material.WATER_BUCKET).setName(aquaGamerule).build()));
+		put(aquaGamerule, new GameruleSetting(new ItemBuilder(Material.PUFFERFISH_BUCKET).setName(aquaGamerule).build()));
 		put(hasteGamerule, new GameruleSetting(new ItemBuilder(Material.GOLDEN_PICKAXE).setName(hasteGamerule).build()));
 		put(jumpboostGamerule, new GameruleSetting(new ItemBuilder(Material.RABBIT_FOOT).setName(jumpboostGamerule).build()));
 		put(speedGamerule, new GameruleSetting(new ItemBuilder(Material.LEATHER_BOOTS).setName(speedGamerule).build()));
@@ -118,6 +126,14 @@ public class GameManager {
 		put(quickRespawnGamerule, new GameruleSetting(new ItemBuilder(Material.RED_BED).setName(quickRespawnGamerule).build()));
 		put(knockbackStickGamerule, new GameruleSetting(new ItemBuilder(Material.STICK).addEnchantment(Enchantment.ARROW_KNOCKBACK, 10).setName(knockbackStickGamerule).build()));
 		put(noKnockbackGamerule, new GameruleSetting(new ItemBuilder(Material.ANVIL).setName(noKnockbackGamerule).build()));
+		put(autoBlockPlaceGamerule, new GameruleSetting(new ItemBuilder(Material.DROPPER).setName(autoBlockPlaceGamerule).build()));
+		put(nightGamerule, new GameruleSetting(new ItemBuilder(Material.CLOCK).setName(nightGamerule).build()));
+		put(coreProtectionGamerule, new GameruleSetting(new ItemBuilder(Material.BEDROCK).setName(coreProtectionGamerule).build(), true));
+		put(spawnProtectionGamerule, new GameruleSetting(new ItemBuilder(Material.BEDROCK).setName(spawnProtectionGamerule).build(), true));
+		put(winMusicGamerule, new GameruleSetting(new ItemBuilder(Material.JUKEBOX).setName(winMusicGamerule).build(), true));
+		put(soundEffectsGamerule, new GameruleSetting(new ItemBuilder(Material.NOTE_BLOCK).setName(soundEffectsGamerule).build(), true));
+		put(firstCoreWinsGamerule, new GameruleSetting(new ItemBuilder(Material.BEACON).setName(firstCoreWinsGamerule).build()));
+		put(repairCoreGamerule, new GameruleSetting(new ItemBuilder(Material.END_CRYSTAL).setName(repairCoreGamerule).build(), true));
 	}};
 	
 	public void setGameruleSetting(GameruleSetting setting, boolean value) {
@@ -152,8 +168,8 @@ public class GameManager {
 		}
 	}
 	
-	private int blockProtectionRadius = 2;
-	private int blockProtectionHeight = 4;
+	private int blockProtectionRadius = 3;
+	private int blockProtectionHeight = 3;
 	
 	private World map;
 	private World lastMap;
@@ -249,6 +265,15 @@ public class GameManager {
 		}
 	}
 	
+	public void tieBreaker() {
+		if(getCores(Team.BLUE).size() == getCores(Team.RED).size())
+			endGame(Team.UNSET);
+		else if(getCores(Team.BLUE).size() > getCores(Team.RED).size())
+			endGame(Team.BLUE);
+		else
+			endGame(Team.RED);
+	}
+	
 	public void registerCores() {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		String root = Main.CONFIG_ROOT + "worlds." + map.getName() + ".blue.core.";
@@ -277,37 +302,35 @@ public class GameManager {
 			}
 		}
 		//Bukkit.broadcastMessage(cores.size() + " size");
-		if(valid == false) {
-				Bukkit.broadcastMessage(Main.PREFIX + "§7Das Spiel besitzt §ckeine§7 vollständig konfigurierte Map");
-		}
-		
+		if(valid == false)
+			Bukkit.broadcastMessage(Main.PREFIX + "§7Das Spiel besitzt §ckeine§7 vollständig konfigurierte Map");
 	}
-
+	
+	public void addCore(Core core) {
+		stockedCores.add(core);
+		cores.add(core);
+		getCopiedWorld().getBlockAt(core.getLocation()).setType(Material.BEACON);
+	}
 	
 	public Core getCore(Location location) {
-		for(Core core : cores) {
-			if(core.getLocation().equals(location)) {
+		for(Core core : cores)
+			if(core.getLocation().equals(location))
 				return core;
-			}
-		}
 		return null;
 	}
 	
 	public Core getCore(Location location, int distance) {
-		for(Core core : cores) {
-			if(core.getLocation().distance(location)<=distance) {
+		for(Core core : cores)
+			if(core.getLocation().distance(location)<=distance)
 				return core;
-			}
-		}
 		return null;
 	}
 	
 	public void stockCores() {
 		registerCores();
 		stockedCores.clear();
-		for(Core core : getCores()) {
+		for(Core core : getCores())
 			stockedCores.add(core);
-		}
 	}
 	public ArrayList<Core> getStockedCores() {
 		return stockedCores;
@@ -315,21 +338,28 @@ public class GameManager {
 	
 	public ArrayList<Core> getStockedCores(Team team) {
 		ArrayList<Core> list = new ArrayList<Core>();
-		for(Core core : stockedCores) {
-			if(core.getTeam().equals(team)) {
+		for(Core core : stockedCores)
+			if(core.getTeam().equals(team))
 				list.add(core);
-			}
-		}
 		return list;
+	}
+	
+	public Core getNearBrokenCore(Location location, int distance, Team team) {
+		for(Core core : getStockedCores(team)) {
+			if(getCores().contains(core))
+				continue;
+			if(core.getLocation().distance(location)<=distance)
+				return core;
+		}
+		return null;
 	}
 	
 	public ArrayList<Player> getPlayersOfTeam(Team team) {
 		ArrayList<Player> players = new ArrayList<Player>();
 		for(PlayerProfile playerProfile : getPlayerProfiles()/*Bukkit.getOnlinePlayers()*/) {
 			Player player = playerProfile.getPlayer();
-			if(Main.getPlugin().getGameManager().getPlayerProfile(player).getTeam() == team) {
+			if(Main.getPlugin().getGameManager().getPlayerProfile(player).getTeam() == team)
 				players.add(player);
-			}
 		}		
 		return players;
 	}
@@ -397,22 +427,27 @@ public class GameManager {
 	public GameState getCurrentGameState() {
 		return currentGameState;
 	}
+	
+	public boolean checkSpawnProtection(Location location) {
+		return checkBlockProtection(location, getSpawnOfTeam(Team.BLUE, getMap())) || checkBlockProtection(location, getSpawnOfTeam(Team.RED, getMap()));
+	}
 
 	public boolean checkCoreProtection(Location location) {
-		for(Core core : getCores()) {
-			Location coreLocation = core.getLocation();
-			if(coreLocation.getY() - location.getY() <= -blockProtectionHeight) continue;
-			if(coreLocation.getY() - location.getY() >= blockProtectionHeight) continue;
-			location = new Location(location.getWorld(), location.getX(), coreLocation.getY(), location.getZ());
-			if(coreLocation.distance(location) < blockProtectionRadius) {
-				boolean iscore = false;
-				for(Core core_ : getCores()) {
-					if(location == core_.getLocation())
-						iscore = true;
-				}
-			}		
-		}
+		for(Core core : getCores())
+			if(location.equals(core.getLocation()))
+				return false;
+		for(Core core : getCores())
+			if(checkBlockProtection(location, core.getLocation()))
+				return true;
 		return false;
+	}
+	
+	public boolean checkBlockProtection(Location location, Location protect) {
+		if(protect.getY() - location.getY() < -blockProtectionHeight) return false;
+		if(protect.getY() - location.getY() > blockProtectionHeight) return false;;
+		location = new Location(location.getWorld(), location.getX(), protect.getY(), location.getZ());
+		if(protect.distance(location) < blockProtectionRadius) return true;
+		else return false;
 	}
 
 	public void setGameState(GameState gameState) {
@@ -505,13 +540,22 @@ public class GameManager {
 	public int getBlockProtectionHeight() {
 		return blockProtectionHeight;
 	}
-
-	public void playSound(Sound sound, World world, int tone) {
+	
+	public void  playSound(Sound sound, World world, int tone) {
+		playSound(sound, world, tone, false);
+	}
+	public void playSound(Sound sound, World world, int tone, boolean isMusic) {
+		if(isMusic && !getGameruleSetting(winMusicGamerule).getValue())
+			return;
+		if(!isMusic && !getGameruleSetting(soundEffectsGamerule).getValue())
+			return;
 		for(Player player : world.getPlayers()) {
 			player.playSound(player.getLocation(), sound, tone, 1);		
 		}
 	}
 	public void playSound(Sound sound, World world, int tone, Team team) {
+		if(!getGameruleSetting(soundEffectsGamerule).getValue())
+			return;
 		for(Player player : world.getPlayers()) {
 			Team playerTeam = Main.getPlugin().getGameManager().getPlayerProfile(player).getTeam();
 			if(playerTeam.equals(team)) {
@@ -570,6 +614,20 @@ public class GameManager {
 	
 	public void setGameRuleSetting(String name, GameruleSetting gameruleSetting) {
 		gameruleSettings.put(name, gameruleSetting);
+	}
+	
+	public int getFloorHight() {
+		int floorHight = 0;
+		ArrayList<Integer> hights = new ArrayList<Integer>(Arrays.asList(
+						(int)getSpawnOfTeam(Team.BLUE, getMap()).getY(),
+						(int)getSpawnOfTeam(Team.RED, getMap()).getY()));
+		for(Core core : getCores())
+			hights.add((int) core.getLocation().getY());
+		
+		for(int hight : hights)
+			if(hight > floorHight)
+				floorHight = hight;
+		return floorHight;
 	}
 	
 }

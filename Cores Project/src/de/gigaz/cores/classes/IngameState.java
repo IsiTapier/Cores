@@ -31,18 +31,15 @@ public class IngameState {
 		ScoreboardManager.drawAll();
 		if(gameManager.getGameruleSetting(gameManager.autoTeamGamerule).getValue())
 			gameManager.setTeams();
-		
+		if(gameManager.getGameruleSetting(gameManager.nightGamerule).getValue())
+			Main.getPlugin().getWorld("currentworld").setTime(18000);
 		for(PlayerProfile playerProfile : gameManager.getPlayerProfiles()) {
 			Player player = playerProfile.getPlayer();
 			gameManager.getPlayerProfile(player).respawn(true);
-			deactivateEditMode(playerProfile);
-			setGameMode(playerProfile);
-			player.setLevel(1);
-			
 		}
 		
 		MainLoop mainLoop = new MainLoop();
-	}	
+	}
 	
 	public static void stop(Team team) {
 		EndingState.start(team);

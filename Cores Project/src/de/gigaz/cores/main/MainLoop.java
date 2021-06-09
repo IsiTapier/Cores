@@ -2,7 +2,9 @@ package de.gigaz.cores.main;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
@@ -53,7 +55,7 @@ public class MainLoop {
                     }
                     if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) {
                         Bukkit.getScheduler().cancelTask(moveListenerID);
-                    }        
+                    }
                 }
             }
         }, 0, 10);
@@ -67,6 +69,7 @@ public class MainLoop {
 			public void run() {
 				for(Core core : gameManager.getCores()) {
 					if(core.isAttacked()) {
+						
 						playSound(core);
 					}
 				}
@@ -94,11 +97,11 @@ public class MainLoop {
 					if(requestAttacked) {
 						if(!core.isAttacked()) {
 							core.setAttacked(true);
-							for(Player loopPlayer : gameManager.getMap().getPlayers()) {
+							gameManager.playSound(Sound.BLOCK_BELL_RESONATE, gameManager.getCopiedWorld(), 3, core.getTeam());
+							for(Player loopPlayer : gameManager.getCopiedWorld().getPlayers()) {
 								Team loopTeam = gameManager.getPlayerProfile(loopPlayer).getTeam();
 								if(core.getTeam() == loopTeam) {
-									loopPlayer.sendMessage(Main.PREFIX + "§4Der Core §6" + core.getDisplayName()+ "§4 wird attackiert");
-									loopPlayer.playSound(loopPlayer.getLocation(), Sound.BLOCK_BELL_RESONATE, 3, 1);
+									loopPlayer.sendMessage(Main.PREFIX + "§4Der Core §6" + core.getDisplayName()+ "§4 wird attackiert");													
 								}
 							}
 							ScoreboardManager.drawAll();
@@ -122,10 +125,6 @@ public class MainLoop {
 
     private void playSound(Core core) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
-		for(Player player : gameManager.getCopiedWorld().getPlayers()) {
-			if(gameManager.getPlayerProfile(player).getTeam() == core.getTeam()) {
-				player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 5, 1);
-			}
-		}
+		gameManager.playSound(Sound.BLOCK_NOTE_BLOCK_BELL, gameManager.getCopiedWorld(), 5, core.getTeam());	
 	}
 }

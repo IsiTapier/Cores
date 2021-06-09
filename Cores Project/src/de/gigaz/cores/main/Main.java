@@ -17,6 +17,7 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,6 +37,7 @@ import de.gigaz.cores.listeners.ExplosionListener;
 import de.gigaz.cores.listeners.InventoryClickListener;
 import de.gigaz.cores.listeners.MoveListener;
 import de.gigaz.cores.listeners.PlayerInteractListener;
+import de.gigaz.cores.listeners.PlayerToggleSneakListener;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ScoreboardManager;
@@ -78,6 +80,7 @@ public class Main extends JavaPlugin {
 		pluginManager.registerEvents(new ScoreboardManager(), this);
 		pluginManager.registerEvents(new EntityShootBowListener(), this);
 		pluginManager.registerEvents(new ExplosionListener(), this);
+		pluginManager.registerEvents(new PlayerToggleSneakListener(), this);
 
 		Location spawn = MainCommand.getConfigGeneralLocation("lobbyspawn");
 		if(spawn == null)
@@ -92,6 +95,7 @@ public class Main extends JavaPlugin {
 		
 		Bukkit.getScheduler().runTaskLater(this, new Runnable() { @Override public void run() {
 			Bukkit.broadcastMessage(PREFIX+"§6Enabled");}}, 0L);
+		ScoreboardManager.drawAll();
 	}
 	
 	
@@ -114,10 +118,10 @@ public class Main extends JavaPlugin {
 	public void onDisable() {
 		if(!currentGameManager.getCurrentGameState().equals(GameState.LOBBY_STATE)) {
 			EndingState.teleportPlayers();
-			EndingState.showTitle(Team.UNSET);
-			currentGameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, currentGameManager.getLobbySpawn().getWorld(), 5);
-			EndingState.replaceBlocks();
-			EndingState.stop();
+			//EndingState.showTitle(Team.UNSET);
+			//currentGameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, currentGameManager.getLobbySpawn().getWorld(), 5, false);
+			//EndingState.replaceBlocks();
+			//EndingState.stop();
 		}
 		FileConfiguration config = getConfig();
 		if(currentGameManager.getLastMap() != null && !config.get(CONFIG_ROOT + "currentMap").equals(currentGameManager.getLastMap().getName())) {

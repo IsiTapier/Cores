@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.CountdownTimer;
 import de.gigaz.cores.util.GameState;
+import de.gigaz.cores.util.ScoreboardManager;
 
 public class LobbyState {
 	
@@ -41,11 +42,11 @@ public class LobbyState {
 	}
 	
 	public static void stop() {
+		countdownActive = true;
 		if(countdownLong != null)
 			countdownLong.stopTimer();
 		setMap();
 		clearVotes();
-		countdownActive = true;
 		startCountdown();	
 	}
 	
@@ -64,7 +65,7 @@ public class LobbyState {
 		        //after timer
 		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet bald!"); stop();},
 		        //while timer
-		        (t) -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + (t.getSecondsLeft()/60) + " Minuten!");}
+		        (t) -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + ((int)t.getSecondsLeft()/60) + " Minuten!");}
 		);
 		countdownLong.scheduleTimer();
 	}
@@ -72,25 +73,36 @@ public class LobbyState {
 	private static void startCountdown() {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		countdownActive = true;
-		countdownShort = new CountdownTimer(Main.getPlugin(), COUNTDOWN_SECONDS, 0, 1,
+		countdownShort = new CountdownTimer(Main.getPlugin(), COUNTDOWN_SECONDS, 0, (float)0.5,
 				//before timer
 		        () -> {},
 		        //after timer
 		        () -> { Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel hat begonnen!"); countdownActive = false; IngameState.start();},
 		        //while timer
 		        (t) -> {
-						switch(t.getSecondsLeft()) {
+		        	if(!gameManager.getCurrentGameState().equals(GameState.LOBBY_STATE)) {
+		        		countdownShort.stopTimer();
+		        		return;
+		        	}
+		        	if(t.getSecondsLeft()%1 == 0)
+						switch((int)t.getSecondsLeft()) {
 							case COUNTDOWN_SECONDS:
 							case COUNTDOWN_SECONDS/2:
 							case COUNTDOWN_SECONDS/4:
 							case 3: case 2: case 1:
-								Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + ChatColor.RED + t.getSecondsLeft() + ChatColor.YELLOW + " Sekunden!");
+								Bukkit.broadcastMessage(ChatColor.YELLOW + "Das Spiel startet in " + ChatColor.RED + (int)(t.getSecondsLeft()) + ChatColor.YELLOW + " Sekunden!");
+								
 								break;
 							default:
 								break;
 						}
 						for (PlayerProfile player : gameManager.getPlayerProfiles()) {
-							player.getPlayer().setLevel(t.getSecondsLeft());
+							player.getPlayer().setLevel((int)(t.getSecondsLeft()));
+							if(t.getSecondsLeft()<= 3 && t.getSecondsLeft()%1 == 0) {
+								player.getPlayer().setExp((float) 1);//;setTotalExperience(-1);
+							} else
+								player.getPlayer().setExp((float) 0);//;setTotalExperience(-1);
+							
 						}
 					 }
 		);
@@ -137,6 +149,7 @@ public class LobbyState {
 			printVotes(world);
 		Bukkit.broadcastMessage(world.getName());
 		gameManager.setMap(world);
+		ScoreboardManager.drawAll();
 	}
 	
 	public static boolean voteMap(Player player, World world) {

@@ -2,6 +2,7 @@ package de.gigaz.cores.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -59,6 +60,7 @@ public class EntityDamageListener implements Listener {
 			if(gameManager.getGameruleSetting(gameManager.onehitGamerule).getValue())
 				event.setDamage(Double.MAX_VALUE);
 			if(target.getHealth() - event.getDamage() < 1) {
+				event.setCancelled(true);
 				if(attackerProfile.getPlayer() != targetProfile.getPlayer())
 					attackerProfile.addKill();
 					ScoreboardManager.draw(attacker);
@@ -66,7 +68,8 @@ public class EntityDamageListener implements Listener {
 					Bukkit.broadcastMessage(Main.getPlugin().getBowDeathMessage(targetProfile, attackerProfile));
 				else
 					Bukkit.broadcastMessage(Main.getPlugin().getPVPDeathMessage(targetProfile, attackerProfile));
-				event.setCancelled(true);
+				targetProfile.playSound(Sound.ENTITY_VILLAGER_DEATH);
+				attackerProfile.playSound(Sound.ENTITY_VILLAGER_DEATH);
 				respawn(targetProfile);
 				//Bukkit.broadcastMessage(Main.PREFIX + "§7" + attackerProfile.getPlayer().getName() + " hat " + target.getName() + " getötet");
 				//attackerProfile.getPlayer().sendMessage("Kill #"+attackerProfile.getKills());

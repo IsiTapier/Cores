@@ -1,6 +1,7 @@
 package de.gigaz.cores.classes;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -23,8 +24,8 @@ public class EndingState {
 			public void run() {
 				teleportPlayers();
 				showTitle(team);
-				gameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, gameManager.getLobbySpawn().getWorld(), 5);
-				replaceBlocks();
+				gameManager.playSound(Sound.UI_TOAST_CHALLENGE_COMPLETE, gameManager.getLobbySpawn().getWorld(), 5, true);
+				//replaceBlocks();
 				stop();
 			}
 		}, 2*20);
@@ -68,6 +69,7 @@ public class EndingState {
 			//player.sendMessage(player.getWorld().getName());
 			player.setHealth(20);
 			player.setFoodLevel(20);
+			player.setGameMode(GameMode.SURVIVAL);
 			for(PotionEffect effect : player.getActivePotionEffects())
 				player.removePotionEffect(effect.getType());
 			Inventories.setLobbyInventory(Main.getPlugin().getGameManager().getPlayerProfile(player));

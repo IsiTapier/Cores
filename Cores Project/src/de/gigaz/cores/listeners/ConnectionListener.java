@@ -25,6 +25,7 @@ public class ConnectionListener implements Listener {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		event.setJoinMessage(Main.PREFIX + "§7§l" + player.getName() + "§r§7 ist dem Spiel §abeigetreten");
+		ScoreboardManager.drawAll();
 		if(playerProfile == null) {
 			gameManager.addPlayer(player);
 			playerProfile = gameManager.getPlayerProfile(player);

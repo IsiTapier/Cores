@@ -30,6 +30,7 @@ import de.gigaz.cores.util.AnvilGUI.AnvilClickEvent;
 import de.gigaz.cores.util.AnvilGUI.AnvilSlot;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.ItemBuilder;
+import de.gigaz.cores.util.ScoreboardManager;
 import de.gigaz.cores.util.Team;
 
 
@@ -81,7 +82,7 @@ public class MainCommand implements CommandExecutor {
 						//}						
 					} else if(args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("end")) {
 						if(gameManager.getCurrentGameState() == GameState.INGAME_STATE) {
-							IngameState.stop(Team.UNSET);
+							gameManager.tieBreaker();
 							player.sendMessage(Main.PREFIX + "§7Du hast das Spiel beendet");
 						} else {
 							player.sendMessage(Main.PREFIX + "§7Es läuft noch gar kein Spiel");
@@ -191,6 +192,7 @@ public class MainCommand implements CommandExecutor {
 							if(gameManager.checkMap(Main.getPlugin().getWorld(args[1]), true)) {
 								gameManager.setMap(args[1]);
 								Bukkit.broadcastMessage(Main.PREFIX + "§7Die Map: §6" + args[1] + "§7 wurde von " + player.getName() + " ausgewählt");
+								ScoreboardManager.drawAll();
 							}
 								
 						} else {
@@ -221,7 +223,7 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[1].equalsIgnoreCase("blue") || args[1].equalsIgnoreCase("red")) {
 						player.sendMessage(Main.PREFIX + "§7Du bist bereits dem Team " + playerProfile.getTeam().getDisplayColor() + " §7beigetreten");
 					}
-				
+					ScoreboardManager.drawAll();				
 				}
 
 				

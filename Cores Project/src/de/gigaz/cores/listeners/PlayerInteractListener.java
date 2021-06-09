@@ -42,7 +42,9 @@ public class PlayerInteractListener implements Listener {
 		if((Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) && player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {
 			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
 				if(block.getType().equals(Material.BEACON) && gameManager.getGameruleSetting(gameManager.miningFatiqueGamerule).getValue())
-					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 15*20, 0));
+					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, 0, false, false, false));
+				else
+					player.removePotionEffect(PotionEffectType.SLOW_DIGGING);
 			} else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 	            if (player.getItemInHand().getType() == Material.WITHER_SKELETON_SKULL) {
 	            	event.setCancelled(true);

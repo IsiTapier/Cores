@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -23,6 +24,7 @@ import de.gigaz.cores.util.inventory.InventoryItem.DisplayCondition;
 import de.gigaz.cores.util.inventory.InventorySlot;
 import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.util.CountdownTimer;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ItemBuilder;
@@ -42,7 +44,66 @@ public class PlayerProfile {
 	private Inventory inventory;
 	private GameManager gameManager = Main.getPlugin().getGameManager();
 	private InventoryClass normalInventory;
+	private Integer coreRepairing;
 	
+	
+	public void startCoreRepairing(Core core) {
+		String coreName = team.getColorCode()+"Core "+core.getDisplayName()+"§7";
+		Bukkit.broadcastMessage(Main.PREFIX+team.getColorCode()+player.getName()+"§7 repariert den "+coreName+"!");
+		coreRepairing = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
+			int seconds = 20;
+			@Override
+			public void run() {
+				switch(seconds) {
+				case 10: case 5:
+					Bukkit.broadcastMessage(Main.PREFIX+"§7Der "+coreName+" ist in "+seconds+" Sekunden repariert!");
+					break;
+				case 20: case 3: case 2: case 1:
+					for(PlayerProfile playerProfile : gameManager.getPlayerProfiles())
+						if(playerProfile.getTeam()==team)
+							playerProfile.getPlayer().sendMessage(Main.PREFIX+"§7Der "+coreName+" ist in "+seconds+" Sekunden repariert!");
+					break;
+				case 0:
+					if (coreRepairing != null)
+						Bukkit.getScheduler().cancelTask(coreRepairing);
+					coreRepairing = null;
+					Bukkit.broadcastMessage(Main.PREFIX+"§7Der "+coreName+" wurde repariert!");
+					player.getInventory().getItem(player.getInventory().first(Material.END_CRYSTAL)).setAmount(player.getInventory().getItem(player.getInventory().first(Material.END_CRYSTAL)).getAmount()-1);
+					gameManager.addCore(core);
+					ScoreboardManager.drawAll();
+					break;
+				default:
+					player.sendMessage(Main.PREFIX+"§7Der "+coreName+" ist in "+seconds+" Sekunden repariert!");
+					break;
+				}
+				player.setLevel(seconds);
+				player.setExp(1-((float) seconds/20));
+				seconds--;
+			}
+		}, 0L, 20L);
+	}
+	
+	public void stopCoreRepairing() {
+		if(coreRepairing != null) {
+			Bukkit.getScheduler().cancelTask(coreRepairing);
+			coreRepairing = null;
+			player.setLevel(1);
+			player.setExp(0);
+			player.sendMessage(Main.PREFIX+"§7Du hast das Core Reparieren abgebrochen");
+			for(PlayerProfile playerProfile : gameManager.getPlayerProfiles())
+				if(/*playerProfile.getTeam()==team && */playerProfile != this)
+					playerProfile.getPlayer().sendMessage(Main.PREFIX+"§7Das Core Reparieren wurde abgebrochen");
+		}
+	}
+	
+	public int getCoreRepairing() {
+		return coreRepairing;
+	}
+
+	public void setCoreRepairing(int coreRepairing) {
+		this.coreRepairing = coreRepairing;
+	}
+
 	private boolean getGamerule(String name) {
 		return gameManager.getGameruleSetting(name).getValue();
 	}
@@ -51,6 +112,7 @@ public class PlayerProfile {
 		this.player = player;
 		inventory = Inventories.getDefaultInventory();
 		normalInventory = getNormalInventory();
+		this.player.setPlayerListName(team.getColorCode() + player.getName());
 	}
 
 	public Player getPlayer() {
@@ -105,26 +167,33 @@ public class PlayerProfile {
 	public void respawn(boolean isStarting) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		
-		player.getInventory().clear();
+		while(player.getInventory().contains(Material.END_CRYSTAL)) {
+			int slot = player.getInventory().first(Material.END_CRYSTAL);
+			ItemStack item = player.getInventory().getItem(slot);
+			player.getWorld().dropItemNaturally(player.getLocation(), item);
+			player.getInventory().setItem(slot, null);
+		}
+		
+		//player.getInventory().clear();
 		
 		ScoreboardManager.draw(player);	
 		
 		for(PotionEffect effect : player.getActivePotionEffects())
 			player.removePotionEffect(effect.getType());		
-
+		setEditMode(false);
 		player.setGameMode(GameMode.SURVIVAL);
 		IngameState.giveItems(gameManager.getPlayerProfile(player));
 		player.setHealth(20);
 		player.setFoodLevel(20);	
 		addPotionEffects();	
-
+		player.setLevel(1);
+		player.setExp(0);
 		if(gameManager.getGameruleSetting(gameManager.quickRespawnGamerule).getValue() || isStarting) {
 			player.teleport(gameManager.getSpawnOfTeam(team, gameManager.getMap()));
-			
 		} else {
 			Location location = player.getLocation();
-			if(player.getLocation().getY() < gameManager.getSpawnOfTeam(Team.RED, gameManager.getMap()).getY())
-				location.setY(gameManager.getSpawnOfTeam(Team.RED, gameManager.getMap()).getY());
+			if(player.getLocation().getY() < gameManager.getFloorHight())
+				location.setY(gameManager.getFloorHight());
 
 			Location tempLocation = location;
 			//Prevent Teleporting into a block
@@ -214,6 +283,11 @@ public class PlayerProfile {
 	
 	public Player getLastAttacker() {
 		return lastAttacker;
+	}
+	
+	public void playSound(Sound sound) {
+		if(gameManager.getGameruleSetting(gameManager.soundEffectsGamerule).getValue())
+			player.playSound(player.getLocation(), sound, 5, 1);
 	}
 	
 	public String getName() {

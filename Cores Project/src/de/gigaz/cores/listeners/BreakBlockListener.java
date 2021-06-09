@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,28 +24,24 @@ public class BreakBlockListener implements Listener {
 
 	@EventHandler
 	public void onBreakBlock(BlockBreakEvent event) {
-		
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		Player player = event.getPlayer();
-		FileConfiguration config = Main.getPlugin().getConfig();
-		Team team = gameManager.getPlayerProfile(player).getTeam();
-		World world = gameManager.getCopiedWorld(); // gameManager.getMap();
-		Location location = event.getBlock().getLocation();
+		World world = gameManager.getCopiedWorld();
+		Block block = event.getBlock();
+		Location location = block.getLocation();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
+		Team team = playerProfile.getTeam();
 		
 		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(world)) {
 			if(!playerProfile.isEditMode()) {
-				gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
-				if(gameManager.checkCoreProtection(location)) {
+				//gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
+				if((gameManager.checkCoreProtection(location) && gameManager.getGameruleSetting(gameManager.coreProtectionGamerule).getValue()) || (gameManager.checkSpawnProtection(location) && gameManager.getGameruleSetting(gameManager.spawnProtectionGamerule).getValue())) {
 					event.setCancelled(true);
 					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
 				}
-				
-				
 			} else {
 				player.sendMessage(Main.PREFIX + "§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + player.getWorld());
 			}
-			
 		} else {
 			//Abbau Protection via EditMode
 			if(!playerProfile.isEditMode()) {
@@ -53,24 +50,25 @@ public class BreakBlockListener implements Listener {
 			}
 		}
 		
-		if(event.getBlock().getType().equals(Material.BEACON)) {
+		if(block.getType().equals(Material.BEACON)) {
 			if(!(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE))
 				return;
-
 			Core core = gameManager.getCore(location);
 			if(core != null) {
 				event.setCancelled(true);
-				if(!core.getTeam().equals(playerProfile.getTeam())) {
+				if(!core.getTeam().equals(team)) {
 					gameManager.getCores().remove(core);
-					Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + " §7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
-					event.getBlock().setType(Material.BEDROCK);
+					Bukkit.broadcastMessage(Main.PREFIX + "§7" + player.getName() + " hat den Core §6" + core.getDisplayName() + "§7 von Team " + core.getTeam().getDisplayColor() + " §7abgebaut");
+					block.setType(Material.BEDROCK);
+					gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
 					gameManager.checkWin();
-					//if(!gameManager.checkWin()) {
-						gameManager.playSound(Sound.BLOCK_BEACON_DEACTIVATE, world, 8);
-					//}
 					ScoreboardManager.drawAll();
-				} else
+					if(gameManager.getGameruleSetting(gameManager.firstCoreWinsGamerule).getValue())
+						gameManager.endGame(team);
+				} else {
+					playerProfile.playSound(Sound.ENTITY_VILLAGER_NO);
 					player.sendMessage(Main.PREFIX + "§7Du kannst deinen eigenen Core nicht abbauen");
+				}
 			}
 		}
 	}	
