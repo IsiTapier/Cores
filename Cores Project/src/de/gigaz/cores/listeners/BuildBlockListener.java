@@ -6,9 +6,11 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.util.Vector;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
@@ -73,6 +75,15 @@ public class BuildBlockListener implements Listener {
 								}
 							}
 						}}, instantWallTime*20L);
+				}
+				if(block.getType().equals(Material.TNT)) {
+					if(event.isCancelled())
+						return;
+					event.setCancelled(true);
+					player.getInventory().getItem(player.getInventory().first(Material.TNT)).setAmount(player.getInventory().getItem(player.getInventory().first(Material.TNT)).getAmount()-1);
+					TNTPrimed tnt = block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), TNTPrimed.class);
+					tnt.setGravity(false);
+					tnt.setVelocity(new Vector(0, 0, 0));
 				}
 			} else {
 				player.sendMessage("§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + world.getName());

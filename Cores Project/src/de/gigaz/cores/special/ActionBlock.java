@@ -1,6 +1,7 @@
 package de.gigaz.cores.special;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -65,15 +66,30 @@ public class ActionBlock {
         FileConfiguration config = Main.getPlugin().getConfig();
         config.set(root + ".location", location);
         config.set(root + ".oldMaterial", oldBlockMaterial);
+        ArrayList<String> names = new ArrayList<String>();
         for(SpecialItemDrop item : items) {
-            //config.set(root + ".specialItems.");
-            //ItemStack
-            //config.set
-        }      
+            names.add(item.getName());          
+        }    
+        config.set(root + ".specialItems", names);  
     }
 
     public static ActionBlock getFromConfig(String root) {
-
+        FileConfiguration config = Main.getPlugin().getConfig();
+        if(config.contains(root + ".location")) {
+            if(config.contains(root + ".oldMaterial")) {
+                List<String> output = new ArrayList<String>();
+                if(config.contains(root + ".specialItems")) {
+                    output = config.getStringList(root + ".specialItems");
+                }
+                Location t_loc = (Location) config.get(root + ".location");
+                Material t_material = (Material) config.get(root + ".oldMaterial");
+                ActionBlock actionBlock = new ActionBlock(t_loc, t_material);
+                for(String name : output) {
+                    actionBlock.addSpecialItem(SpecialItemDrop.getItemByName(name));
+                }
+                return actionBlock;
+            }
+        }
         return null;
     }
     

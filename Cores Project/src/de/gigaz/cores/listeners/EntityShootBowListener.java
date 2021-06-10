@@ -47,7 +47,9 @@ public class EntityShootBowListener implements Listener {
 	
 	@EventHandler
 	public void onProjectileHitEvent(ProjectileHitEvent event) {
+		Bukkit.broadcastMessage("test");
 		Projectile projectile = event.getEntity();
+		
 		if(event.getEntityType().equals(EntityType.WITHER_SKULL)) {
 			if(event.getHitEntity() instanceof Player) {
 				Player player = (Player) event.getHitEntity();
@@ -71,6 +73,7 @@ public class EntityShootBowListener implements Listener {
 	
 	@EventHandler
 	public void onProjectileLaunchEvent(ProjectileLaunchEvent event) {
+		Bukkit.broadcastMessage("test");
 		if(!(event.getEntity().getShooter() instanceof Player))
 			return;
 		if(!(event.getEntity() instanceof Egg))

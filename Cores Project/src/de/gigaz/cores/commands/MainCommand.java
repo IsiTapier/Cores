@@ -113,18 +113,12 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[0].equalsIgnoreCase("setActionBlock")) {
 						Location location = player.getLocation();
 						location.setY(location.getY() - 1);
-						
-						
 
 						FileConfiguration config = Main.getPlugin().getConfig();
-						String root = Main.CONFIG_ROOT + "worlds." + gameManager.getConfigureMap().getName() + ".actionBlocks";
-						config.set("test", SpecialItemDrop.getSpecialItems());
+						gameManager.registerActionBlocks();
+						new ActionBlock(location, player.getWorld().getBlockAt(location).getType()).saveInConfig(Main.CONFIG_ROOT + "actionBlocks");
 						Main.getPlugin().saveConfig();
-						/*
-						//gameManager.getActionBlocks(gameManager.getConfigureMap()).add(new ActionBlock());
-						config.set(root, gameManager.getActionBlocks());
-						
-						player.getWorld().getBlockAt(location).setType(Material.WHITE_CONCRETE);*/
+						player.getWorld().getBlockAt(location).setType(Material.WHITE_CONCRETE);
 
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
@@ -149,7 +143,7 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
 							return false;
 						}
-						ItemStack item = player.getItemInHand();
+						ItemStack item = player.getInventory().getItemInMainHand();
 						if(item.getType().equals(Material.AIR)) {
 							player.sendMessage(Main.PREFIX+"Bitte halte ein Item in deiner Hand");
 							return false;

@@ -48,7 +48,7 @@ public class GameManager {
 	private World configureMap;
 	private ArrayList<Core> cores = new ArrayList<Core>();
 	private ArrayList<Core> stockedCores = new ArrayList<Core>();
-	private ArrayList<ActionBlock> actionBlocks;
+	private ArrayList<ActionBlock> actionBlocks = new ArrayList<ActionBlock>();
 	
 	
 	public GameManager() {
@@ -317,7 +317,12 @@ public class GameManager {
 	public void registerActionBlocks() {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		String root = Main.CONFIG_ROOT + ".actionBlocks";
-		ArrayList<ActionBlock> output;
+		if(!config.contains(root)) {
+			config.set(root, "");
+		} else {
+			getActionBlocks().clear();
+			getActionBlocks().add(ActionBlock.getFromConfig(root));
+		}
 		
 	}
 

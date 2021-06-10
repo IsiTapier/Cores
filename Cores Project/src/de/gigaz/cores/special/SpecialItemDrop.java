@@ -88,4 +88,13 @@ public class SpecialItemDrop {
     public String getName() {
         return name;
     }
+
+    public static SpecialItemDrop getItemByName(String name) {
+        for(SpecialItemDrop item : getSpecialItems()) {
+            if(item.getName().equals(name)) {
+                return item;
+            }
+        }
+        return null;
+    }
 }

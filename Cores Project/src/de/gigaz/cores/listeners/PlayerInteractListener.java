@@ -1,18 +1,31 @@
 package de.gigaz.cores.listeners;
 
+import java.util.ArrayList;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowball;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
@@ -24,10 +37,14 @@ import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
+import de.gigaz.cores.util.ItemBuilder;
 import de.gigaz.cores.util.Team;
 
 
 public class PlayerInteractListener implements Listener {
+	
+	private ArrayList<Integer> potatos = new ArrayList<Integer>();
+	
 	@EventHandler
 	public void onInventoryInteract(PlayerInteractEvent event) {
 
@@ -56,7 +73,59 @@ public class PlayerInteractListener implements Listener {
 	            	Entity skull = player.getWorld().spawn(player.getLocation().add(x, 1.62, z), WitherSkull.class);
 	            	skull.setVelocity(player.getLocation().getDirection().multiply(2));
 	            }
-			}
+			} else
+                
+                if(player.getInventory().getItemInMainHand().getType().equals(Material.NETHERITE_HOE)) {
+                	if(player.getInventory().contains(Material.POTATO)) {
+                		boolean explosive;
+                		if(player.getInventory().getItem(player.getInventory().first(Material.POTATO)).getItemMeta().getDisplayName().equalsIgnoreCase("explosive potato"))
+                			explosive = true;
+                		else
+                			explosive = false;
+                		player.getInventory().getItem(player.getInventory().first(Material.POTATO)).setAmount(player.getInventory().getItem(player.getInventory().first(Material.POTATO)).getAmount()-1);
+                		player.getInventory().setItemInMainHand(new ItemBuilder(Material.STONE_HOE).setName("Cooldown").build());
+                		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+							@Override
+							public void run() {
+								player.getInventory().setItem(player.getInventory().first(Material.STONE_HOE), new ItemBuilder(Material.NETHERITE_HOE).setName("Potato Gun").build());
+							}}, 2*20L);
+                		float yaw = player.getLocation().getYaw();
+                    	double D = 1.0;
+                    	double x = -D*Math.sin(yaw*Math.PI/180);
+                    	double z = D*Math.cos(yaw*Math.PI/180);
+                        Item item =  player.getWorld().dropItem(player.getLocation().add(x, 1.62, z), new ItemStack(Material.POTATO));
+                        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 2.5f);
+                        item.setVelocity(player.getLocation().getDirection().multiply(3));
+                        item.setPickupDelay(Integer.MAX_VALUE);
+                        final int index = potatos.size();
+                        potatos.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
+        				@Override
+        				public void run() {
+        					if(item.getNearbyEntities(0.5, 0.5, 0.5).size() != 0) {
+        						//Bukkit.broadcastMessage("entity");
+        						item.remove();
+        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
+        							((LivingEntity) entity).damage(12);
+        						if(potatos.get(index) != null) {
+        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+        							potatos.set(index, null);
+        						}
+        						if(explosive)
+        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+        					}
+        					if(!item.getLocation().add(item.getVelocity().multiply(3)).getBlock().getType().equals(Material.AIR)) {
+        						//Bukkit.broadcastMessage("block");
+        						item.remove();
+        						if(potatos.get(index) != null) {
+        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+        							potatos.set(index, null);
+        						}
+        						if(explosive)
+        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+        					}
+        				} }, 2L, 1L));
+                	}
+                }
 		} else {
 			ItemStack mainHand = player.getInventory().getItemInMainHand();
 			if(mainHand.containsEnchantment(Enchantment.ARROW_INFINITE))

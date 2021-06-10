@@ -2,6 +2,7 @@ package de.gigaz.cores.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,9 +20,19 @@ public class ExplosionListener implements Listener {
 	}
 	
 	@EventHandler
-	public void onBlockExplodeEvent(EntityExplodeEvent event) {
-	
-		if(event.getEntity().getType().equals(EntityType.WITHER_SKULL) && Main.getPlugin().getGameManager().getCurrentGameState().equals(GameState.INGAME_STATE) && Main.getPlugin().getGameManager().getCore(event.getLocation(), 3) != null)
+	public void onEntityExplodeEvent(EntityExplodeEvent event) {
+		if(Main.getPlugin().getGameManager().getCurrentGameState().equals(GameState.INGAME_STATE)) {
+			for(Block block : event.blockList())
+				if(Main.getPlugin().getGameManager().getCore(block.getLocation())!=null) {
+					block.setType(Material.AIR);
+					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+						@Override
+						public void run() {
+							block.setType(Material.BEACON);
+						}}, 1L);
+				}
+		} else {
 			event.setCancelled(true);
 		}
+	}
 }
