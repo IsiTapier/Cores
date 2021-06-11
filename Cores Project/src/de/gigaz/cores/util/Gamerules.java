@@ -1,10 +1,13 @@
 package de.gigaz.cores.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
 
 import de.gigaz.cores.classes.GameruleSetting;
 import de.gigaz.cores.classes.GameruleSetting.GameruleCategory;
@@ -24,8 +27,7 @@ public class Gamerules {
 	public static final String randomTeam = "random Teams"; //TODO
 	public static final String winMusic = "Play Win Music";
 	public static final String soundEffects = "Play Sound Effects";
-	public static final String moreGamerules = "more gamerules";
-	public static final String evenMoreGamerules = "even more gamerules";
+	public static final String gamerulesAmount = "gamerules per row";
 	
 	//ingame
 	public static final String noFallDamage = "no Fall Damage";
@@ -42,11 +44,8 @@ public class Gamerules {
 	//inventory
 	public static final String combatAxe = "Combat Axe";
 	public static final String shield = "Shield";
-	public static final String infiniteArrows = "infinite arrows";
 	public static final String superCrossbow = "super Crossbow";
 	public static final String onehit = "onehit";
-	public static final String moreArrows = "more arrows";
-	public static final String moreGoldApples = "more gold apples";
 	public static final String crossbow = "Crossbow";
 	public static final String flintandsteel = "Flint and Steel";
 	public static final String snowball = "Snowballs";
@@ -79,26 +78,23 @@ public class Gamerules {
 		put(speed, new GameruleSetting(GameruleCategory.GAME, 16, new ItemBuilder(Material.LEATHER_BOOTS).setName(speed).build()));
 		put(invisibility, new GameruleSetting(GameruleCategory.GAME, 18, new ItemBuilder(Material.WHITE_STAINED_GLASS).setName(invisibility).build()));
 		put(glowing, new GameruleSetting(GameruleCategory.GAME, 19, new ItemBuilder(Material.SPECTRAL_ARROW).setName(glowing).build()));
-		put(autoTeam, new GameruleSetting(GameruleCategory.GAME, 4, new ItemBuilder(Material.STRUCTURE_BLOCK).setName(autoTeam).build(), true));
+		put(autoTeam, new GameruleSetting(GameruleCategory.GAME, 4, true, new ItemBuilder(Material.STRUCTURE_BLOCK).setName(autoTeam).build()));
 		put(randomTeam, new GameruleSetting(GameruleCategory.GAME, 5, new ItemBuilder(Material.COMMAND_BLOCK).setName(randomTeam).build()));
 		put(noFallDamage, new GameruleSetting(GameruleCategory.GAME, 12, new ItemBuilder(Material.IRON_BOOTS).setName(noFallDamage).addEnchantment(Enchantment.PROTECTION_FALL, 10).build()));
-		put(miningFatique, new GameruleSetting(GameruleCategory.GAME, 15, new ItemBuilder(Material.WOODEN_SHOVEL).setName(miningFatique).build(), true));
-		put(combatAxe, new GameruleSetting(GameruleCategory.INVENTORY, 5, new ItemBuilder(Material.IRON_AXE).setName(combatAxe).build(), true));
+		put(miningFatique, new GameruleSetting(GameruleCategory.GAME, 15, true, new ItemBuilder(Material.WOODEN_SHOVEL).setName(miningFatique).build()));
+		put(combatAxe, new GameruleSetting(GameruleCategory.INVENTORY, 5, true, new ItemBuilder(Material.IRON_AXE).setName(combatAxe).build()));
 		put(shield, new GameruleSetting(GameruleCategory.INVENTORY, 10, new ItemBuilder(Material.SHIELD).setName(shield).build()));
-		put(infiniteArrows, new GameruleSetting(GameruleCategory.SPECIAL, 0, new ItemBuilder(Material.ARROW).setName(infiniteArrows).addEnchantment(Enchantment.ARROW_INFINITE, 10).build()));
 		put(superCrossbow, new GameruleSetting(GameruleCategory.SPECIAL, 0, new ItemBuilder(Material.CROSSBOW).setName(superCrossbow).addEnchantment(Enchantment.QUICK_CHARGE, 10).build()));
 		put(onehit, new GameruleSetting(GameruleCategory.GAME, 21, new ItemBuilder(Material.NETHERITE_SWORD).setName(onehit).addEnchantment(Enchantment.DAMAGE_ALL, 10).build()));
-		put(moreArrows, new GameruleSetting(GameruleCategory.INVENTORY, 1, new ItemBuilder(Material.ARROW).setName(moreArrows).setAmount(64).build()));
-		put(moreGoldApples, new GameruleSetting(GameruleCategory.INVENTORY, 3, new ItemBuilder(Material.GOLDEN_APPLE).setName(moreGoldApples).setAmount(64).build()));
 		put(crossbow, new GameruleSetting(GameruleCategory.INVENTORY, 9, new ItemBuilder(Material.CROSSBOW).setName(crossbow).build()));
-		put(sword, new GameruleSetting(GameruleCategory.INVENTORY, 4, new ItemBuilder(Material.IRON_SWORD).setName(sword).build(), true));
-		put(bow, new GameruleSetting(GameruleCategory.INVENTORY, 8, new ItemBuilder(Material.BOW).setName(bow).build(), true));
+		put(sword, new GameruleSetting(GameruleCategory.INVENTORY, 4, true, new ItemBuilder(Material.IRON_SWORD).setName(sword).build()));
+		put(bow, new GameruleSetting(GameruleCategory.INVENTORY, 8, true, new ItemBuilder(Material.BOW).setName(bow).build()));
 		put(axe, new GameruleSetting(GameruleCategory.INVENTORY, 6, new ItemBuilder(Material.GOLDEN_AXE).setName(axe).build()));
-		put(blocks, new GameruleSetting(GameruleCategory.INVENTORY, 12, new ItemBuilder(Material.OAK_PLANKS).setName(blocks).build(), true));
-		put(goldApples, new GameruleSetting(GameruleCategory.INVENTORY, 2, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).setName(goldApples).build(), true));
-		put(arrows, new GameruleSetting(GameruleCategory.INVENTORY, 0, new ItemBuilder(Material.ARROW).setAmount(12).setName(arrows).build(), true));
-		put(pickaxe, new GameruleSetting(GameruleCategory.INVENTORY, 7, new ItemBuilder(Material.IRON_PICKAXE).setName(pickaxe).build(), true));
-		put(armor, new GameruleSetting(GameruleCategory.INVENTORY, 11, new ItemBuilder(Material.IRON_CHESTPLATE).setName(armor).build(), true));
+		put(blocks, new GameruleSetting(GameruleCategory.INVENTORY, 12, true, new ItemBuilder(Material.OAK_PLANKS).setName(blocks).build()));
+		put(goldApples, new GameruleSetting(GameruleCategory.INVENTORY, 2, 3, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(4).setName(goldApples).build(), new ItemBuilder(Material.GOLDEN_APPLE).setAmount(8).setName(goldApples).build(), new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).setName(goldApples).build(), new ItemBuilder(Material.GOLDEN_APPLE).setAmount(32).setName(goldApples).build(), new ItemBuilder(Material.GOLDEN_APPLE).setAmount(64).setName(goldApples).build()));
+		put(arrows, new GameruleSetting(GameruleCategory.INVENTORY, 0, 2, new ItemBuilder(Material.ARROW).setAmount(8).setName(arrows).build(), new ItemBuilder(Material.ARROW).setAmount(16).setName(arrows).build(), new ItemBuilder(Material.ARROW).setAmount(32).setName(arrows).build(), new ItemBuilder(Material.ARROW).setAmount(64).setName(arrows).build(), new ItemBuilder(Material.ARROW).setName("infinite arrows").addEnchantment(Enchantment.ARROW_INFINITE, 10).build()));
+		put(pickaxe, new GameruleSetting(GameruleCategory.INVENTORY, 7, true, new ItemBuilder(Material.IRON_PICKAXE).setName(pickaxe).build()));
+		put(armor, new GameruleSetting(GameruleCategory.INVENTORY, 11, true, new ItemBuilder(Material.IRON_CHESTPLATE).setName(armor).build()));
 		put(flintandsteel, new GameruleSetting(GameruleCategory.INVENTORY, 15, new ItemBuilder(Material.FLINT_AND_STEEL).setName(flintandsteel).build()));
 		put(snowball, new GameruleSetting(GameruleCategory.INVENTORY, 14, new ItemBuilder(Material.SNOWBALL).setAmount(16).setName(snowball).build()));
 		put(lavaBukket, new GameruleSetting(GameruleCategory.INVENTORY, 16, new ItemBuilder(Material.LAVA_BUCKET).setName(lavaBukket).build()));
@@ -111,15 +107,14 @@ public class Gamerules {
 		put(noKnockback, new GameruleSetting(GameruleCategory.GAME, 13, new ItemBuilder(Material.ANVIL).setName(noKnockback).build()));
 		put(autoBlockPlace, new GameruleSetting(GameruleCategory.GAME, 22, new ItemBuilder(Material.DROPPER).setName(autoBlockPlace).build()));
 		put(night, new GameruleSetting(GameruleCategory.GAME, 20, new ItemBuilder(Material.CLOCK).setName(night).build()));
-		put(coreProtection, new GameruleSetting(GameruleCategory.GAME, 7, new ItemBuilder(Material.BEDROCK).setName(coreProtection).build(), true));
-		put(spawnProtection, new GameruleSetting(GameruleCategory.GAME, 6, new ItemBuilder(Material.BEDROCK).setName(spawnProtection).build(), true));
-		put(winMusic, new GameruleSetting(GameruleCategory.GAME, 3, new ItemBuilder(Material.JUKEBOX).setName(winMusic).build(), true));
-		put(soundEffects, new GameruleSetting(GameruleCategory.GAME, 2, new ItemBuilder(Material.NOTE_BLOCK).setName(soundEffects).build(), true));
+		put(coreProtection, new GameruleSetting(GameruleCategory.GAME, 7, true, new ItemBuilder(Material.BEDROCK).setName(coreProtection).build()));
+		put(spawnProtection, new GameruleSetting(GameruleCategory.GAME, 6, true, new ItemBuilder(Material.BEDROCK).setName(spawnProtection).build()));
+		put(winMusic, new GameruleSetting(GameruleCategory.GAME, 3, true, new ItemBuilder(Material.JUKEBOX).setName(winMusic).build()));
+		put(soundEffects, new GameruleSetting(GameruleCategory.GAME, 2, true, new ItemBuilder(Material.NOTE_BLOCK).setName(soundEffects).build()));
 		put(firstCoreWins, new GameruleSetting(GameruleCategory.GAME, 10, new ItemBuilder(Material.BEACON).setName(firstCoreWins).build()));
-		put(repairCore, new GameruleSetting(GameruleCategory.GAME, 9, new ItemBuilder(Material.END_CRYSTAL).setName(repairCore).build(), true));
+		put(repairCore, new GameruleSetting(GameruleCategory.GAME, 9, true, new ItemBuilder(Material.END_CRYSTAL).setName(repairCore).build()));
 		put(bridgeEgg, new GameruleSetting(GameruleCategory.SPECIAL, 0, new ItemBuilder(Material.EGG).addEnchantment(Enchantment.ARROW_INFINITE, 10).hideEnchants().setName(bridgeEgg).build()));
-		put(moreGamerules, new GameruleSetting(GameruleCategory.GAME, 0, new ItemBuilder(Material.LECTERN).setName(moreGamerules).build()));
-		put(evenMoreGamerules, new GameruleSetting(GameruleCategory.GAME, 1, new ItemBuilder(Material.LECTERN).setName(evenMoreGamerules).build(), true));
+		put(gamerulesAmount, new GameruleSetting(GameruleCategory.GAME, 0, 3, new ItemBuilder(Material.LECTERN).setAmount(2).setName(gamerulesAmount).build(), new ItemBuilder(Material.LECTERN).setAmount(3).setName(gamerulesAmount).build(), new ItemBuilder(Material.LECTERN).setAmount(4).setName(gamerulesAmount).build()));
 		put(instantWall, new GameruleSetting(GameruleCategory.SPECIAL, 0, new ItemBuilder(Material.LIGHT_BLUE_STAINED_GLASS).setName(instantWall).build()));
 	}};
 	
@@ -127,20 +122,7 @@ public class Gamerules {
 	public static void setGameruleSetting(GameruleSetting setting, boolean value) {
 		setting.setValue(value);
 		String name = setting.getItem().getItemMeta().getDisplayName();
-		       if(name.equals(arrows) && value) {
-			setGameruleValue(moreArrows, false);
-			setGameruleValue(infiniteArrows, false);
-		} else if(name.equals(moreArrows) && value) {
-			setGameruleValue(arrows, false);
-			setGameruleValue(infiniteArrows, false);
-		} else if(name.equals(infiniteArrows) && value) {
-			setGameruleValue(arrows, false);
-			setGameruleValue(moreArrows, false);
-		} else if(name.equals(goldApples) && value) {
-			setGameruleValue(moreGoldApples, false);
-		} else if(name.equals(moreGoldApples) && value) {
-			setGameruleValue(goldApples, false);
-		} else if(name.equals(bow) && value) {
+			   if(name.equals(bow) && value) {
 			//setGameruleValue(crossbow, false);
 			//setGameruleValue(superCrossbow, false);
 		} else if(name.equals(crossbow) && value) {
@@ -153,19 +135,36 @@ public class Gamerules {
 			setGameruleValue(combatAxe, false);
 		} else if(name.equals(combatAxe) && value) {
 			setGameruleValue(axe, false);
-		} else if(name.equals(moreGamerules) && value) {
-			setGameruleValue(evenMoreGamerules, false);
-		} else if(name.equals(evenMoreGamerules) && value) {
-			setGameruleValue(moreGamerules, false);
+		} else if(name.equals(gamerulesAmount) && !value) {
+			setGameruleValue(gamerulesAmount, true);
 		}
 	}
 	
-	public static HashMap<String, GameruleSetting> getGameruleSettings() {
+	public static HashMap<String, GameruleSetting> getGameruleSettingEntries() {
 		return gameruleSettings;
+	}
+	
+	public static ArrayList<GameruleSetting> getGameruleSettings() {
+		return new ArrayList<GameruleSetting>(gameruleSettings.values());
+	}
+	
+	public static ArrayList<GameruleSetting> getGameruleSettings(GameruleCategory category) {
+		ArrayList<GameruleSetting> out = getGameruleSettings();
+		for(GameruleSetting setting : getGameruleSettings())
+			if(!setting.getCategory().equals(category))
+				out.remove(setting);
+		return out;
 	}
 	
 	public static GameruleSetting getGameruleSetting(String name) {
 		return gameruleSettings.get(name);
+	}
+	
+	public static GameruleSetting getGameruleSetting(ItemStack item) {
+		for(GameruleSetting setting : getGameruleSettings())
+			if(setting.getItem().equals(item))
+				return setting;
+		return null;
 	}
 	
 	public static boolean getGameruleValue(String name) {
@@ -174,6 +173,18 @@ public class Gamerules {
 	
 	public static boolean getValue(String name) {
 		return getGameruleValue(name);
+	}
+	
+	public static int getGameruleValue(String name, boolean isInt) {
+		return getGameruleSetting(name).getValue(isInt);
+	}
+	
+	public static int getValue(String name, boolean isInt) {
+		return getGameruleValue(name, isInt);
+	}
+	
+	public static boolean isValue(String name, int value) {
+		return getGameruleValue(name, true)==value;
 	}
 	
 	public static void setGameruleSetting(String name, GameruleSetting gameruleSetting) {
@@ -186,6 +197,16 @@ public class Gamerules {
 	
 	public static void setValue(String name, boolean value) {
 		setGameruleValue(name, value);
+	}
+	
+	public static void reset() {
+		for(GameruleSetting setting : getGameruleSettings())
+			setting.reset();
+	}
+	
+	public static void reset(GameruleCategory category) {
+		for(GameruleSetting setting : getGameruleSettings(category))
+			setting.reset();
 	}
 
 }

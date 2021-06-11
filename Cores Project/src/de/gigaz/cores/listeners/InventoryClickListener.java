@@ -27,6 +27,7 @@ import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
+import de.gigaz.cores.util.ItemBuilder;
 
 public class InventoryClickListener implements Listener {
 	
@@ -37,6 +38,8 @@ public class InventoryClickListener implements Listener {
 		Inventory inv = event.getInventory();
 		Inventory clicked = event.getClickedInventory();
 		ItemStack item = event.getCurrentItem();
+		if(item == null)
+			return;
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		int slot = event.getSlot();
 		
@@ -124,73 +127,49 @@ public class InventoryClickListener implements Listener {
 				
 			} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getCategorymenutitle())) {
 				event.setCancelled(true);
+				if(item.equals(GameruleSettings.getReset()))
+					Gamerules.reset();
 				GameruleCategory category = GameruleCategory.getCategory(item);
+				if(category == null)
+					return;
 				gameManager.getPlayerProfile(player).setGamerulePage(0);
-				if(category != null)
-					player.openInventory(GameruleSettings.buildInventory(category, player));
+				player.openInventory(GameruleSettings.buildInventory(category, player));
 			} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getSettingsmenutitle())) {
 				event.setCancelled(true);
-				/*if(GameruleSettings.getUiMode()) {
-					if(item.getType().equals(Material.RED_STAINED_GLASS_PANE)) {
-						ItemStack setting = player.getOpenInventory().getItem(event.getSlot()+1);
-						for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
-							if(gameruleSetting.getItem().equals(setting)) {
-								gameruleSetting.setValue(false);
-								ItemMeta meta = item.getItemMeta();
-								meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-								item.setItemMeta(meta);
-								player.getOpenInventory().getItem(event.getSlot()+2).removeEnchantment(Enchantment.ARROW_INFINITE);
-							}
-						}
-					} else if(item.getType().equals(Material.GREEN_STAINED_GLASS_PANE)) {
-						ItemStack setting = player.getOpenInventory().getItem(event.getSlot()-1);
-						for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
-							if(gameruleSetting.getItem().equals(setting)) {
-								gameruleSetting.setValue(true);
-								ItemMeta meta = item.getItemMeta();
-								meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-								item.setItemMeta(meta);
-								player.getOpenInventory().getItem(event.getSlot()-2).removeEnchantment(Enchantment.ARROW_INFINITE);
-							}
-						}
-					}
-				} else {
-					ItemStack setting = player.getOpenInventory().getItem(event.getSlot()-1);
-					for(GameruleSetting gameruleSetting : gameManager.getGameruleSettings().values()) {
-						if(gameruleSetting.getItem().equals(setting)) {
-							gameruleSetting.switchValue();
-							player.getOpenInventory().setItem(slot, gameruleSetting.getValue()?GameruleSettings.getEnable():GameruleSettings.getDisable());
-						}
-					}
-				}*/
+				if(item.equals(GameruleSettings.getBarrier()) || (item.getType().equals(Material.PAPER) && slot == clicked.getSize()-5))
+					return;
 				if(item.equals(GameruleSettings.getMainMenuItem()))
 					player.openInventory(GameruleSettings.buildCategoryMenu());
 				if(item.equals(GameruleSettings.getLastPageItem()))
 					GameruleSettings.lastPage(player);
 				if(item.equals(GameruleSettings.getNextPageItem()))
 					GameruleSettings.nextPage(player);
+				GameruleCategory category = GameruleCategory.getCategory(clicked);
+				if(ItemBuilder.removeLore(item).equals(ItemBuilder.removeLore(category.getItem()))) {
+					Gamerules.reset(category);
+					player.openInventory(GameruleSettings.buildInventory(category, player));
+				}
+				GameruleSetting setting = Gamerules.getGameruleSetting(item);
+				if(setting != null) {
+					setting.nextItem();
+					player.openInventory(GameruleSettings.buildInventory(category, player));
+				}
 				if(!item.equals(GameruleSettings.getDisable()) && !item.equals(GameruleSettings.getEnable()))
 					return;
-				ItemStack setting;
 				int shift;
 				if(GameruleSettings.getUiMode() && item.equals(GameruleSettings.getDisable()))
 					shift = 1;
 				else
 					shift = -1;
-				setting = player.getOpenInventory().getItem(slot+shift);
-				
-				for(GameruleSetting gameruleSetting : Gamerules.getGameruleSettings().values()) {
-					if(gameruleSetting.getItem().equals(setting)) {
-						if(GameruleSettings.getUiMode()) {
-							if(item.equals(GameruleSettings.getDisable()))
-								Gamerules.setGameruleSetting(gameruleSetting, false);
-							else
-								Gamerules.setGameruleSetting(gameruleSetting, true);
-						} else
-							Gamerules.setGameruleSetting(gameruleSetting, !gameruleSetting.getValue());//gameruleSetting.switchValue();
-					}
-				}
-				player.openInventory(GameruleSettings.buildInventory(GameruleCategory.getCategory(clicked), player));
+				setting = Gamerules.getGameruleSetting(player.getOpenInventory().getItem(slot+shift));
+				if(GameruleSettings.getUiMode()) {
+					if(item.equals(GameruleSettings.getDisable()))
+						Gamerules.setGameruleSetting(setting, false);
+					else
+						Gamerules.setGameruleSetting(setting, true);
+				} else
+					Gamerules.setGameruleSetting(setting, !setting.getValue());//gameruleSetting.switchValue();
+				player.openInventory(GameruleSettings.buildInventory(category, player));
 			}
 		}
 		/*Bukkit.broadcastMessage(player.getInventory().toString());

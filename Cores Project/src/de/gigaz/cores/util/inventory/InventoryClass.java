@@ -57,7 +57,7 @@ public class InventoryClass {
 		for(ItemStack item : getOverflow()) {
 			if(item == null)
 				continue;
-			int id = Integer.parseInt(item.getItemMeta().getLore().get(item.getItemMeta().getLore().size()-1));
+			int id = Integer.parseInt(InventoryItem.convertToVisibleString(item.getItemMeta().getLore().get(item.getItemMeta().getLore().size()-1)));
 			if(!overflowAssignment.containsKey(id) || !inventory.getItem(overflowAssignment.get(id)).equals(getItem(id).getItem()))
 				inventory.addItem(item);
 		}
@@ -108,9 +108,13 @@ public class InventoryClass {
 		for(ItemStack item : inventory.getStorageContents()) {
 			if(item == null)
 				continue;
+			if(!item.hasItemMeta())
+				continue;
+			if(!item.getItemMeta().hasLore())
+				continue;
 			int id = 0;
 			//TODO get idä
-			id = Integer.parseInt(item.getItemMeta().getLore().get(item.getItemMeta().getLore().size()-1));
+			id = Integer.parseInt(InventoryItem.convertToVisibleString(item.getItemMeta().getLore().get(item.getItemMeta().getLore().size()-1)));
 			InventorySlot slot = getSlotOfItem(id);
 			if(!overflowSlots.containsKey(slot))
 				overflowSlots.put(slot, false);
@@ -124,7 +128,7 @@ public class InventoryClass {
 				continue;
 			int id = 0;
 			//TODO get id
-			id = Integer.parseInt(item.getItemMeta().getLore().get(item.getItemMeta().getLore().size()-1));
+			id = Integer.parseInt(InventoryItem.convertToVisibleString(item.getItemMeta().getLore().get(item.getItemMeta().getLore().size()-1)));
 			InventorySlot slot = getSlotOfItem(id);
 			if(overflowSlots.containsKey(slot) && overflowSlots.get(slot) && !item.equals(slot.getItem())) {
 				//is overflow

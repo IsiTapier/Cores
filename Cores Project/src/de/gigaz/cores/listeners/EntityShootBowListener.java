@@ -37,7 +37,7 @@ public class EntityShootBowListener implements Listener {
 			Player player = (Player) event.getEntity();
 			if(gameManager.getCurrentGameState() != GameState.INGAME_STATE || !player.getWorld().equals(Main.getPlugin().getWorld("currentworld")))
 				event.setCancelled(true);
-			if(Gamerules.getValue(Gamerules.infiniteArrows)) {
+			if(Gamerules.isValue(Gamerules.arrows, 5)) {
 				player.getInventory().setItem(player.getInventory().first(Material.ARROW), new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(Gamerules.getValue(Gamerules.superCrossbow)||Gamerules.getValue(Gamerules.crossbow)?2:1).setBreakable(false).build());
 				Arrow arrow = (Arrow) event.getProjectile();
 				arrow.setPickupStatus(PickupStatus.CREATIVE_ONLY);
@@ -47,7 +47,6 @@ public class EntityShootBowListener implements Listener {
 	
 	@EventHandler
 	public void onProjectileHitEvent(ProjectileHitEvent event) {
-		Bukkit.broadcastMessage("test");
 		Projectile projectile = event.getEntity();
 		
 		if(event.getEntityType().equals(EntityType.WITHER_SKULL)) {
@@ -73,7 +72,6 @@ public class EntityShootBowListener implements Listener {
 	
 	@EventHandler
 	public void onProjectileLaunchEvent(ProjectileLaunchEvent event) {
-		Bukkit.broadcastMessage("test");
 		if(!(event.getEntity().getShooter() instanceof Player))
 			return;
 		if(!(event.getEntity() instanceof Egg))

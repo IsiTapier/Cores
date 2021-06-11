@@ -12,6 +12,7 @@ import de.gigaz.cores.util.inventory.InventoryClass;
 import de.gigaz.cores.util.inventory.InventoryItem;
 import de.gigaz.cores.util.inventory.InventorySlot;
 import de.gigaz.cores.util.inventory.InventoryItem.DisplayCondition;
+import de.gigaz.cores.util.inventory.InventoryItem.ItemAmount;
 
 public class IngameInventory {
 	
@@ -40,13 +41,10 @@ public class IngameInventory {
 				new InventoryItem(1, new ItemBuilder(Material.CRIMSON_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.RED) && Gamerules.getValue(Gamerules.blocks);}}),
 				new InventoryItem(1, new ItemBuilder(Material.WARPED_PLANKS).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return team.equals(Team.BLUE) && Gamerules.getValue(Gamerules.blocks);}})));
 		put(6, new InventorySlot(
-				new InventoryItem(0, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(16).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.goldApples);}}),
-				new InventoryItem(1, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.moreGoldApples);}})));
+				new InventoryItem(0, new ItemBuilder(Material.GOLDEN_APPLE).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.goldApples);}}, new ItemAmount() {@Override public int getAmount() {return (int) Math.pow(2, Gamerules.getValue(Gamerules.goldApples, true)+1);}})));
 		put(7, new InventorySlot(
-				new InventoryItem(1, new ItemBuilder(Material.ARROW).setAmount(12).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.arrows);}}),
-				new InventoryItem(2, new ItemBuilder(Material.ARROW).setAmount(64).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.moreArrows);}}),
-				new InventoryItem(0, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(1).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.infiniteArrows) && !(Gamerules.getValue(Gamerules.superCrossbow) || Gamerules.getValue(Gamerules.crossbow));}}),
-				new InventoryItem(0, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setAmount(2).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.infiniteArrows) && (Gamerules.getValue(Gamerules.superCrossbow) || Gamerules.getValue(Gamerules.crossbow));}}),
+				new InventoryItem(1, new ItemBuilder(Material.ARROW).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.arrows)&&!Gamerules.isValue(Gamerules.arrows, 5);}}, new ItemAmount() {@Override public int getAmount() {return (int) Math.pow(2, Gamerules.getValue(Gamerules.arrows, true)+2);}}),
+				new InventoryItem(1, new ItemBuilder(Material.ARROW).setName("§6Infinity Arrow").addEnchantment(Enchantment.ARROW_INFINITE, 10).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.arrows)&&Gamerules.isValue(Gamerules.arrows, 5);}}, new ItemAmount() {@Override public int getAmount() {return (Gamerules.getValue(Gamerules.superCrossbow) || Gamerules.getValue(Gamerules.crossbow))?2:1;}}),
 				new InventoryItem(5, new ItemBuilder(Material.FLINT_AND_STEEL).setBreakable(false).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.flintandsteel);}}),
 				new InventoryItem(6, new ItemBuilder(Material.SNOWBALL).setAmount(16).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.snowball);}}),
 				new InventoryItem(7, new ItemBuilder(Material.LAVA_BUCKET).build(), new DisplayCondition() {@Override public boolean getCondition() {return Gamerules.getValue(Gamerules.lavaBukket);}}),

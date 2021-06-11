@@ -44,6 +44,11 @@ import de.gigaz.cores.util.Team;
 public class PlayerInteractListener implements Listener {
 	
 	private ArrayList<Integer> potatos = new ArrayList<Integer>();
+	float lastyaw;
+	double lastx;
+	double lastz;
+	double xchange;
+	double zchange;
 	
 	@EventHandler
 	public void onInventoryInteract(PlayerInteractEvent event) {
@@ -98,9 +103,44 @@ public class PlayerInteractListener implements Listener {
                         item.setVelocity(player.getLocation().getDirection().multiply(3));
                         item.setPickupDelay(Integer.MAX_VALUE);
                         final int index = potatos.size();
+                        lastyaw = item.getLocation().getYaw();
+                        lastx = item.getLocation().getX();
+                        lastz = item.getLocation().getZ();
                         potatos.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
         				@Override
         				public void run() {
+        					/*if(Math.abs(item.getLocation().getYaw() - lastyaw) > 0) {
+        						Bukkit.broadcastMessage("test"+lastyaw+" "+item.getLocation().getYaw());
+        						lastyaw = item.getLocation().getYaw();
+        					}*/
+        					/*if(xchange!=0&&Math.abs(xchange-(lastx-item.getLocation().getX())) > 1) {
+        						//Bukkit.broadcastMessage("oldx"+xchange+"newx"+(lastx-item.getLocation().getX()));
+        						item.remove();
+        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
+        							((LivingEntity) entity).damage(12);
+        						if(potatos.get(index) != null) {
+        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+        							potatos.set(index, null);
+        						}
+        						if(explosive)
+        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+        					}
+        					if(zchange!=0&&Math.abs(zchange-(lastz-item.getLocation().getZ())) > 1) {
+        						//Bukkit.broadcastMessage("oldz"+zchange+"newz"+(lastz-item.getLocation().getZ()));
+        						item.remove();
+        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
+        							((LivingEntity) entity).damage(12);
+        						if(potatos.get(index) != null) {
+        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+        							potatos.set(index, null);
+        						}
+        						if(explosive)
+        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+        					}
+        					xchange = lastx-item.getLocation().getX();
+        					zchange = lastz-item.getLocation().getZ();
+        					lastx = item.getLocation().getX();
+        					lastz = item.getLocation().getZ();*/
         					if(item.getNearbyEntities(0.5, 0.5, 0.5).size() != 0) {
         						//Bukkit.broadcastMessage("entity");
         						item.remove();

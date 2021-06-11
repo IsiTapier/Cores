@@ -95,8 +95,7 @@ public class ItemBuilder implements Cloneable {
 		item.setItemMeta(itemMeta);
 		return item;
 	}
-
-
+	
 	public ItemStack getItem() {
 		return item;
 	}
@@ -121,6 +120,24 @@ public class ItemBuilder implements Cloneable {
 		meta.setColor(c);
 		armor.setItemMeta(meta);
 		return armor;
+	}
+	
+	public static ItemStack addLore(ItemStack item, String text) {
+		ItemMeta meta = item.getItemMeta();
+		List<String> lore = meta.getLore();
+		if(lore == null)
+			lore = new ArrayList<String>();
+		lore.add(text);
+		meta.setLore(lore);
+		item.setItemMeta(meta);
+		return item;
+	}
+	
+	public static ItemStack removeLore(ItemStack item) {
+		ItemMeta meta = item.getItemMeta();
+		meta.setLore(new ArrayList<String>());
+		item.setItemMeta(meta);
+		return item;
 	}
 
 }

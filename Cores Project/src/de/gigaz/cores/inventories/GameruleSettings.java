@@ -28,6 +28,7 @@ public class GameruleSettings {
 	
 	private static final boolean moreInputsForLargeMenu = true;
 	
+	private static ItemStack reset = new ItemBuilder(Material.TRIPWIRE_HOOK).setName("Reset").build();
 	private static ItemStack disable = new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName("disabled").build();
 	private static ItemStack enable = new ItemBuilder(Material.GREEN_STAINED_GLASS_PANE).setName("enabled").build();
 	private static ItemStack barrier = new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setName(" ").build();
@@ -40,6 +41,7 @@ public class GameruleSettings {
 	public static Inventory buildCategoryMenu() {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		Inventory inventory = Bukkit.createInventory(null, 1*9, categoryMenuTitle);
+		inventory.setItem(0, reset);
 		inventory.setItem(2, GameruleCategory.INVENTORY.getItem());
 		inventory.setItem(4, GameruleCategory.GAME.getItem()); 
 		inventory.setItem(6, GameruleCategory.SPECIAL.getItem()); 
@@ -52,20 +54,15 @@ public class GameruleSettings {
 	public static Inventory buildInventory(GameruleCategory category, Player player) {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
-		ArrayList<GameruleSetting> gamerules = new ArrayList<GameruleSetting>();
-		for(Entry<String, GameruleSetting> gameruleSetting : Gamerules.getGameruleSettings().entrySet())
-			if(gameruleSetting.getValue().getCategory().equals(category))
-				gamerules.add(gameruleSetting.getValue());
-		for(int i = 1; i < gamerules.size(); i++) {
-			for(int j = 1; j < gamerules.size(); j++) {
+		ArrayList<GameruleSetting> gamerules = new ArrayList<GameruleSetting>(Gamerules.getGameruleSettings(category));
+		for(int i = 1; i < gamerules.size(); i++)
+			for(int j = 1; j < gamerules.size(); j++)
 				if(gamerules.get(j).getPriority() < gamerules.get(j-1).getPriority()) {
 					GameruleSetting temp = gamerules.get(j);
 					gamerules.set(j, gamerules.get(j-1));
 					gamerules.set(j-1, temp);
 				}
-			}
-		}
-		int inputs = (Gamerules.getValue(Gamerules.moreGamerules)?3:(Gamerules.getValue(Gamerules.evenMoreGamerules)?4:2));
+		int inputs = Gamerules.getValue(Gamerules.gamerulesAmount, true)+1;
 		int rows = (int)Math.ceil((double)gamerules.size()/inputs);
 		int pages = (int)Math.ceil((double)rows/5);
 		int page = playerProfile.getGamerulePage();
@@ -82,35 +79,35 @@ public class GameruleSettings {
 		for(GameruleSetting gamerule : gamerules) {
 			if(gamerules.indexOf(gamerule) < page*5*inputs)
 				continue;
-			if(i%9==0&&!Gamerules.getValue(Gamerules.moreGamerules)) {
+			if(i%9==0&&!Gamerules.isValue(Gamerules.gamerulesAmount, 2)) {
 				inventory.setItem((i), barrier);
 				i++;
 			}
 			ItemStack inputSlot = null;
+			if(disable.containsEnchantment(Enchantment.ARROW_INFINITE))
+				disable.removeEnchantment(Enchantment.ARROW_INFINITE);
+			if(enable.containsEnchantment(Enchantment.ARROW_INFINITE))
+				enable.removeEnchantment(Enchantment.ARROW_INFINITE);
 			if(gamerule.getValue()) {
-				if(!Gamerules.getValue(Gamerules.evenMoreGamerules)) {
+				if(!Gamerules.isValue(Gamerules.gamerulesAmount, 3)) {
 					ItemMeta meta = enable.getItemMeta();
 					meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
-					enable.setItemMeta(meta);
-					if(disable.containsEnchantment(Enchantment.ARROW_INFINITE))
-						disable.removeEnchantment(Enchantment.ARROW_INFINITE);
+					enable.setItemMeta(meta);	
 				} else
 					inputSlot = enable;
 			} else {
-				if(!Gamerules.getValue(Gamerules.evenMoreGamerules)) {
+				if(!Gamerules.isValue(Gamerules.gamerulesAmount, 3)) {
 					ItemMeta meta = disable.getItemMeta();
 					meta.addEnchant(Enchantment.ARROW_INFINITE, 10, true);
 					disable.setItemMeta(meta);
-					if(enable.containsEnchantment(Enchantment.ARROW_INFINITE))
-						enable.removeEnchantment(Enchantment.ARROW_INFINITE);
 				} else
 					inputSlot = disable;
 			}
-			if(!Gamerules.getValue(Gamerules.evenMoreGamerules)) {
+			if(!Gamerules.isValue(Gamerules.gamerulesAmount, 3)) {
 				inventory.setItem(i, disable);
 				inventory.setItem(i+1, gamerule.getItem());
 				inventory.setItem(i+2, enable);
-				if(Gamerules.getValue(Gamerules.moreGamerules))
+				if(Gamerules.isValue(Gamerules.gamerulesAmount, 2))
 					i+=3;
 				else {
 					inventory.setItem(i+3, barrier);
@@ -128,7 +125,7 @@ public class GameruleSettings {
 			inventory.setItem(i, barrier);
 			i++;
 		}
-		inventory.setItem(i, category.getItem());
+		inventory.setItem(i, category.getItem(true));
 		inventory.setItem(i+1, barrier);
 		inventory.setItem(i+2, barrier);
 		inventory.setItem(i+3, pages==1?lastGray:last);
@@ -137,14 +134,19 @@ public class GameruleSettings {
 		inventory.setItem(i+6, barrier);
 		inventory.setItem(i+7, barrier);
 		inventory.setItem(i+8, home);
-		//inventory.setItem(0, category.getItem());
-		//inventory.setItem((rows>2?1:0)*9, home);
-		//inventory.setItem((rows>2?2:rows-1)*9, next);
 		return inventory;
 	}
 	
 	public static boolean getUiMode() {
-		return !Gamerules.getValue(Gamerules.evenMoreGamerules);
+		return !Gamerules.isValue(Gamerules.gamerulesAmount, 3);
+	}
+	
+	public static ItemStack getReset() {
+		return reset;
+	}
+	
+	public static ItemStack getBarrier() {
+		return barrier;
 	}
 	
 	public static ItemStack getEnable() {
