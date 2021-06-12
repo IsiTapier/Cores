@@ -44,6 +44,7 @@ public class MainCommand implements CommandExecutor {
 			Player player = (Player) sender;
 			GameManager gameManager = Main.getPlugin().getGameManager();
 			PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
+			FileConfiguration config = Main.getPlugin().getConfig();
 			
 			if(args.length == 1) {
 				if(player.hasPermission("cores.admin")) {
@@ -60,7 +61,7 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX + "§7Du hast den Countdown übersprugen");
 							return false;
 						}
-						FileConfiguration config = Main.getPlugin().getConfig();
+						
 						if(!config.contains(Main.CONFIG_ROOT+"worlds"))
 							return false;
 						if(!(config.getConfigurationSection(Main.CONFIG_ROOT+"worlds").getValues(false).size() > 0))
@@ -113,13 +114,20 @@ public class MainCommand implements CommandExecutor {
 					} else if(args[0].equalsIgnoreCase("setActionBlock")) {
 						Location location = player.getLocation();
 						location.setY(location.getY() - 1);
-
-						FileConfiguration config = Main.getPlugin().getConfig();
-						gameManager.registerActionBlocks();
-						new ActionBlock(location, player.getWorld().getBlockAt(location).getType()).saveInConfig(Main.CONFIG_ROOT + "actionBlocks");
+						
+						ActionBlock actionBlock = new ActionBlock(player.getWorld().getBlockAt(location).getLocation(), player.getWorld().getBlockAt(location).getType());						
+						actionBlock.saveInConfig();						
+																					
+						player.sendMessage(Main.PREFIX + "§7Du hast einen ActionBlock erstellt (§6" + gameManager.getActionBlocks().size() + "§7)");
+						
+					} else if(args[0].equalsIgnoreCase("removeActionBlocks")) {
+						for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
+							actionBlock.replaceOldBlock();
+						}
+						config.set(Main.CONFIG_ROOT + "actionBlocks", "");
+						gameManager.getActionBlocks().clear();
+						player.sendMessage(Main.PREFIX + "§7Du hast alle ActionBlocks gelöscht (§6" + gameManager.getActionBlocks().size() + "§7)");
 						Main.getPlugin().saveConfig();
-						player.getWorld().getBlockAt(location).setType(Material.WHITE_CONCRETE);
-
 					} else if(args[0].equalsIgnoreCase("edit")) {
 						if(player.hasPermission("cores.admin")) {
 							if(playerProfile.isEditMode()) {
@@ -148,7 +156,6 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX+"Bitte halte ein Item in deiner Hand");
 							return false;
 						}
-						FileConfiguration config = Main.getPlugin().getConfig();
 						config.set(Main.CONFIG_ROOT + "worlds." + world.getName() + ".item", item.getType().toString());
 						Main.getPlugin().saveConfig();
 						player.sendMessage(Main.PREFIX+"Du hast erfolgreich das Item für die Map §6"+world.getName()+"§r gesetzt ("+item.getType().toString()+")");
@@ -167,7 +174,6 @@ public class MainCommand implements CommandExecutor {
 							World world = Main.getPlugin().getWorld(args[1]);
 							player.teleport(world.getSpawnLocation());
 							String root = Main.CONFIG_ROOT+"worlds."+world.getName();
-							FileConfiguration config = Main.getPlugin().getConfig();
 							if(!config.contains(root)) {
 								config.set(root, "");
 								Main.getPlugin().saveConfig();
@@ -239,7 +245,6 @@ public class MainCommand implements CommandExecutor {
 							player.sendMessage(Main.PREFIX+"Bitte wähle zuerst eine Map mit §7/configure <name>§r aus");
 							return false;
 						}
-						FileConfiguration config = Main.getPlugin().getConfig();
 						/*World world = Bukkit.getWorld(args[1]);
 						if(world == null) {
 							player.sendMessage(Main.PREFIX+"Diese Welt existiert nicht");

@@ -29,11 +29,13 @@ import org.bukkit.util.Vector;
 
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
+import de.gigaz.cores.inventories.ActionBlockInventory;
 import de.gigaz.cores.inventories.AdminToolInventory;
 import de.gigaz.cores.inventories.GameruleSettings;
 import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.special.ActionBlock;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
@@ -58,114 +60,118 @@ public class PlayerInteractListener implements Listener {
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		Block block = event.getClickedBlock();
 		
-		if((Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) && player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {
-			if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
-				if(block.getType().equals(Material.BEACON) && Gamerules.getValue(Gamerules.miningFatique))
-					player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, 0, false, false, false));
-				else
-					player.removePotionEffect(PotionEffectType.SLOW_DIGGING);
-			} else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-	            if (player.getInventory().getItemInMainHand().getType() == Material.WITHER_SKELETON_SKULL) {
-	            	event.setCancelled(true);
-	                //if(!player.getInventory().contains()) {
-	               //player.sendMessage(ChatColor.DARK_AQUA + "You need a flint to shoot!");
-	            	//player.playSound(player.getLocation(), Sound.WOOD_CLICK, 1, 0);
-	            	//e.setCancelled(true);
-	            	float yaw = player.getLocation().getYaw();
-	            	double D = 1.0;
-	            	double x = -D*Math.sin(yaw*Math.PI/180);
-	            	double z = D*Math.cos(yaw*Math.PI/180);
-	            	Entity skull = player.getWorld().spawn(player.getLocation().add(x, 1.62, z), WitherSkull.class);
-	            	skull.setVelocity(player.getLocation().getDirection().multiply(2));
-	            }
-			} else
-                
-                if(player.getInventory().getItemInMainHand().getType().equals(Material.NETHERITE_HOE)) {
-                	if(player.getInventory().contains(Material.POTATO)) {
-                		boolean explosive;
-                		if(player.getInventory().getItem(player.getInventory().first(Material.POTATO)).getItemMeta().getDisplayName().equalsIgnoreCase("explosive potato"))
-                			explosive = true;
-                		else
-                			explosive = false;
-                		player.getInventory().getItem(player.getInventory().first(Material.POTATO)).setAmount(player.getInventory().getItem(player.getInventory().first(Material.POTATO)).getAmount()-1);
-                		player.getInventory().setItemInMainHand(new ItemBuilder(Material.STONE_HOE).setName("Cooldown").build());
-                		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
-							@Override
-							public void run() {
-								player.getInventory().setItem(player.getInventory().first(Material.STONE_HOE), new ItemBuilder(Material.NETHERITE_HOE).setName("Potato Gun").build());
-							}}, 2*20L);
-                		float yaw = player.getLocation().getYaw();
-                    	double D = 1.0;
-                    	double x = -D*Math.sin(yaw*Math.PI/180);
-                    	double z = D*Math.cos(yaw*Math.PI/180);
-                        Item item =  player.getWorld().dropItem(player.getLocation().add(x, 1.62, z), new ItemStack(Material.POTATO));
-                        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 2.5f);
-                        item.setVelocity(player.getLocation().getDirection().multiply(3));
-                        item.setPickupDelay(Integer.MAX_VALUE);
-                        final int index = potatos.size();
-                        lastyaw = item.getLocation().getYaw();
-                        lastx = item.getLocation().getX();
-                        lastz = item.getLocation().getZ();
-                        potatos.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
-        				@Override
-        				public void run() {
-        					/*if(Math.abs(item.getLocation().getYaw() - lastyaw) > 0) {
-        						Bukkit.broadcastMessage("test"+lastyaw+" "+item.getLocation().getYaw());
-        						lastyaw = item.getLocation().getYaw();
-        					}*/
-        					/*if(xchange!=0&&Math.abs(xchange-(lastx-item.getLocation().getX())) > 1) {
-        						//Bukkit.broadcastMessage("oldx"+xchange+"newx"+(lastx-item.getLocation().getX()));
-        						item.remove();
-        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
-        							((LivingEntity) entity).damage(12);
-        						if(potatos.get(index) != null) {
-        							Bukkit.getScheduler().cancelTask(potatos.get(index));
-        							potatos.set(index, null);
-        						}
-        						if(explosive)
-        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
-        					}
-        					if(zchange!=0&&Math.abs(zchange-(lastz-item.getLocation().getZ())) > 1) {
-        						//Bukkit.broadcastMessage("oldz"+zchange+"newz"+(lastz-item.getLocation().getZ()));
-        						item.remove();
-        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
-        							((LivingEntity) entity).damage(12);
-        						if(potatos.get(index) != null) {
-        							Bukkit.getScheduler().cancelTask(potatos.get(index));
-        							potatos.set(index, null);
-        						}
-        						if(explosive)
-        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
-        					}
-        					xchange = lastx-item.getLocation().getX();
-        					zchange = lastz-item.getLocation().getZ();
-        					lastx = item.getLocation().getX();
-        					lastz = item.getLocation().getZ();*/
-        					if(item.getNearbyEntities(0.5, 0.5, 0.5).size() != 0) {
-        						//Bukkit.broadcastMessage("entity");
-        						item.remove();
-        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
-        							((LivingEntity) entity).damage(12);
-        						if(potatos.get(index) != null) {
-        							Bukkit.getScheduler().cancelTask(potatos.get(index));
-        							potatos.set(index, null);
-        						}
-        						if(explosive)
-        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
-        					}
-        					if(!item.getLocation().add(item.getVelocity().multiply(3)).getBlock().getType().equals(Material.AIR)) {
-        						//Bukkit.broadcastMessage("block");
-        						item.remove();
-        						if(potatos.get(index) != null) {
-        							Bukkit.getScheduler().cancelTask(potatos.get(index));
-        							potatos.set(index, null);
-        						}
-        						if(explosive)
-        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
-        					}
-        				} }, 2L, 1L));
-                	}
-                }
+		if(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) {
+			if(player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {
+				if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+					if(block.getType().equals(Material.BEACON) && Gamerules.getValue(Gamerules.miningFatique))
+						player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, 0, false, false, false));
+					else
+						player.removePotionEffect(PotionEffectType.SLOW_DIGGING);
+				} else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		            if (player.getInventory().getItemInMainHand().getType() == Material.WITHER_SKELETON_SKULL) {
+		            	event.setCancelled(true);
+		                //if(!player.getInventory().contains()) {
+		               //player.sendMessage(ChatColor.DARK_AQUA + "You need a flint to shoot!");
+		            	//player.playSound(player.getLocation(), Sound.WOOD_CLICK, 1, 0);
+		            	//e.setCancelled(true);
+		            	float yaw = player.getLocation().getYaw();
+		            	double D = 1.0;
+		            	double x = -D*Math.sin(yaw*Math.PI/180);
+		            	double z = D*Math.cos(yaw*Math.PI/180);
+		            	Entity skull = player.getWorld().spawn(player.getLocation().add(x, 1.62, z), WitherSkull.class);
+		            	skull.setVelocity(player.getLocation().getDirection().multiply(2));
+		            }
+				
+				} else
+	                
+	                if(player.getInventory().getItemInMainHand().getType().equals(Material.NETHERITE_HOE)) {
+	                	if(player.getInventory().contains(Material.POTATO)) {
+	                		boolean explosive;
+	                		if(player.getInventory().getItem(player.getInventory().first(Material.POTATO)).getItemMeta().getDisplayName().equalsIgnoreCase("explosive potato"))
+	                			explosive = true;
+	                		else
+	                			explosive = false;
+	                		player.getInventory().getItem(player.getInventory().first(Material.POTATO)).setAmount(player.getInventory().getItem(player.getInventory().first(Material.POTATO)).getAmount()-1);
+	                		player.getInventory().setItemInMainHand(new ItemBuilder(Material.STONE_HOE).setName("Cooldown").build());
+	                		Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
+								@Override
+								public void run() {
+									player.getInventory().setItem(player.getInventory().first(Material.STONE_HOE), new ItemBuilder(Material.NETHERITE_HOE).setName("Potato Gun").build());
+								}}, 2*20L);
+	                		float yaw = player.getLocation().getYaw();
+	                    	double D = 1.0;
+	                    	double x = -D*Math.sin(yaw*Math.PI/180);
+	                    	double z = D*Math.cos(yaw*Math.PI/180);
+	                        Item item =  player.getWorld().dropItem(player.getLocation().add(x, 1.62, z), new ItemStack(Material.POTATO));
+	                        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 2.5f);
+	                        item.setVelocity(player.getLocation().getDirection().multiply(3));
+	                        item.setPickupDelay(Integer.MAX_VALUE);
+	                        final int index = potatos.size();
+	                        lastyaw = item.getLocation().getYaw();
+	                        lastx = item.getLocation().getX();
+	                        lastz = item.getLocation().getZ();
+	                        potatos.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
+	        				@Override
+	        				public void run() {
+	        					/*if(Math.abs(item.getLocation().getYaw() - lastyaw) > 0) {
+	        						Bukkit.broadcastMessage("test"+lastyaw+" "+item.getLocation().getYaw());
+	        						lastyaw = item.getLocation().getYaw();
+	        					}*/
+	        					/*if(xchange!=0&&Math.abs(xchange-(lastx-item.getLocation().getX())) > 1) {
+	        						//Bukkit.broadcastMessage("oldx"+xchange+"newx"+(lastx-item.getLocation().getX()));
+	        						item.remove();
+	        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
+	        							((LivingEntity) entity).damage(12);
+	        						if(potatos.get(index) != null) {
+	        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+	        							potatos.set(index, null);
+	        						}
+	        						if(explosive)
+	        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+	        					}
+	        					if(zchange!=0&&Math.abs(zchange-(lastz-item.getLocation().getZ())) > 1) {
+	        						//Bukkit.broadcastMessage("oldz"+zchange+"newz"+(lastz-item.getLocation().getZ()));
+	        						item.remove();
+	        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
+	        							((LivingEntity) entity).damage(12);
+	        						if(potatos.get(index) != null) {
+	        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+	        							potatos.set(index, null);
+	        						}
+	        						if(explosive)
+	        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+	        					}
+	        					xchange = lastx-item.getLocation().getX();
+	        					zchange = lastz-item.getLocation().getZ();
+	        					lastx = item.getLocation().getX();
+	        					lastz = item.getLocation().getZ();*/
+	        					if(item.getNearbyEntities(0.5, 0.5, 0.5).size() != 0) {
+	        						//Bukkit.broadcastMessage("entity");
+	        						item.remove();
+	        						for(Entity entity : item.getNearbyEntities(0.5, 0.5, 0.5))
+	        							((LivingEntity) entity).damage(12);
+	        						if(potatos.get(index) != null) {
+	        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+	        							potatos.set(index, null);
+	        						}
+	        						if(explosive)
+	        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+	        					}
+	        					if(!item.getLocation().add(item.getVelocity().multiply(3)).getBlock().getType().equals(Material.AIR)) {
+	        						//Bukkit.broadcastMessage("block");
+	        						item.remove();
+	        						if(potatos.get(index) != null) {
+	        							Bukkit.getScheduler().cancelTask(potatos.get(index));
+	        							potatos.set(index, null);
+	        						}
+	        						if(explosive)
+	        							item.getWorld().createExplosion(item.getLocation(), 1.5F, false, true, (Entity)player);
+	        					}
+	        				} }, 2L, 1L));
+	                	}
+	                }
+				}
+			
 		} else {
 			ItemStack mainHand = player.getInventory().getItemInMainHand();
 			if(mainHand.containsEnchantment(Enchantment.ARROW_INFINITE))
@@ -187,6 +193,18 @@ public class PlayerInteractListener implements Listener {
 			    
 			if(!playerProfile.isEditMode())
 				event.setCancelled(true);
+		
+		}
+		if(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {			
+			if(event.getClickedBlock().getType().equals(ActionBlock.ACTION_BLOCK_MATERIAL)) {
+				for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
+					if(actionBlock.getLocation().equals(block.getLocation())) {
+						player.openInventory(ActionBlockInventory.getInventory(actionBlock));
+						break;
+					}
+				}
+				
+			}
 		}
 	}
 }

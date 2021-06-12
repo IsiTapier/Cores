@@ -16,6 +16,7 @@ import de.gigaz.cores.classes.Core;
 import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.special.ActionBlock;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.ScoreboardManager;
@@ -70,6 +71,16 @@ public class BreakBlockListener implements Listener {
 				} else {
 					playerProfile.playSound(Sound.ENTITY_VILLAGER_NO);
 					player.sendMessage(Main.PREFIX + "§7Du kannst deinen eigenen Core nicht abbauen");
+				}
+			}
+		}
+		if(block.getType().equals(ActionBlock.ACTION_BLOCK_MATERIAL)) {		
+			for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
+			
+				if(actionBlock.getLocation().equals(block.getLocation())) {
+					event.setCancelled(true);
+					
+					player.sendMessage(Main.PREFIX + "§7Du kannst einen ActionBlock nur mit §6'§7/c removeActionBlocks§6' §7entfernen");
 				}
 			}
 		}

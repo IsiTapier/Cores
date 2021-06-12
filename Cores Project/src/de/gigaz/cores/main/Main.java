@@ -64,6 +64,7 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		plugin = this;
 		currentGameManager = new GameManager();
+		currentGameManager.start();
 		loadWorlds();
 		getCommand("cores").setExecutor(new MainCommand());
 		

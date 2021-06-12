@@ -17,8 +17,12 @@ import de.gigaz.cores.util.ItemBuilder;
 public class SpecialItemDrop {
     
     public static ArrayList<SpecialItemDrop> specialItems = new ArrayList<SpecialItemDrop>() {{
-        add(new SpecialItemDrop("§cUltra Stone", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
+    	add(new SpecialItemDrop("§cUltra Stone", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
         add(new SpecialItemDrop("§aMagic Glowstone", new ItemBuilder(Material.GLOWSTONE).build(), 10, Gamerules.getGameruleSetting(Gamerules.armor), true));
+        add(new SpecialItemDrop("§ctest2", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
+        add(new SpecialItemDrop("§atest3", new ItemBuilder(Material.GLOWSTONE).build(), 10, Gamerules.getGameruleSetting(Gamerules.armor), true));
+        add(new SpecialItemDrop("§ctest4", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
+        add(new SpecialItemDrop("§atest5", new ItemBuilder(Material.GLOWSTONE).build(), 10, Gamerules.getGameruleSetting(Gamerules.armor), true));
     }};
 
     private GameManager gameManager = Main.getPlugin().getGameManager();

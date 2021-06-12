@@ -53,6 +53,9 @@ public class GameManager {
 	
 	public GameManager() {
 		//new LobbyState();
+		
+	}
+	public void start() {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		if(config.contains(Main.CONFIG_ROOT + "currentMap")) {
 			String name = config.getString(Main.CONFIG_ROOT + "currentMap");
@@ -61,7 +64,7 @@ public class GameManager {
 				return;
 			lastMap = Main.getPlugin().getWorld(name);
 		}
-		//actionBlocks = registerActionBlocks
+		registerActionBlocks();
 	}
 
 	public void setMap(World map) {
@@ -297,31 +300,33 @@ public class GameManager {
 		for(ActionBlock actionBlock : actionBlocks) {
 			if(actionBlock.getWorld().equals(world)) {
 				output.add(actionBlock);
-			}
+			}	
 		}
 		return output;
 	}
 
 	public ArrayList<ActionBlock> getActionBlocks() {
-		ArrayList<ActionBlock> output = new ArrayList<ActionBlock>();
-		for(ActionBlock actionBlock : actionBlocks) {
-			if(actionBlock.getWorld().equals(getMap())) {
-				Location location = actionBlock.getLocation();
-				location.setWorld(getCopiedWorld());
-				output.add(actionBlock);
-			}
-		}
-		return output;
+		return actionBlocks;
 	}
 
 	public void registerActionBlocks() {
 		FileConfiguration config = Main.getPlugin().getConfig();
 		String root = Main.CONFIG_ROOT + ".actionBlocks";
+		System.out.println(Main.getPlugin().getGameManager().getClass().toString());
 		if(!config.contains(root)) {
 			config.set(root, "");
+			Main.getPlugin().saveConfig();
 		} else {
-			getActionBlocks().clear();
-			getActionBlocks().add(ActionBlock.getFromConfig(root));
+			
+			if(!config.contains(root + ".size")) {
+				config.set(root + ".size", 0);
+			} else {
+				int size = config.getInt(root + ".size");
+				getActionBlocks().clear();
+				for(int x = 1; x <= size; x++) {
+					getActionBlocks().add(ActionBlock.getFromConfig(root + "." + x));
+				}
+			}						
 		}
 		
 	}
@@ -381,8 +386,10 @@ public class GameManager {
 		return null;
 	}
 	
-	public void addPlayer(Player player) {
-		playerProfiles.add(new PlayerProfile(player));
+	public PlayerProfile addPlayer(Player player) {
+		PlayerProfile playerProfile = new PlayerProfile(player);
+		playerProfiles.add(playerProfile);
+		return playerProfile;
 	}
 	
 	public void removePlayer(Player player) {
