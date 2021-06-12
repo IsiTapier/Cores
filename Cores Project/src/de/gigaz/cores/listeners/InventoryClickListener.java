@@ -18,12 +18,15 @@ import de.gigaz.cores.classes.GameManager;
 import de.gigaz.cores.classes.GameruleSetting;
 import de.gigaz.cores.classes.GameruleSetting.GameruleCategory;
 import de.gigaz.cores.classes.PlayerProfile;
+import de.gigaz.cores.inventories.ActionBlockInventory;
 import de.gigaz.cores.inventories.AdminToolInventory;
 import de.gigaz.cores.inventories.GameruleSettings;
 import de.gigaz.cores.inventories.ManageTeamsInventory;
 import de.gigaz.cores.inventories.MapSelectInventory;
 import de.gigaz.cores.inventories.MultiToolInventory;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.special.ActionBlock;
+import de.gigaz.cores.special.SpecialItemDrop;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
@@ -33,144 +36,166 @@ public class InventoryClickListener implements Listener {
 	
 	@EventHandler
 	public void onInventoryInteract(InventoryClickEvent event) {
+		GameManager gameManager = Main.getPlugin().getGameManager();
 		InventoryAction action = event.getAction();
 		Player player = (Player) event.getWhoClicked();
 		Inventory inv = event.getInventory();
 		Inventory clicked = event.getClickedInventory();
 		ItemStack item = event.getCurrentItem();
+		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		if(item == null)
 			return;
-		GameManager gameManager = Main.getPlugin().getGameManager();
+		
 		int slot = event.getSlot();
 		
 		if(clicked.getType().equals(InventoryType.ANVIL)) {
 			return;
 		}
 		
-		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE || !player.getWorld().equals(Main.getPlugin().getWorld("currentworld"))) {
-			if(player.getOpenInventory().getTitle().equalsIgnoreCase(AdminToolInventory.getTitle())) {
-				
-				if(item.getType() == AdminToolInventory.getAdminEditMode().getType()) {
-					player.chat("/c edit");	
+		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE) { 
+			if(!player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {		
+				if(player.getOpenInventory().getTitle().equalsIgnoreCase(AdminToolInventory.getTitle())) {
+					
+					if(item.getType() == AdminToolInventory.getAdminEditMode().getType()) {
+						player.chat("/c edit");	
+						player.closeInventory();
+					}
+					if(item.getType() == AdminToolInventory.getAdminEditTeams().getType()) {
+						player.sendMessage(Main.PREFIX + "§7edit teams");
+						//player.closeInventory();
+						player.openInventory(ManageTeamsInventory.getInventory());
+					}
+					if(item.getType() == AdminToolInventory.getAdminSelectMap().getType()) {
+						player.closeInventory();
+						player.openInventory(MapSelectInventory.getAdminInventory());		
+					}
+					if(item.getType() == AdminToolInventory.getAdminStartGame().getType()) {
+						player.chat("/c start");
+						player.closeInventory();
+					}
+					event.setCancelled(true);
+					
+				} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle(true))) {
+					event.setCancelled(true);
+					if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+						if(item.getType().equals(Material.BARRIER) || item.getType().equals(Material.WHITE_STAINED_GLASS_PANE)) {
+							player.sendMessage(Main.PREFIX+"Diese Welt ist nicht vollständig konfiguriert und kann daher nicht ausgewählt werden");
+							return;
+						}
+						player.getOpenInventory().close();
+						player.chat("/c setmap " + item.getItemMeta().getDisplayName());
+					}
+							
+				} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle(false))) {
+					event.setCancelled(true);
+					if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+						if(item.getType().equals(Material.BARRIER) || item.getType().equals(Material.WHITE_STAINED_GLASS_PANE)) {
+							player.sendMessage(Main.PREFIX+"Diese Welt ist nicht vollständig konfiguriert und kann daher nicht ausgewählt werden");
+							return;
+						}
+						player.getOpenInventory().close();
+						player.chat("/c votemap " + item.getItemMeta().getDisplayName());
+					}
+							
+				} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MultiToolInventory.getTitle())) {
+					if(item.getType().equals(Inventories.getTeamRedSelector().build().getType())) {
+						player.chat("/c join red");
+					}
+					if(item.getType().equals(Inventories.getTeamBlueSelector().build().getType())) {
+						player.chat("/c join blue");
+					}
 					player.closeInventory();
-				}
-				if(item.getType() == AdminToolInventory.getAdminEditTeams().getType()) {
-					player.sendMessage(Main.PREFIX + "§7edit teams");
-					//player.closeInventory();
+					event.setCancelled(true);
+					
+				} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(ManageTeamsInventory.getTitle())) {
+					event.setCancelled(true);
+					if(item.getType().equals(Material.PLAYER_HEAD))
+						return;
+					if(item.getType().equals(Material.GRAY_STAINED_GLASS_PANE))
+						return;
+					if(item.containsEnchantment(Enchantment.ARROW_INFINITE))
+						item.removeEnchantment(Enchantment.ARROW_INFINITE);
+					int shift = 0;
+					if(item.equals(Inventories.getTeamBlueSelector().disenchant().build()))
+						shift = 1;
+					else if(item.equals(Inventories.getTeamRedSelector().disenchant().build()))
+						shift = 2;
+					else if(item.getType().equals(Material.COMMAND_BLOCK))
+						shift = 3;
+					Player selectedPlayer = Bukkit.getPlayer(clicked.getItem(slot-shift).getItemMeta().getDisplayName());
+					if(item.equals(Inventories.getTeamBlueSelector().disenchant().build()))
+						/*Bukkit.broadcastMessage(selectedPlayer.getName()+" blue");*/selectedPlayer.chat("/c join blue");
+					else if(item.equals(Inventories.getTeamRedSelector().disenchant().build()))
+						/*Bukkit.broadcastMessage(selectedPlayer.getName()+" red");*/selectedPlayer.chat("/c join red");
+					else if(item.getType().equals(Material.COMMAND_BLOCK))
+						/*Bukkit.broadcastMessage(selectedPlayer.getName()+" random");*/selectedPlayer.chat("/c join random");
 					player.openInventory(ManageTeamsInventory.getInventory());
-				}
-				if(item.getType() == AdminToolInventory.getAdminSelectMap().getType()) {
-					player.closeInventory();
-					player.openInventory(MapSelectInventory.getAdminInventory());		
-				}
-				if(item.getType() == AdminToolInventory.getAdminStartGame().getType()) {
-					player.chat("/c start");
-					player.closeInventory();
-				}
-				event.setCancelled(true);
-				
-			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle(true))) {
-				event.setCancelled(true);
-				if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-					if(item.getType().equals(Material.BARRIER) || item.getType().equals(Material.WHITE_STAINED_GLASS_PANE)) {
-						player.sendMessage(Main.PREFIX+"Diese Welt ist nicht vollständig konfiguriert und kann daher nicht ausgewählt werden");
+					
+				} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getCategorymenutitle())) {
+					event.setCancelled(true);
+					if(item.equals(GameruleSettings.getReset()))
+						Gamerules.reset();
+					GameruleCategory category = GameruleCategory.getCategory(item);
+					if(category == null)
 						return;
-					}
-					player.getOpenInventory().close();
-					player.chat("/c setmap " + item.getItemMeta().getDisplayName());
-				}
-						
-			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MapSelectInventory.getTitle(false))) {
-				event.setCancelled(true);
-				if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-					if(item.getType().equals(Material.BARRIER) || item.getType().equals(Material.WHITE_STAINED_GLASS_PANE)) {
-						player.sendMessage(Main.PREFIX+"Diese Welt ist nicht vollständig konfiguriert und kann daher nicht ausgewählt werden");
+					gameManager.getPlayerProfile(player).setGamerulePage(0);
+					player.openInventory(GameruleSettings.buildInventory(category, player));
+				} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getSettingsmenutitle())) {
+					event.setCancelled(true);
+					if(item.equals(GameruleSettings.getBarrier()) || (item.getType().equals(Material.PAPER) && slot == clicked.getSize()-5))
 						return;
+					if(item.equals(GameruleSettings.getMainMenuItem()))
+						player.openInventory(GameruleSettings.buildCategoryMenu());
+					if(item.equals(GameruleSettings.getLastPageItem()))
+						GameruleSettings.lastPage(player);
+					if(item.equals(GameruleSettings.getNextPageItem()))
+						GameruleSettings.nextPage(player);
+					GameruleCategory category = GameruleCategory.getCategory(clicked);
+					if(ItemBuilder.removeLore(item).equals(ItemBuilder.removeLore(category.getItem()))) {
+						Gamerules.reset(category);
+						player.openInventory(GameruleSettings.buildInventory(category, player));
 					}
-					player.getOpenInventory().close();
-					player.chat("/c votemap " + item.getItemMeta().getDisplayName());
-				}
-						
-			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(MultiToolInventory.getTitle())) {
-				if(item.getType().equals(Inventories.getTeamRedSelector().build().getType())) {
-					player.chat("/c join red");
-				}
-				if(item.getType().equals(Inventories.getTeamBlueSelector().build().getType())) {
-					player.chat("/c join blue");
-				}
-				player.closeInventory();
-				event.setCancelled(true);
-				
-			} else if(player.getOpenInventory().getTitle().equalsIgnoreCase(ManageTeamsInventory.getTitle())) {
-				event.setCancelled(true);
-				if(item.getType().equals(Material.PLAYER_HEAD))
-					return;
-				if(item.getType().equals(Material.GRAY_STAINED_GLASS_PANE))
-					return;
-				if(item.containsEnchantment(Enchantment.ARROW_INFINITE))
-					item.removeEnchantment(Enchantment.ARROW_INFINITE);
-				int shift = 0;
-				if(item.equals(Inventories.getTeamBlueSelector().disenchant().build()))
-					shift = 1;
-				else if(item.equals(Inventories.getTeamRedSelector().disenchant().build()))
-					shift = 2;
-				else if(item.getType().equals(Material.COMMAND_BLOCK))
-					shift = 3;
-				Player selectedPlayer = Bukkit.getPlayer(clicked.getItem(slot-shift).getItemMeta().getDisplayName());
-				if(item.equals(Inventories.getTeamBlueSelector().disenchant().build()))
-					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" blue");*/selectedPlayer.chat("/c join blue");
-				else if(item.equals(Inventories.getTeamRedSelector().disenchant().build()))
-					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" red");*/selectedPlayer.chat("/c join red");
-				else if(item.getType().equals(Material.COMMAND_BLOCK))
-					/*Bukkit.broadcastMessage(selectedPlayer.getName()+" random");*/selectedPlayer.chat("/c join random");
-				player.openInventory(ManageTeamsInventory.getInventory());
-				
-			} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getCategorymenutitle())) {
-				event.setCancelled(true);
-				if(item.equals(GameruleSettings.getReset()))
-					Gamerules.reset();
-				GameruleCategory category = GameruleCategory.getCategory(item);
-				if(category == null)
-					return;
-				gameManager.getPlayerProfile(player).setGamerulePage(0);
-				player.openInventory(GameruleSettings.buildInventory(category, player));
-			} else if(player.getOpenInventory().getTitle().equals(GameruleSettings.getSettingsmenutitle())) {
-				event.setCancelled(true);
-				if(item.equals(GameruleSettings.getBarrier()) || (item.getType().equals(Material.PAPER) && slot == clicked.getSize()-5))
-					return;
-				if(item.equals(GameruleSettings.getMainMenuItem()))
-					player.openInventory(GameruleSettings.buildCategoryMenu());
-				if(item.equals(GameruleSettings.getLastPageItem()))
-					GameruleSettings.lastPage(player);
-				if(item.equals(GameruleSettings.getNextPageItem()))
-					GameruleSettings.nextPage(player);
-				GameruleCategory category = GameruleCategory.getCategory(clicked);
-				if(ItemBuilder.removeLore(item).equals(ItemBuilder.removeLore(category.getItem()))) {
-					Gamerules.reset(category);
-					player.openInventory(GameruleSettings.buildInventory(category, player));
-				}
-				GameruleSetting setting = Gamerules.getGameruleSetting(item);
-				if(setting != null) {
-					setting.nextItem();
-					player.openInventory(GameruleSettings.buildInventory(category, player));
-				}
-				if(!item.equals(GameruleSettings.getDisable()) && !item.equals(GameruleSettings.getEnable()))
-					return;
-				int shift;
-				if(GameruleSettings.getUiMode() && item.equals(GameruleSettings.getDisable()))
-					shift = 1;
-				else
-					shift = -1;
-				setting = Gamerules.getGameruleSetting(player.getOpenInventory().getItem(slot+shift));
-				if(GameruleSettings.getUiMode()) {
-					if(item.equals(GameruleSettings.getDisable()))
-						Gamerules.setGameruleSetting(setting, false);
+					GameruleSetting setting = Gamerules.getGameruleSetting(item);
+					if(setting != null) {
+						setting.nextItem();
+						player.openInventory(GameruleSettings.buildInventory(category, player));
+					}
+					if(!item.equals(GameruleSettings.getDisable()) && !item.equals(GameruleSettings.getEnable()))
+						return;
+					int shift;
+					if(GameruleSettings.getUiMode() && item.equals(GameruleSettings.getDisable()))
+						shift = 1;
 					else
-						Gamerules.setGameruleSetting(setting, true);
-				} else
-					Gamerules.setGameruleSetting(setting, !setting.getValue());//gameruleSetting.switchValue();
-				player.openInventory(GameruleSettings.buildInventory(category, player));
+						shift = -1;
+					setting = Gamerules.getGameruleSetting(player.getOpenInventory().getItem(slot+shift));
+					if(GameruleSettings.getUiMode()) {
+						if(item.equals(GameruleSettings.getDisable()))
+							Gamerules.setGameruleSetting(setting, false);
+						else
+							Gamerules.setGameruleSetting(setting, true);
+					} else
+						Gamerules.setGameruleSetting(setting, !setting.getValue());//gameruleSetting.switchValue();
+					player.openInventory(GameruleSettings.buildInventory(category, player));
+					}
+				}
 			}
+		if(!gameManager.getCurrentGameState().equals(GameState.INGAME_STATE)) {
+			if(player.getOpenInventory().getTitle().equalsIgnoreCase(ActionBlockInventory.getTitle())) {
+				for(SpecialItemDrop specialItem : SpecialItemDrop.getSpecialItems()) {
+					if(specialItem.getName().equals(item.getItemMeta().getDisplayName())) { 
+						if(playerProfile.getEditActionBlock() != null) {
+							ActionBlock actionBlock = playerProfile.getEditActionBlock();
+							if(actionBlock.getItems().contains(SpecialItemDrop.getItemByName(specialItem.getName()))) {
+								actionBlock.removeSpecialItem(specialItem);
+								player.getOpenInventory().setItem(event.getSlot(), new ItemBuilder(item.getType()).setName(specialItem.getName()).setLore("§7aktiviert").addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
+							} else {
+								actionBlock.addSpecialItem(specialItem);
+								player.getOpenInventory().setItem(event.getSlot(), new ItemBuilder(item.getType()).setName(specialItem.getName()).setLore("§7deaktiviert").build());
+							}
+						}
+					}
+				}
+			}			
 		}
 		/*Bukkit.broadcastMessage(player.getInventory().toString());
 		//Bukkit.broadcastMessage(player.getOpenInventory().toString());

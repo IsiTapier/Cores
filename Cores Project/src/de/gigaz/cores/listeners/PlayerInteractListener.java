@@ -199,6 +199,7 @@ public class PlayerInteractListener implements Listener {
 			if(event.getClickedBlock().getType().equals(ActionBlock.ACTION_BLOCK_MATERIAL)) {
 				for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
 					if(actionBlock.getLocation().equals(block.getLocation())) {
+						playerProfile.setEditActionBlock(actionBlock);
 						player.openInventory(ActionBlockInventory.getInventory(actionBlock));
 						break;
 					}

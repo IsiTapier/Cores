@@ -304,6 +304,15 @@ public class GameManager {
 		}
 		return output;
 	}
+	
+	public ActionBlock getActionBlock(Location location) {
+		for(ActionBlock actionBlock : getActionBlocks()) {
+			if(actionBlock.getLocation().equals(location)) {
+				return actionBlock;
+			}
+		}
+		return null;
+	}
 
 	public ArrayList<ActionBlock> getActionBlocks() {
 		return actionBlocks;

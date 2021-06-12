@@ -18,6 +18,7 @@ import de.gigaz.cores.util.inventory.InventoryClass;
 import de.gigaz.cores.commands.MainCommand;
 import de.gigaz.cores.inventories.IngameInventory;
 import de.gigaz.cores.main.Main;
+import de.gigaz.cores.special.ActionBlock;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
@@ -38,6 +39,7 @@ public class PlayerProfile {
 	private InventoryClass normalInventory = IngameInventory.getInventory(team);
 	private Integer coreRepairing;
 	private int gamerulePage;
+	private ActionBlock editActionBlock;
 	
 
 	public PlayerProfile(Player player) {
@@ -308,6 +310,14 @@ public class PlayerProfile {
 	
 	public String getInventoryName() {
 		return normalInventory.getTitle();
+	}
+
+	public ActionBlock getEditActionBlock() {
+		return editActionBlock;
+	}
+
+	public void setEditActionBlock(ActionBlock editActionBlock) {
+		this.editActionBlock = editActionBlock;
 	}
 
 	private void addPotionEffects() {
