@@ -17,25 +17,29 @@ public class SpecialItemManager {
     private int loopCount = 0;
 
     public SpecialItemManager() {
-        gameManager = Main.getPlugin().getGameManager();
-       // itemSpawnLoop();
+       gameManager = Main.getPlugin().getGameManager();
+       itemSpawnLoop();
     }
 
     private void itemSpawnLoop() {
+    	Bukkit.broadcastMessage("special items loop start");
+    	
         scheduleID = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(), new Runnable() {
             
             @Override
             public void run() {                
-                for(ActionBlock actionBlock : gameManager.getActionBlocks(gameManager.getMap())) {
-                    for(SpecialItemDrop item : actionBlock.getItems()) {
-                        if(item.isActive()) {
-                            if(loopCount%item.getSpawnInterval() == 0) {
+                for(ActionBlock actionBlock : gameManager.getActionBlocks(gameManager.getMap())) { //Error
+                    for(SpecialItemDrop specialItem : actionBlock.getItems()) {
+                        if(specialItem.isActive()) {
+                        	//Bukkit.broadcastMessage("active item - " + specialItem.getName());
+                            if(loopCount%specialItem.getSpawnInterval() == 0) {
                                 if(loopCount == 0) {
-                                    if(item.isSpawningAtStart()) {
-                                        item.spawnItem(actionBlock.getLocation());
+                                    if(specialItem.isSpawningAtStart()) {
+                                    	specialItem.spawnItem(actionBlock.getLocation());
                                     }
                                 } else {
-                                    item.spawnItem(actionBlock.getLocation());
+                                	//Bukkit.broadcastMessage("spawned - " + specialItem.getName());
+                                	specialItem.spawnItem(actionBlock.getLocation());
                                 }                     
                             }
                         }      
@@ -43,18 +47,26 @@ public class SpecialItemManager {
                 }
                 for(SpecialItemDrop item : SpecialItemDrop.getSpecialItems()) {
                     if(item.isActive()) {
-                        int modulus = loopCount%item.getSpawnInterval();
-                        if(modulus == 0) {
-                            if(loopCount == 0) {
-                                if(item.isSpawningAtStart()) 
-                                    item.broadcastMessage();      
-                            } else {
-                                item.broadcastMessage();
-                            }    
-                        } else if(modulus == Math.round(item.getSpawnInterval()/2)) {
-                            Bukkit.broadcastMessage(Main.PREFIX + item.getName() + "§7 spawned in §6" + (item.getSpawnInterval() - modulus) + "§7 Sekunden");
-                        }
-
+                    	boolean AnyActionBlockContainsItem = false;
+                    	for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
+                    		if(actionBlock.getItems().contains(item)) {
+                    			AnyActionBlockContainsItem = true;
+                    			break;
+                    		}
+                    	}
+                    	if(AnyActionBlockContainsItem) {
+                    		int modulus = loopCount%item.getSpawnInterval();
+                            if(modulus == 0) {
+                                if(loopCount == 0) {
+                                    if(item.isSpawningAtStart()) 
+                                        item.broadcastMessage();      
+                                } else {
+                                    item.broadcastMessage();
+                                }    
+                            } else if(modulus == Math.round(item.getSpawnInterval()/2)) {
+                                Bukkit.broadcastMessage(Main.PREFIX + item.getName() + "§7 spawned in §6" + (item.getSpawnInterval() - modulus) + "§7 Sekunden");
+                            }
+                    	}
                     }
                 }
                 loopCount++;   

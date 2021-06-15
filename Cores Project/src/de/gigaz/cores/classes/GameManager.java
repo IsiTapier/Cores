@@ -375,11 +375,11 @@ public class GameManager {
 	}
 	
 	public boolean checkProtection(Location location, boolean exceptCore, boolean exceptMap) {
-		return checkSpawnProtection(location) || checkCoreProtection(location, exceptCore) || (checkMapProtection(location) && !exceptMap);
+		return checkSpawnProtection(location) || checkCoreProtection(location, exceptCore) || checkActionBlockProtection(location) || (checkMapProtection(location) && !exceptMap);
 	}
 	
 	public boolean checkProtection(Location location, boolean exceptCore) {
-		return checkSpawnProtection(location) || checkCoreProtection(location, exceptCore) || checkMapProtection(location);
+		return checkSpawnProtection(location) || checkActionBlockProtection(location) || checkCoreProtection(location, exceptCore) || checkMapProtection(location) ;
 	}
 	
 	public boolean checkMapProtection(Location location) {
@@ -389,6 +389,19 @@ public class GameManager {
 	public boolean checkSpawnProtection(Location location) {
 		int radius = Gamerules.getValue(Gamerules.spawnProtection, true);
 		return checkBlockProtection(location, getSpawnOfTeam(Team.BLUE, getMap()), radius) || checkBlockProtection(location, getSpawnOfTeam(Team.RED, getMap()), radius);
+	}
+	
+	public boolean checkActionBlockProtection(Location location) {
+		for(ActionBlock actionBlock : getActionBlocks()) {
+			Location actionBlockLocation = actionBlock.getLocation();
+			Location checkLocation = location.clone();
+			Bukkit.broadcastMessage("World 1" + location.getWorld().getName() + " World 2"  + actionBlockLocation.getWorld().getName());
+			checkLocation.add(0, -1, 0);
+			if(checkLocation.equals(actionBlockLocation)) {
+				return true;
+			}		
+		}
+		return false;
 	}
 
 	public boolean checkCoreProtection(Location location, boolean exceptCore) {
@@ -403,6 +416,7 @@ public class GameManager {
 			if((location.getBlock().getType().equals(Material.BLUE_STAINED_GLASS)&&core.getTeam().equals(Team.BLUE)||location.getBlock().getType().equals(Material.RED_STAINED_GLASS)&&core.getTeam().equals(Team.RED))&&location.getZ()==core.getLocation().getZ()&&location.getX()==core.getLocation().getX())
 				return true;
 		}
+		
 		return false;
 		//TODO check iron and glass
 	}
@@ -411,8 +425,8 @@ public class GameManager {
 		if(radius <= 0 || height < 0) return false;
 		if(Math.abs(protect.getY() - location.getY()) > height) return false;
 		location = new Location(location.getWorld(), location.getX(), protect.getY(), location.getZ());
-		if(protect.distance(location) < radius) return true;
-		else return false;
+		if(protect.distance(location) < radius)  return true;			
+		return false;
 	}
 	
 	public boolean checkBlockProtection(Location location, Location protect, int radius) {
@@ -421,6 +435,15 @@ public class GameManager {
 
 	public void setGameState(GameState gameState) {
 		this.currentGameState = gameState;
+	}
+	
+	public Location getCorrectedLocation(Location location) {
+		Location output = location.clone();
+		if(getMap() != null) {
+			output.setWorld(getCopiedWorld());
+		}
+		return output;
+		
 	}
 	
 	public PlayerProfile getPlayerProfile(Player player) {

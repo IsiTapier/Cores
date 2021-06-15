@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="C:/Users/Isajah Tappe/Desktop/testserver/plugins/cores.jar"/>
+    <jar path="C:/Users/willi/Documents/Development/minecraft_server/1.16.5 Cores/plugins/Cores.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/Cores Project/coresExport.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>

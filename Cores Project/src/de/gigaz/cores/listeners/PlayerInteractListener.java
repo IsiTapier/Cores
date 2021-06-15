@@ -198,19 +198,22 @@ public class PlayerInteractListener implements Listener {
 			    
 			if(!playerProfile.isEditMode())
 				event.setCancelled(true);
+			
+			if(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {			
+				if(event.getClickedBlock().getType().equals(ActionBlock.ACTION_BLOCK_MATERIAL)) {
+					event.setCancelled(true);
+					for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
+						if(actionBlock.getLocation().equals(block.getLocation())) {
+							playerProfile.setEditActionBlock(actionBlock);
+							player.openInventory(ActionBlockInventory.getInventory(actionBlock));
+							break;
+						}
+					}
+					
+				}
+			}
 		
 		}
-		if(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {			
-			if(event.getClickedBlock().getType().equals(ActionBlock.ACTION_BLOCK_MATERIAL)) {
-				for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
-					if(actionBlock.getLocation().equals(block.getLocation())) {
-						playerProfile.setEditActionBlock(actionBlock);
-						player.openInventory(ActionBlockInventory.getInventory(actionBlock));
-						break;
-					}
-				}
-				
-			}
-		}
+		
 	}
 }

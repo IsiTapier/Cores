@@ -19,6 +19,7 @@ import de.gigaz.cores.util.Gamerules;
 import de.gigaz.cores.util.Inventories;
 import de.gigaz.cores.util.ScoreboardManager;
 import de.gigaz.cores.util.Team;
+import de.gigaz.cores.special.ActionBlock;
 import de.gigaz.cores.special.SpecialItemManager;
 
 public class IngameState {
@@ -30,6 +31,8 @@ public class IngameState {
 		gameManager = Main.getPlugin().getGameManager();
 		gameManager.setGameState(GameState.INGAME_STATE);
 		gameManager.stockCores();
+		specifyActionBlockWorld();
+		
 		ScoreboardManager.drawAll();
 		if(Gamerules.getValue(Gamerules.autoTeam, true)>=1)
 			gameManager.setTeams();
@@ -81,6 +84,10 @@ public class IngameState {
 		playerProfile.getPlayer().setGameMode(GameMode.SURVIVAL);
 	}
 	
-
+	public static void specifyActionBlockWorld() {
+		for(ActionBlock actionBlock : gameManager.getActionBlocks()) {
+			actionBlock.getLocation().setWorld(gameManager.getCopiedWorld());
+		}
+	}
 	
 }

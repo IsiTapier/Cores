@@ -16,49 +16,48 @@ import de.gigaz.cores.util.ItemBuilder;
 
 public class SpecialItemDrop {
     
+	
+	// INFO: If you change the contentent of this arraylist, be aware to manually remove the actionBlock section in the config afterwards
     public static ArrayList<SpecialItemDrop> specialItems = new ArrayList<SpecialItemDrop>() {{
-    	add(new SpecialItemDrop("§cUltra Stone", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
-        add(new SpecialItemDrop("§aMagic Glowstone", new ItemBuilder(Material.GLOWSTONE).build(), 10, Gamerules.getGameruleSetting(Gamerules.armor), true));
-        add(new SpecialItemDrop("§ctest2", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
-        add(new SpecialItemDrop("§atest3", new ItemBuilder(Material.GLOWSTONE).build(), 10, Gamerules.getGameruleSetting(Gamerules.armor), true));
-        add(new SpecialItemDrop("§ctest4", new ItemBuilder(Material.STONE).build(), 5, Gamerules.getGameruleSetting(Gamerules.aqua), false));
-        add(new SpecialItemDrop("§atest5", new ItemBuilder(Material.GLOWSTONE).build(), 10, Gamerules.getGameruleSetting(Gamerules.armor), true));
+    	add(new SpecialItemDrop("§dRepair-Item", new ItemBuilder(Material.END_CRYSTAL).build(), 200, Gamerules.getGameruleValue(Gamerules.repairCore), false));
+        add(new SpecialItemDrop("§6Kartoffel", new ItemBuilder(Material.POTATO).build(), 20, true, true));
+        add(new SpecialItemDrop("§3Diamante", new ItemBuilder(Material.DIAMOND).build(), 400, true, true));
     }};
 
     private GameManager gameManager = Main.getPlugin().getGameManager();
     private ItemStack item;
     private String broadcastMessage;
     private int spawnInterval;
-    private GameruleSetting gamerule; 
+    private boolean isActive; 
     private boolean isSpawningAtStart;
     private String name;
 
-    public SpecialItemDrop(String name, ItemStack item, int spawnInterval, GameruleSetting gamerule, boolean isSpawningAtStart, String broadcastMessage) {
+    public SpecialItemDrop(String name, ItemStack item, int spawnInterval, boolean isActive, boolean isSpawningAtStart, String broadcastMessage) {
         this.item = item;
         this.name = name;
         this.spawnInterval = spawnInterval;
-        this.gamerule = gamerule;
+        this.isActive = isActive;
         this.broadcastMessage = broadcastMessage;
         this.isSpawningAtStart = isSpawningAtStart;
     }
 
-    public SpecialItemDrop(String name, ItemStack item, int spawnInterval, GameruleSetting gamerule, boolean isSpawningAtStart) {
+    public SpecialItemDrop(String name, ItemStack item, int spawnInterval, boolean isActive, boolean isSpawningAtStart) {
         this.item = item;
         this.spawnInterval = spawnInterval;
-        this.gamerule = gamerule;
+        this.isActive = isActive;
         this.isSpawningAtStart = isSpawningAtStart;
         this.broadcastMessage = "";
         this.name = name;
     }
 
     public void spawnItem(Location location) {
-        
+        Bukkit.broadcastMessage(location.getWorld() + "");
         gameManager.getCopiedWorld().dropItemNaturally(location, item);      
     }
 
     public void broadcastMessage() {
-        if(broadcastMessage != "") {
-            Bukkit.broadcastMessage(Main.PREFIX + "§k§8--§r§7" + name + "§k§8--§r§7" + "§7 ist gespawned");
+        if(broadcastMessage == "") {
+            Bukkit.broadcastMessage(Main.PREFIX + "§8§k--§r§7" + name + "§8§k--§r§7" + "§7 ist gespawned");
         }
     }
 
@@ -73,16 +72,12 @@ public class SpecialItemDrop {
     public int getSpawnInterval() {
         return spawnInterval;
     }
-
-    public GameruleSetting getGamerule() {
-        return gamerule;
-    }
-
-    public boolean isActive() {
-        return gamerule.getValue();
-    }
     
-    public boolean isSpawningAtStart() {
+    public boolean isActive() {
+		return isActive;
+	}
+
+	public boolean isSpawningAtStart() {
         return isSpawningAtStart;
     }
 
