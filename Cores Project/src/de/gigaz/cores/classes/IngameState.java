@@ -31,7 +31,7 @@ public class IngameState {
 		gameManager.setGameState(GameState.INGAME_STATE);
 		gameManager.stockCores();
 		ScoreboardManager.drawAll();
-		if(Gamerules.getValue(Gamerules.autoTeam))
+		if(Gamerules.getValue(Gamerules.autoTeam, true)>=1)
 			gameManager.setTeams();
 		if(Gamerules.getValue(Gamerules.night))
 			Main.getPlugin().getWorld("currentworld").setTime(18000);

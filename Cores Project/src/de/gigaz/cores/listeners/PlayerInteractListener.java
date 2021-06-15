@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.Beacon;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -54,7 +55,6 @@ public class PlayerInteractListener implements Listener {
 	
 	@EventHandler
 	public void onInventoryInteract(PlayerInteractEvent event) {
-
 		Player player = event.getPlayer();
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
@@ -63,8 +63,10 @@ public class PlayerInteractListener implements Listener {
 		if(Main.getPlugin().getGameManager().getCurrentGameState() == GameState.INGAME_STATE) {
 			if(player.getWorld().equals(Main.getPlugin().getWorld(Main.COPIED_WORLD_NAME))) {
 				if(event.getAction().equals(Action.LEFT_CLICK_BLOCK)) {
+					if(block == null)
+						return;
 					if(block.getType().equals(Material.BEACON) && Gamerules.getValue(Gamerules.miningFatique))
-						player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, 0, false, false, false));
+						player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, Integer.MAX_VALUE, Gamerules.getValue(Gamerules.miningFatique, true)-1, false, false, false));
 					else
 						player.removePotionEffect(PotionEffectType.SLOW_DIGGING);
 				} else if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -81,7 +83,10 @@ public class PlayerInteractListener implements Listener {
 		            	Entity skull = player.getWorld().spawn(player.getLocation().add(x, 1.62, z), WitherSkull.class);
 		            	skull.setVelocity(player.getLocation().getDirection().multiply(2));
 		            }
-				
+		            if(block == null)
+						return;
+		            if(block.getType().equals(Material.BEACON))
+		            	event.setCancelled(true);
 				} else
 	                
 	                if(player.getInventory().getItemInMainHand().getType().equals(Material.NETHERITE_HOE)) {

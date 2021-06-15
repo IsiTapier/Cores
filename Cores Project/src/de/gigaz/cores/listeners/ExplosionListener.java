@@ -3,6 +3,7 @@ package de.gigaz.cores.listeners;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,14 +22,18 @@ public class ExplosionListener implements Listener {
 	
 	@EventHandler
 	public void onEntityExplodeEvent(EntityExplodeEvent event) {
+		GameManager gameManager = Main.getPlugin().getGameManager();
 		if(Main.getPlugin().getGameManager().getCurrentGameState().equals(GameState.INGAME_STATE)) {
 			for(Block block : event.blockList())
-				if(Main.getPlugin().getGameManager().getCore(block.getLocation())!=null) {
-					block.setType(Material.AIR);
+				if(gameManager.checkProtection(block)) {
+					Material type = block.getType();
+					BlockData data = block.getBlockData();
+					block.setType(Material.BEDROCK);
 					Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getPlugin(), new Runnable() {
 						@Override
 						public void run() {
-							block.setType(Material.BEACON);
+							block.setType(type);
+							block.setBlockData(data);
 						}}, 1L);
 				}
 		} else {

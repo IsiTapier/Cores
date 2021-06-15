@@ -5,6 +5,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Bisected.Half;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -17,10 +20,34 @@ import de.gigaz.cores.classes.PlayerProfile;
 import de.gigaz.cores.main.Main;
 import de.gigaz.cores.util.GameState;
 import de.gigaz.cores.util.Gamerules;
+import de.gigaz.cores.util.Team;
 
 public class BuildBlockListener implements Listener {
 	
 	private final int instantWallTime = 5;
+	
+	public static void buildBlock(Location location, PlayerProfile player, Material material) {
+		GameManager gameManager = Main.getPlugin().getGameManager();
+		Block block = location.getBlock();
+		if(material!=null)
+			block.setType(material);
+		if(!gameManager.checkBeaconView(location)) {
+			if(player.getTeam().equals(Team.BLUE))
+				block.setType(Material.WARPED_STAIRS);
+			else if(player.getTeam().equals(Team.RED))
+				block.setType(Material.CRIMSON_STAIRS);
+			else
+				block.setType(Material.OAK_STAIRS);
+			Stairs stairs = (Stairs) block.getBlockData();
+			stairs.setHalf(Half.TOP);
+			block.setBlockData(stairs);
+		}
+		gameManager.addBuildBlock(block);
+	}
+	
+	public static void buildBlock(Location location, PlayerProfile player) {
+		buildBlock(location, player, null);
+	}
 	
 	@EventHandler
 	public void onBuild(BlockPlaceEvent event) {
@@ -30,7 +57,6 @@ public class BuildBlockListener implements Listener {
 		World world = location.getWorld();
 		Player player = event.getPlayer();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
-		
 		if(gameManager.getCurrentGameState() != GameState.INGAME_STATE || !world.equals(gameManager.getCopiedWorld())) {
 			//BauProtection via Edit Mode
 			if(!playerProfile.isEditMode()) {
@@ -39,7 +65,7 @@ public class BuildBlockListener implements Listener {
 			} 
 		} else {
 			if(!playerProfile.isEditMode()) {
-				if((gameManager.checkCoreProtection(location) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(location) && Gamerules.getValue(Gamerules.spawnProtection))) {
+				if(gameManager.checkProtection(location, false, true)) {
 					event.setCancelled(true);
 					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke bauen");
 				}
@@ -54,7 +80,7 @@ public class BuildBlockListener implements Listener {
 								newlocation.setX(newlocation.getX()+x);
 							else
 								newlocation.setZ(newlocation.getZ()+x);
-							if(newlocation.getBlock().getType().equals(Material.AIR) && !((gameManager.checkCoreProtection(newlocation) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(newlocation) && Gamerules.getValue(Gamerules.spawnProtection))))
+							if(newlocation.getBlock().getType().equals(Material.AIR) && !gameManager.checkProtection(newlocation))
 								newlocation.getBlock().setType(Material.LIGHT_BLUE_STAINED_GLASS);
 						}
 					}
@@ -85,6 +111,8 @@ public class BuildBlockListener implements Listener {
 					tnt.setGravity(false);
 					tnt.setVelocity(new Vector(0, 0, 0));
 				}
+				if(!event.isCancelled())
+					buildBlock(location, playerProfile);
 			} else {
 				player.sendMessage("§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + world.getName());
 			}

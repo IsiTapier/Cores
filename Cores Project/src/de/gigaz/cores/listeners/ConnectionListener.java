@@ -25,11 +25,10 @@ public class ConnectionListener implements Listener {
 		GameManager gameManager = Main.getPlugin().getGameManager();
 		PlayerProfile playerProfile = gameManager.getPlayerProfile(player);
 		event.setJoinMessage(Main.PREFIX + "§7§l" + player.getName() + "§r§7 ist dem Spiel §abeigetreten");
-		ScoreboardManager.drawAll();
 		if(playerProfile == null) {
 			gameManager.addPlayer(player);
 			playerProfile = gameManager.getPlayerProfile(player);
-			if(Gamerules.getValue(Gamerules.autoTeam)) {
+			if(gameManager.getCurrentGameState().equals(GameState.INGAME_STATE) && Gamerules.getValue(Gamerules.autoTeam, true)>=2) {
 				gameManager.autoTeam(playerProfile);
 				ScoreboardManager.draw(playerProfile.getPlayer());
 				IngameState.teleportPlayer(playerProfile);
@@ -55,6 +54,7 @@ public class ConnectionListener implements Listener {
 				Inventories.setLobbyInventory(playerProfile);
 			}
 		}
+		ScoreboardManager.drawAll();
 		
 	}
 	

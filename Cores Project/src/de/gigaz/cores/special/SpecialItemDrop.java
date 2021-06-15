@@ -52,6 +52,7 @@ public class SpecialItemDrop {
     }
 
     public void spawnItem(Location location) {
+        
         gameManager.getCopiedWorld().dropItemNaturally(location, item);      
     }
 

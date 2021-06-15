@@ -37,10 +37,11 @@ public class BreakBlockListener implements Listener {
 		if(gameManager.getCurrentGameState() == GameState.INGAME_STATE && player.getWorld().equals(world)) {
 			if(!playerProfile.isEditMode()) {
 				//gameManager.getBreakedBlocks().put(location, event.getBlock().getType());
-				if((gameManager.checkCoreProtection(location) && Gamerules.getValue(Gamerules.coreProtection)) || (gameManager.checkSpawnProtection(location) && Gamerules.getValue(Gamerules.spawnProtection))) {
+				if(gameManager.checkProtection(location, true)) {
 					event.setCancelled(true);
 					player.sendMessage(Main.PREFIX + "§7Du darfst hier §ckeine §7Blöcke abbauen");
-				}
+				} else
+					gameManager.removeBuildBlock(block);
 			} else {
 				player.sendMessage(Main.PREFIX + "§8[§7Hinweis§8] §7Du bearbeitest gerade die Map: §6" + player.getWorld());
 			}

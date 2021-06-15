@@ -187,15 +187,17 @@ public class InventoryClickListener implements Listener {
 							ActionBlock actionBlock = playerProfile.getEditActionBlock();
 							if(actionBlock.getItems().contains(SpecialItemDrop.getItemByName(specialItem.getName()))) {
 								actionBlock.removeSpecialItem(specialItem);
-								player.getOpenInventory().setItem(event.getSlot(), new ItemBuilder(item.getType()).setName(specialItem.getName()).setLore("§7aktiviert").addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
+								player.getOpenInventory().setItem(slot, new ItemBuilder(item.getType()).setName(specialItem.getName()).setLore("§7aktiviert").build());
 							} else {
 								actionBlock.addSpecialItem(specialItem);
-								player.getOpenInventory().setItem(event.getSlot(), new ItemBuilder(item.getType()).setName(specialItem.getName()).setLore("§7deaktiviert").build());
+								player.getOpenInventory().setItem(slot, new ItemBuilder(item.getType()).setName(specialItem.getName()).setLore("§7deaktiviert").addEnchantment(Enchantment.ARROW_INFINITE, 10).build());
 							}
 						}
 					}
 				}
-			}			
+				event.setCancelled(true);
+			}	
+
 		}
 		/*Bukkit.broadcastMessage(player.getInventory().toString());
 		//Bukkit.broadcastMessage(player.getOpenInventory().toString());

@@ -327,11 +327,11 @@ public class PlayerProfile {
 			player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
 		}
 		if(Gamerules.getValue(Gamerules.haste))
-			player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 2, false, false, false));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, Gamerules.getValue(Gamerules.haste, true)-(Gamerules.getValue(Gamerules.haste, true)<4?1:Gamerules.getValue(Gamerules.haste, true)<5?0:-1), false, false, false));
 		if(Gamerules.getValue(Gamerules.jumpboost))
-			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 1, false, false, false));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, Gamerules.getValue(Gamerules.jumpboost, true)-(Gamerules.getValue(Gamerules.jumpboost, true)<4?1:0), false, false, false));
 		if(Gamerules.getValue(Gamerules.speed))
-			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, false, false, false));
+			player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, Gamerules.getValue(Gamerules.speed, true)-(Gamerules.getValue(Gamerules.speed, true)<4?1:0), false, false, false));
 		if(Gamerules.getValue(Gamerules.invisibility))
 			player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, Integer.MAX_VALUE, false, false, false));
 		if(Gamerules.getValue(Gamerules.glowing))

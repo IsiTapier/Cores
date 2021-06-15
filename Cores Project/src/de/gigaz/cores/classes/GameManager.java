@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -40,16 +41,13 @@ public class GameManager {
 	private EndingState endingState;
 	private SpecialItemManager specialItemManager;
 	
-	private int blockProtectionRadius = 3;
-	private int blockProtectionHeight = 3;
-	
 	private World map;
 	private World lastMap;
 	private World configureMap;
 	private ArrayList<Core> cores = new ArrayList<Core>();
 	private ArrayList<Core> stockedCores = new ArrayList<Core>();
 	private ArrayList<ActionBlock> actionBlocks = new ArrayList<ActionBlock>();
-	
+	private ArrayList<Block> buildBlocks = new ArrayList<Block>();
 	
 	public GameManager() {
 		//new LobbyState();
@@ -360,26 +358,65 @@ public class GameManager {
 		return currentGameState;
 	}
 	
-	public boolean checkSpawnProtection(Location location) {
-		return checkBlockProtection(location, getSpawnOfTeam(Team.BLUE, getMap())) || checkBlockProtection(location, getSpawnOfTeam(Team.RED, getMap()));
-	}
-
-	public boolean checkCoreProtection(Location location) {
+	public boolean checkBeaconView(Location location) {
+		location = location.getBlock().getLocation();
 		for(Core core : getCores())
-			if(location.equals(core.getLocation()))
+			if(location.getBlock().getType().isSolid()&&location.getZ()==core.getLocation().getZ()&&location.getX()==core.getLocation().getX()&&location.getY()>core.getLocation().getY())
 				return false;
-		for(Core core : getCores())
-			if(checkBlockProtection(location, core.getLocation()))
-				return true;
-		return false;
+		return true;
 	}
 	
-	public boolean checkBlockProtection(Location location, Location protect) {
-		if(protect.getY() - location.getY() < -blockProtectionHeight) return false;
-		if(protect.getY() - location.getY() > blockProtectionHeight) return false;;
+	public boolean checkProtection(Block block) {
+		return checkProtection(block.getLocation());
+	}
+	
+	public boolean checkProtection(Location location) {
+		return checkProtection(location, false);
+	}
+	
+	public boolean checkProtection(Location location, boolean exceptCore, boolean exceptMap) {
+		return checkSpawnProtection(location) || checkCoreProtection(location, exceptCore) || (checkMapProtection(location) && !exceptMap);
+	}
+	
+	public boolean checkProtection(Location location, boolean exceptCore) {
+		return checkSpawnProtection(location) || checkCoreProtection(location, exceptCore) || checkMapProtection(location);
+	}
+	
+	public boolean checkMapProtection(Location location) {
+		return Gamerules.getValue(Gamerules.mapProtection) && !buildBlocks.contains(location.getBlock()) && !location.getBlock().getType().equals(Material.IRON_BLOCK) && !location.getBlock().getType().equals(Material.DIAMOND_BLOCK);
+	}
+	
+	public boolean checkSpawnProtection(Location location) {
+		int radius = Gamerules.getValue(Gamerules.spawnProtection, true);
+		return checkBlockProtection(location, getSpawnOfTeam(Team.BLUE, getMap()), radius) || checkBlockProtection(location, getSpawnOfTeam(Team.RED, getMap()), radius);
+	}
+
+	public boolean checkCoreProtection(Location location, boolean exceptCore) {
+		for(Core core : getCores())
+			if(location.equals(core.getLocation()) && exceptCore)
+				return false;
+		for(Core core : getCores()) {
+			if(checkBlockProtection(location, core.getLocation(), Math.max(Gamerules.getValue(Gamerules.coreProtection, true), 1), Gamerules.getValue(Gamerules.coreProtection, true)))
+				return true;
+			if(location.getBlock().getType().equals(Material.IRON_BLOCK)&&location.getY()+1==core.getLocation().getY()&&Math.abs(location.getX()-core.getLocation().getX())<=1&&Math.abs(location.getZ()-core.getLocation().getZ())<=1)
+				return true;
+			if((location.getBlock().getType().equals(Material.BLUE_STAINED_GLASS)&&core.getTeam().equals(Team.BLUE)||location.getBlock().getType().equals(Material.RED_STAINED_GLASS)&&core.getTeam().equals(Team.RED))&&location.getZ()==core.getLocation().getZ()&&location.getX()==core.getLocation().getX())
+				return true;
+		}
+		return false;
+		//TODO check iron and glass
+	}
+	
+	public boolean checkBlockProtection(Location location, Location protect, int radius, int height) {
+		if(radius <= 0 || height < 0) return false;
+		if(Math.abs(protect.getY() - location.getY()) > height) return false;
 		location = new Location(location.getWorld(), location.getX(), protect.getY(), location.getZ());
-		if(protect.distance(location) < blockProtectionRadius) return true;
+		if(protect.distance(location) < radius) return true;
 		else return false;
+	}
+	
+	public boolean checkBlockProtection(Location location, Location protect, int radius) {
+		return checkBlockProtection(location, protect, radius, radius);
 	}
 
 	public void setGameState(GameState gameState) {
@@ -448,14 +485,6 @@ public class GameManager {
 	
 	public Location getSpawnOfTeam(Team team, World world) {
 		return MainCommand.getConfigLocation(team.getDebugColor() + ".spawn", world);
-	}
-	
-	public int getBlockProtectionRadius() {
-		return blockProtectionRadius;
-	}
-
-	public int getBlockProtectionHeight() {
-		return blockProtectionHeight;
 	}
 	
 	public void  playSound(Sound sound, World world, int tone) {
@@ -533,6 +562,18 @@ public class GameManager {
 			if(hight > floorHight)
 				floorHight = hight;
 		return floorHight;
+	}
+	
+	public void addBuildBlock(Block block) {
+		buildBlocks.add(block);
+	}
+	
+	public void removeBuildBlock(Block block) {
+		buildBlocks.remove(block);
+	}
+	
+	public void resetBuildBlocks() {
+		buildBlocks.clear();
 	}
 	
 }
